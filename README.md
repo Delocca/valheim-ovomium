@@ -26,6 +26,15 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
   imposées par le jeu (≈ 1 s entre deux portails d'une même base). Vers une zone non chargée, attend le chargement
   complet de l'aire d'arrivée (zones voisines, objets lointains) plus `SettleSeconds` (1 s). `FadeSeconds` : durée
   de chaque fondu au noir (0,5 s ; 1 s dans le jeu).
+- **MinimapSize** : Shift + touches de zoom de la carte (pavé num + / - par défaut) agrandit / réduit la minicarte
+  du HUD par pas de `Step` (10 %), de 50 % à 300 % ; maintenir la touche répète. La densité terrain / pixel est
+  conservée (le zoom de la carte suit la taille du cadre), les icônes (pins, marqueurs du joueur et du bateau)
+  gardent leur taille et les indicateurs d'état (En forme, Repos, Abri…) sont poussés à gauche de la carte
+  agrandie. La carte grandit vers l'intérieur de l'écran. `Scale` mémorise la taille choisie
+  d'un lancement à l'autre. `MinZoom` (0.0025) permet deux pas de zoom avant de plus qu'en vanilla (0.01, qui est
+  aussi le zoom de départ).
+- **MapZoomToCursor** : sur la grande carte, le zoom (molette, touches de zoom) se fait autour du point sous le
+  curseur au lieu du centre de l'écran. Sans effet à la manette ou au tactile.
 
 ## Prérequis
 

@@ -24,7 +24,12 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   `CookingStation.m_conversion` (cru → cuit), `InventoryGui.OnSelectedItem` / `UpdateItemDrag` (piles :
   à la souris il n'y a pas de drag Unity, « prendre » et « poser » sont deux clics ; avec une pile en main le
   modificateur Shift/Ctrl est ignoré par le jeu et tout dépôt réussi détruit le drag), `Player.UpdateTeleport`
-  (2 s d'attente, déplacement, puis 8 s en dur + `ZNetScene.IsAreaReady`) et `Hud.GetFadeDuration` (fondu 1 s).
+  (2 s d'attente, déplacement, puis 8 s en dur + `ZNetScene.IsAreaReady`), `Hud.GetFadeDuration` (fondu 1 s) et
+  `Minimap.Update` (échelle de `m_smallRoot` via `localScale`, pivot déplacé sur le coin d'ancrage ; les actions
+  `MapZoomIn`/`MapZoomOut` déclenchent aussi le zoom vanilla, neutralisé en restaurant `SmallZoom` mémorisé en Prefix)
+  et `Minimap.UpdateMap` (privée : zoom `LargeZoom` puis `CenterMap(player + m_mapOffset)` qui pose le `uvRect` lu par
+  `ScreenToWorldPoint` ; `m_mapOffset` jamais clampé, modifié par drag souris, stick, tactile et remis à zéro à
+  l'ouverture ; le zoom vers le curseur existe dans le jeu sous `if (false && …)`).
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).
