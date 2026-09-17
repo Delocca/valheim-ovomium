@@ -9,7 +9,9 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 - Aucun outil .NET sur l'hôte : tout passe par l'image podman `ovomiam-build` (`tools/Containerfile`).
 - `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
   directement. Toute autre commande podman ou accès à nuget/mcr/thunderstore échoue dans le bac à sable.
-- Le jeu doit être **relancé complètement** après chaque déploiement (Mono ne recharge pas les DLL).
+- **Ne jamais déployer jeu lancé** (`deploy.sh` refuse) : Mono lit les méthodes à la demande dans le fichier, la DLL
+  remplacée casse les patches pas encore exécutés (`BadImageFormatException: Method has zero rva`, symptôme :
+  raccourcis qui « ne marchent plus »). Relancer le jeu complètement après chaque déploiement.
   Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal
   (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomiam.cfg`, désactivée par défaut).
 
