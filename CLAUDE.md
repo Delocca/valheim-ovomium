@@ -32,7 +32,12 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   `MapZoomIn`/`MapZoomOut` déclenchent aussi le zoom vanilla, neutralisé en restaurant `SmallZoom` mémorisé en Prefix)
   et `Minimap.UpdateMap` (privée : zoom `LargeZoom` puis `CenterMap(player + m_mapOffset)` qui pose le `uvRect` lu par
   `ScreenToWorldPoint` ; `m_mapOffset` jamais clampé, modifié par drag souris, stick, tactile et remis à zéro à
-  l'ouverture ; le zoom vers le curseur existe dans le jeu sous `if (false && …)`).
+  l'ouverture ; le zoom vers le curseur existe dans le jeu sous `if (false && …)`), `FejdStartup.OnSelectWorld(int)` et
+  `ServerListGui.OnSelectedServer(ServerJoinData)` (privées, seules cibles du `onClick` des lignes de liste ; validation
+  par `FejdStartup.OnWorldStart` / `OnJoinStart`, boutons `m_worldStart` / `m_joinGameButton`), et
+  `ZNet.RPC_ClientHandshake` (ouvre `ZNet.m_passwordDialog`, le dialogue de mot de passe serveur ; son champ est un
+  `GuiInputField` de `gui_framework.dll`, non référencé : dérivé de `TMP_InputField`, on passe par ce type).
+  Le champ `FejdStartup.m_serverPassword` (mot de passe d'un monde qu'on héberge) est un autre champ, non traité.
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).

@@ -35,6 +35,11 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
   aussi le zoom de départ).
 - **MapZoomToCursor** : sur la grande carte, le zoom (molette, touches de zoom) se fait autour du point sous le
   curseur au lieu du centre de l'écran. Sans effet à la manette ou au tactile.
+- **MenuDoubleClick** : dans le menu principal, un double-clic sur un monde le démarre et un double-clic sur un
+  serveur (favoris, récents, amis, communauté) s'y connecte — même effet que le bouton Démarrer / Connecter, et
+  seulement si ce bouton est actif (`DoubleClickSeconds`). Sans effet à la manette.
+- **PasswordReveal** : bouton « Afficher / Masquer » dans le champ de mot de passe demandé à la connexion à un
+  serveur ; l'état choisi est mémorisé (`ShowPassword`). Libellés `ShowLabel`, `HideLabel`.
 
 ## Prérequis
 

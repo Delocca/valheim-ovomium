@@ -5,7 +5,9 @@ using OvoMiam.Features.FastPortal;
 using OvoMiam.Features.FoodMarker;
 using OvoMiam.Features.FoodRecipeSort;
 using OvoMiam.Features.MapZoomToCursor;
+using OvoMiam.Features.MenuDoubleClick;
 using OvoMiam.Features.MinimapSize;
+using OvoMiam.Features.PasswordReveal;
 using OvoMiam.Features.RecipeKeyboardNav;
 using OvoMiam.Features.StackDrag;
 
@@ -32,6 +34,8 @@ namespace OvoMiam
             FastPortalConfig.Bind(Config);
             MinimapSizeConfig.Bind(Config);
             MapZoomToCursorConfig.Bind(Config);
+            MenuDoubleClickConfig.Bind(Config);
+            PasswordRevealConfig.Bind(Config);
 
             new Harmony(Guid).PatchAll(typeof(Plugin).Assembly);
             Log.LogInfo($"{Name} {Version} chargé");
