@@ -1,0 +1,9 @@
+bin/
+obj/
+build/
+.claude/settings.local.json
+
+# Caches .NET du conteneur de build (pas de HOME : écrits dans le cwd /src/OvoMiam)
+OvoMiam/.dotnet/
+OvoMiam/.local/
+OvoMiam/.nuget/

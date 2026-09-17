@@ -1,0 +1,35 @@
+# OvoMiam — mod Valheim (BepInEx 5 + Harmony, C#)
+
+Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un agent doit savoir pour travailler ici.
+
+## Environnement
+
+- Jeu : `~/.local/share/Steam/steamapps/common/Valheim`, Valheim **1.0.12**, Unity 6, Mono, Linux natif.
+  BepInExPack_Valheim 5.4.2350 installé (`tools/install-bepinex.sh`). Journal : `BepInEx/LogOutput.log` (lisible).
+- Aucun outil .NET sur l'hôte : tout passe par l'image podman `ovomiam-build` (`tools/Containerfile`).
+- `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
+  directement. Toute autre commande podman ou accès à nuget/mcr/thunderstore échoue dans le bac à sable.
+- Le jeu doit être **relancé complètement** après chaque déploiement (Mono ne recharge pas les DLL).
+  Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal.
+
+## Code du jeu
+
+- Décompilé dans `build/decompiled/` (gitignoré) : `tools/decompile.sh build/decompiled`. À régénérer après
+  une mise à jour du jeu. Types dans le namespace global ; `assembly_valheim.dll` est publicisée dans le csproj
+  (accès direct aux membres privés, ex. `InventoryGui.m_availableRecipes`).
+- Points d'ancrage utilisés : `InventoryGui.UpdateRecipeList` (tri natif : craftable → `Recipe.m_listSortWeight`
+  → SortMethod ; positions posées à la main via `anchoredPosition`), `AddRecipeToList` (nom = `TMP_Text` « name »,
+  rich text), `InventoryGui.Update` (clavier), `CookingStation.m_conversion` (cru → cuit).
+- Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).
+
+## Règles de code
+
+- **Une fonctionnalité = un dossier** `OvoMiam/Features/<Nom>/` avec `<Nom>Config.cs` (ConfigEntry, section
+  du même nom) et `<Nom>Patch.cs`. Le partagé métier va dans `Features/Food/`. `Plugin.cs` ne fait que binder
+  les configs et `PatchAll`.
+- Patches Harmony **toujours avec types d'arguments explicites** (`typeof(...)` ou `new System.Type[0]`) :
+  la 1.0 a ajouté des surcharges, un patch ambigu fait échouer tout le plugin au chargement.
+- `Console` du jeu masque `System.Console` : ne pas importer `System` dans les patches qui l'utilisent.
+- Warnings = erreurs (`TreatWarningsAsErrors`). Version du mod : `Plugin.Version` **et** `<Version>` du csproj.
+- Journal : `Plugin.Log`. Traces de tri en `LogInfo` (une par ouverture de station) ; le niveau Debug
+  n'est pas écrit dans `LogOutput.log` par défaut.
