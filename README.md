@@ -58,8 +58,9 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   relatif à la DLL du mod : `BepInEx/plugins/Ovomium/loading/`, jpg/jpeg/png). Image entière, non déformée, bandes
   noires si le ratio diffère de l'écran. Couvre aussi l'écran « Loading » du menu et la connexion au serveur.
   `HideTeleportAnimation` (oui) masque l'animation vanilla de téléportation pour laisser voir l'artwork. Le jeu n'embarque aucun artwork exploitable : `valheim_art/` du dépôt en
-  est la source, copiée par `tools/deploy.sh`. Pour partager le mod, distribuer le dossier `BepInEx/plugins/Ovomium/`
-  complet (DLL + `loading/`).
+  est la source, copiée par `tools/deploy.sh`. Sans dossier `loading/`, la fonctionnalité est inactive (écrans vanilla).
+  Pour les amies : `tools/package-art.sh` produit `build/dist/Ovomium-loading.zip` (jpg qualité 95, 3840 px max,
+  ~60 Mo), à héberger hors GitHub (artworks Iron Gate) et à décompresser dans `BepInEx/plugins/Ovomium/`.
 - **SettingsMenu** : bouton « Ovomium » sous « Paramètres » dans le menu principal et le menu Échap. Il ouvre la
   fenêtre Paramètres du jeu avec, à la place des onglets vanilla, trois onglets (Cuisine, Interface, Jeu) listant les
   options du mod : bascule pour les oui/non, curseur pour les nombres ; Appliquer écrit le `.cfg`, Retour annule.
@@ -97,6 +98,7 @@ Releases GitHub publiques sur `Delocca/valheim-ovomium` (nom du dépôt à garde
 
 ```
 tools/package.sh                       # → build/dist/Ovomium-<version>-windows.zip (BepInEx inclus, sans artworks)
+tools/package-art.sh [px max]          # → build/dist/Ovomium-loading.zip (artworks jpg 95 %, à héberger hors GitHub)
 tools/release.sh --notes "…"           # build + package + tag v<version> + release avec le zip et l'installateur
 ```
 
