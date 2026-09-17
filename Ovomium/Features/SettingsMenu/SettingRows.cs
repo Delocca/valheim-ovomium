@@ -116,7 +116,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             if (entry is ConfigEntry<bool> boolEntry)
             {
-                var row = Clone(templates.ToggleRow, parent, entry, label);
+                var row = Clone(templates.ToggleRow, parent, entry, label, templates.Tooltip);
                 var toggle = row.GetComponentInChildren<Toggle>(true);
                 if (toggle != null)
                     return new ToggleRow(boolEntry, toggle);
@@ -124,7 +124,7 @@ namespace Ovomium.Features.SettingsMenu
             }
             else if (entry.SettingType == typeof(float) || entry.SettingType == typeof(int))
             {
-                var row = Clone(templates.SliderRow, parent, entry, label);
+                var row = Clone(templates.SliderRow, parent, entry, label, templates.Tooltip);
                 var slider = row.GetComponentInChildren<Slider>(true);
                 if (slider != null)
                     return new SliderRow(entry, slider, FindOrCreateValueText(row.transform, templates));
@@ -136,7 +136,8 @@ namespace Ovomium.Features.SettingsMenu
         }
 
         /// <summary>Conteneur de ligne (pleine largeur, hauteur fixe) contenant le clone du modèle à <see cref="ControlX"/>.</summary>
-        private static GameObject Clone(GameObject template, Transform parent, ConfigEntryBase entry, SettingLabel label)
+        private static GameObject Clone(GameObject template, Transform parent, ConfigEntryBase entry, SettingLabel label,
+            GameObject tooltipPanel)
         {
             var row = new GameObject("Ovomium." + entry.Definition.Section + "." + entry.Definition.Key, typeof(RectTransform));
             row.transform.SetParent(parent, false);
@@ -151,9 +152,21 @@ namespace Ovomium.Features.SettingsMenu
                 text.text = label.Display;
                 PlaceLabel(text.rectTransform);
             }
-            foreach (var tooltip in control.GetComponentsInChildren<SettingsTooltip>(true))
-                tooltip.SetTexts(label.Label, entry.Description.Description);
+            AttachTooltip(control, label, entry, tooltipPanel);
             return row;
+        }
+
+        /// <summary>
+        /// Infobulle vanilla : le clone pointe encore (m_tooltip) sur le panneau de la page Accessibilité, inactive ;
+        /// on le redirige vers notre copie du panneau. Les curseurs n'en ont pas dans le prefab : on en ajoute une.
+        /// </summary>
+        private static void AttachTooltip(GameObject control, SettingLabel label, ConfigEntryBase entry, GameObject panel)
+        {
+            if (panel == null)
+                return;
+            var tooltip = control.GetComponent<SettingsTooltip>() ?? control.AddComponent<SettingsTooltip>();
+            tooltip.m_tooltip = panel;
+            tooltip.SetTexts(label.Label, entry.Description.Description);
         }
 
         private static void PlaceControl(RectTransform rect)

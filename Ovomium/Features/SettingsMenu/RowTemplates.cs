@@ -17,6 +17,8 @@ namespace Ovomium.Features.SettingsMenu
         public string SliderValuePath;
         /// <summary>Texte de référence (police, matériau) pour les en-têtes de section.</summary>
         public TMP_Text LabelSample;
+        /// <summary>Panneau d'infobulle (copie de celui de la page Accessibilité, sous TabContent), null si absent.</summary>
+        public GameObject Tooltip;
 
         public static RowTemplates FromVanilla(Settings settings)
         {
@@ -40,7 +42,24 @@ namespace Ovomium.Features.SettingsMenu
             t.LabelSample = FindLabel(t.ToggleRow.transform);
             if (t.LabelSample == null)
                 Plugin.Log.LogWarning($"SettingsMenu : aucun TMP_Text dans la ligne bascule « {t.ToggleRow.name} »");
+            t.Tooltip = CloneTooltipPanel(page.transform);
             return t;
+        }
+
+        /// <summary>Le panneau « SettingsTooltip » de la page, copié sous le parent des pages (toujours actif), au-dessus d'elles.</summary>
+        private static GameObject CloneTooltipPanel(Transform page)
+        {
+            var panel = page.Find("SettingsTooltip");
+            if (panel == null)
+            {
+                Plugin.Log.LogWarning("SettingsMenu : panneau SettingsTooltip absent de la page Accessibilité, pas d'infobulles");
+                return null;
+            }
+            var clone = Object.Instantiate(panel.gameObject, page.parent);
+            clone.name = "Ovomium.SettingsTooltip";
+            clone.transform.SetAsLastSibling();
+            clone.SetActive(false);
+            return clone;
         }
 
         /// <summary>Remonte du contrôle vers la « ligne » : le plus haut ancêtre (sous la page) ne contenant qu'un seul contrôle.</summary>
