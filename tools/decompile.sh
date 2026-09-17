@@ -1,6 +1,7 @@
 #!/bin/bash
 # Décompile assembly_valheim.dll en projet C# via ilspycmd dans le conteneur ovomiam-build.
-# Usage : tools/decompile.sh [dossier_sortie]   (défaut : $TMPDIR/valheim-decompiled)
+# Usage : tools/decompile.sh [dossier_sortie] [assembly]   (défauts : $TMPDIR/valheim-decompiled, assembly_valheim ;
+#         autres DLL utiles : assembly_utils, gui_framework, assembly_guiutils)
 set -euo pipefail
 
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -17,6 +18,6 @@ podman run --rm --userns=keep-id \
     -v "$MANAGED:/game/Managed:ro" \
     -v "$OUT:/out" \
     ovomiam-build \
-    ilspycmd -p -o /out -r /game/Managed /game/Managed/assembly_valheim.dll
+    ilspycmd -p -o /out -r /game/Managed "/game/Managed/${2:-assembly_valheim}.dll"
 
 echo "Décompilé dans : $OUT"

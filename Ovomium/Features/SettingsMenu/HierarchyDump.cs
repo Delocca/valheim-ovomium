@@ -30,7 +30,15 @@ namespace Ovomium.Features.SettingsMenu
                 sb.Append(c.GetType().Name);
                 first = false;
             }
-            sb.AppendLine("]");
+            sb.Append(']');
+            if (t is RectTransform rect)
+                sb.Append(" rect=").Append(rect.rect.size.ToString("F0")).Append(" anchors=").Append(rect.anchorMin.ToString("F2"))
+                  .Append('-').Append(rect.anchorMax.ToString("F2")).Append(" pivot=").Append(rect.pivot.ToString("F2"))
+                  .Append(" pos=").Append(rect.anchoredPosition.ToString("F0"));
+            if (t.GetComponent<TMPro.TMP_Text>() is TMPro.TMP_Text text)
+                sb.Append(" texte=« ").Append(text.text).Append(" » couleur=").Append(text.color.ToString("F2"))
+                  .Append(" taille=").Append(text.fontSize);
+            sb.AppendLine();
             if (depth >= maxDepth)
                 return;
             for (var i = 0; i < t.childCount; i++)

@@ -93,10 +93,24 @@ namespace Ovomium.Features.SettingsMenu
         }
     }
 
-    /// <summary>Fabrique les lignes et en-têtes en clonant les modèles vanilla.</summary>
+    /// <summary>
+    /// Fabrique les lignes et en-têtes en clonant les modèles vanilla.
+    /// Géométrie d'un modèle (onglet Accessibilité, cellule de GridLayoutGroup) : la racine est un point 0×0 d'où
+    /// part le contrôle (case à cocher centrée dessus, barre du curseur de 300 px vers la droite) ; le libellé,
+    /// 300 px de large, est accroché à sa gauche (pos −16, pivot droit) et le texte de valeur du curseur à droite
+    /// de la barre. Un modèle posé tel quel comme enfant d'un VerticalLayoutGroup est étiré sur toute la largeur :
+    /// le libellé finit à gauche de la page, la valeur à droite, tous deux rognés par le masque du Viewport.
+    /// D'où un conteneur pleine largeur par ligne, avec le contrôle à une abscisse fixe.
+    /// </summary>
     internal static class SettingRows
     {
-        private const float MinRowHeight = 30f;
+        private const float RowHeight = 30f;
+        /// <summary>Abscisse du contrôle dans la ligne : le libellé (300 px + 16 px d'écart) tient à sa gauche.</summary>
+        private const float ControlX = 400f;
+        private const float ControlWidth = 300f;
+        private const float ControlHeight = 20f;
+        private const float LabelWidth = 300f;
+        private const float LabelGap = 16f;
 
         public static SettingRow Create(ConfigEntryBase entry, SettingLabel label, RowTemplates templates, Transform parent)
         {
@@ -121,43 +135,69 @@ namespace Ovomium.Features.SettingsMenu
             return null;
         }
 
+        /// <summary>Conteneur de ligne (pleine largeur, hauteur fixe) contenant le clone du modèle à <see cref="ControlX"/>.</summary>
         private static GameObject Clone(GameObject template, Transform parent, ConfigEntryBase entry, SettingLabel label)
         {
-            var row = Object.Instantiate(template, parent);
-            row.name = "Ovomium." + entry.Definition.Section + "." + entry.Definition.Key;
-            row.SetActive(true);
-            var text = RowTemplates.FindLabel(row.transform);
+            var row = new GameObject("Ovomium." + entry.Definition.Section + "." + entry.Definition.Key, typeof(RectTransform));
+            row.transform.SetParent(parent, false);
+            row.AddComponent<LayoutElement>().preferredHeight = RowHeight;
+
+            var control = Object.Instantiate(template, row.transform);
+            control.SetActive(true);
+            PlaceControl((RectTransform)control.transform);
+            var text = RowTemplates.FindLabel(control.transform);
             if (text != null)
+            {
                 text.text = label.Display;
-            foreach (var tooltip in row.GetComponentsInChildren<SettingsTooltip>(true))
+                PlaceLabel(text.rectTransform);
+            }
+            foreach (var tooltip in control.GetComponentsInChildren<SettingsTooltip>(true))
                 tooltip.SetTexts(label.Label, entry.Description.Description);
-            AddLayoutHeight(row, MinRowHeight);
             return row;
         }
 
+        private static void PlaceControl(RectTransform rect)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = new Vector2(ControlX, 0f);
+            rect.sizeDelta = new Vector2(ControlWidth, ControlHeight);
+        }
+
+        /// <summary>Libellé à gauche du contrôle, sur toute la hauteur de la ligne (géométrie vanilla, fixée explicitement).</summary>
+        private static void PlaceLabel(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(1f, 0.5f);
+            rect.anchoredPosition = new Vector2(-LabelGap, 0f);
+            rect.sizeDelta = new Vector2(LabelWidth, 0f);
+        }
+
+        /// <summary>Texte de valeur du curseur : celui du modèle, sinon un texte créé à droite de la barre.</summary>
         private static TMP_Text FindOrCreateValueText(Transform row, RowTemplates templates)
         {
+            var control = row.GetChild(0);
             if (templates.SliderValuePath != null)
             {
-                var found = row.Find(templates.SliderValuePath);
+                var found = control.Find(templates.SliderValuePath);
                 if (found != null && found.GetComponent<TMP_Text>() is TMP_Text text)
                     return text;
             }
-            var label = RowTemplates.FindLabel(row);
-            foreach (var t in row.GetComponentsInChildren<TMP_Text>(true))
+            var label = RowTemplates.FindLabel(control);
+            foreach (var t in control.GetComponentsInChildren<TMP_Text>(true))
                 if (t != label)
                     return t;
             if (label == null)
                 return null;
-            var value = Object.Instantiate(label, row);
+            var value = Object.Instantiate(label, control);
             value.name = "Value";
-            value.alignment = TextAlignmentOptions.MidlineRight;
+            value.alignment = TextAlignmentOptions.MidlineLeft;
             var rect = value.rectTransform;
-            rect.anchorMin = new Vector2(1f, 0f);
-            rect.anchorMax = new Vector2(1f, 1f);
-            rect.pivot = new Vector2(1f, 0.5f);
-            rect.anchoredPosition = Vector2.zero;
-            rect.sizeDelta = new Vector2(90f, 0f);
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = new Vector2(10f, 0f);
+            rect.sizeDelta = new Vector2(90f, ControlHeight);
             return value;
         }
 
@@ -172,14 +212,7 @@ namespace Ovomium.Features.SettingsMenu
             header.fontStyle = FontStyles.Bold;
             header.fontSize = sample.fontSize * 1.15f;
             header.alignment = TextAlignmentOptions.MidlineLeft;
-            AddLayoutHeight(header.gameObject, sample.fontSize * 1.15f + 16f);
-        }
-
-        private static void AddLayoutHeight(GameObject go, float min)
-        {
-            var element = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
-            var height = ((RectTransform)go.transform).rect.height;
-            element.preferredHeight = Mathf.Max(height, min);
+            header.gameObject.AddComponent<LayoutElement>().preferredHeight = header.fontSize + 16f;
         }
     }
 }

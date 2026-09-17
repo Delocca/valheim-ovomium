@@ -126,7 +126,11 @@ namespace Ovomium.Features.SettingsMenu
         public void Terminate() { }
         public void OnBack() { }
         public void OnSharedSettingChanged(string setting, int value) { }
-        public void OnTabOpen(Button backButton, Button okButton) { }
+        public void OnTabOpen(Button backButton, Button okButton)
+        {
+            if (SettingsMenuConfig.DumpHierarchy.Value)
+                Plugin.Log.LogInfo($"SettingsMenu : onglet {name} ouvert, {m_rows.Count} ligne(s), actif={gameObject.activeInHierarchy}");
+        }
 
         public void OnOkAsync(OkActionCompletedHandler okActionCompletedCallback)
         {

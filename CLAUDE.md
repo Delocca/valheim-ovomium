@@ -58,7 +58,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.
   Menu Paramètres : prefab `Menu.m_settingsPrefab` / `FejdStartup.m_settingsPrefab`, composant `Settings` (`Awake`
-  privé → `InitializeTabs` lit `TabHandler.m_tabs` public, une page = un MonoBehaviour `ISettingsTab` public de
+  privé → `InitializeTabs` lit `TabHandler.m_tabs` public ; **deux TabHandler** dans le prefab, celui des
+  sous-onglets Manette/Souris de la page Gamepad inactive précède la barre `TabButtons` : chercher sans les inactifs, une page = un MonoBehaviour `ISettingsTab` public de
   `Valheim.SettingsGui` ; `OnOkAsync` doit invoquer son callback sinon la fenêtre ne se ferme jamais ; `OnBack`
   puis `CloseSettings` détruit l'objet). L'interface a des membres à implémentation par défaut : les redéclarer
   tous, le compilateur net48 refuse d'en hériter. Boutons des menus : `Menu.m_settingsButton` public (`Menu.Start`

@@ -24,6 +24,17 @@ namespace Ovomium.Features.SettingsMenu
         }
     }
 
+    /// <summary>Diagnostic (DumpHierarchy) : état des onglets une fois que le jeu les a câblés.</summary>
+    [HarmonyPatch(typeof(TabHandler), "Init", new[] { typeof(bool) })]
+    internal static class SettingsMenuTabHandlerPatch
+    {
+        private static void Postfix(TabHandler __instance)
+        {
+            if (SettingsMenuConfig.DumpHierarchy.Value && __instance.GetComponentInParent<Settings>() != null)
+                OvomiumSettingsWindow.LogTabs("après TabHandler.Init", __instance);
+        }
+    }
+
     /// <summary>Remplace les onglets vanilla par les nôtres quand l'ouverture vient d'un bouton Ovomium.</summary>
     [HarmonyPatch(typeof(Settings), "Awake", new System.Type[0])]
     internal static class SettingsMenuSettingsPatch
