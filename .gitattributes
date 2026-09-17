@@ -1,0 +1,2 @@
+# Fichier batch Windows : cmd exige des fins de ligne CRLF, quel que soit le réglage core.autocrlf.
+installer/*.bat text eol=crlf

@@ -1,6 +1,6 @@
 #!/bin/bash
-# Compile OvoMiam.dll dans le conteneur ovomiam-build (à lancer hors bac à sable).
-# Usage : tools/build.sh [Debug|Release]   (défaut : Release). Sortie : OvoMiam/bin/<config>/net48/OvoMiam.dll
+# Compile Ovomium.dll dans le conteneur ovomiam-build (à lancer hors bac à sable).
+# Usage : tools/build.sh [Debug|Release]   (défaut : Release). Sortie : Ovomium/bin/<config>/net48/Ovomium.dll
 set -euo pipefail
 
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -16,8 +16,8 @@ podman run --rm --userns=keep-id \
     -v "$PROJECT:/src" \
     -v "$MANAGED:/game/Managed:ro" \
     -v "$PROJECT/build/nuget:/nuget" \
-    -w /src/OvoMiam \
+    -w /src/Ovomium \
     ovomiam-build \
     dotnet build -c "$CONFIG" -nologo
 
-echo "DLL : $PROJECT/OvoMiam/bin/$CONFIG/net48/OvoMiam.dll"
+echo "DLL : $PROJECT/Ovomium/bin/$CONFIG/net48/Ovomium.dll"

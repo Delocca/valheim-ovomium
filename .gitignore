@@ -1,11 +1,11 @@
 bin/
 obj/
 build/
-# Artworks Iron Gate (256 Mo) : source de BepInEx/plugins/OvoMiam/loading/ (deploy.sh), pas versionnée
+# Artworks Iron Gate (256 Mo) : source de BepInEx/plugins/Ovomium/loading/ (deploy.sh), pas versionnée
 valheim_art/
 .claude/settings.local.json
 
-# Caches .NET du conteneur de build (pas de HOME : écrits dans le cwd /src/OvoMiam)
-OvoMiam/.dotnet/
-OvoMiam/.local/
-OvoMiam/.nuget/
+# Caches .NET du conteneur de build (pas de HOME : écrits dans le cwd /src/Ovomium)
+Ovomium/.dotnet/
+Ovomium/.local/
+Ovomium/.nuget/

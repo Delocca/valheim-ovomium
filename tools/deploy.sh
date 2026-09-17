@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copie OvoMiam.dll dans BepInEx/plugins/OvoMiam/ du jeu, et les artworks valheim_art/ dans son sous-dossier
+# Copie Ovomium.dll dans BepInEx/plugins/Ovomium/ du jeu, et les artworks valheim_art/ dans son sous-dossier
 # loading/ (LoadingArt). À lancer hors bac à sable.
 # Usage : tools/deploy.sh [--wait] [Debug|Release]   (défaut : Release)
 #   --wait : si le jeu tourne, attend sa fermeture (sondage toutes les 5 s) au lieu de refuser.
@@ -10,8 +10,8 @@ GAME="${VALHEIM_DIR:-$HOME/.local/share/Steam/steamapps/common/Valheim}"
 WAIT=0
 [ "${1:-}" = "--wait" ] && { WAIT=1; shift; }
 CONFIG="${1:-Release}"
-DLL="$PROJECT/OvoMiam/bin/$CONFIG/net48/OvoMiam.dll"
-DEST="$GAME/BepInEx/plugins/OvoMiam"
+DLL="$PROJECT/Ovomium/bin/$CONFIG/net48/Ovomium.dll"
+DEST="$GAME/BepInEx/plugins/Ovomium"
 
 [ -f "$DLL" ] || { echo "DLL absente, lance d'abord tools/build.sh : $DLL" >&2; exit 1; }
 [ -d "$GAME/BepInEx" ] || { echo "BepInEx absent dans $GAME, lance d'abord tools/install-bepinex.sh" >&2; exit 1; }
@@ -28,9 +28,25 @@ if pgrep -f "$GAME/valheim.x86_64" >/dev/null; then
     fi
 fi
 
+# Migration depuis l'ancien nom OvoMiam (0.6.0 et avant) : l'ancienne DLL ne doit pas être chargée en double,
+# les réglages et mots de passe sont conservés sous le nouveau nom s'il n'existe pas déjà.
+OLD_DEST="$GAME/BepInEx/plugins/OvoMiam"
+if [ -d "$OLD_DEST" ]; then
+    gio trash "$OLD_DEST"
+    echo "Ancien plugin OvoMiam mis à la corbeille : $OLD_DEST"
+fi
+for f in cfg passwords.txt; do
+    OLD_CFG="$GAME/BepInEx/config/ovo.ovomiam.$f"
+    NEW_CFG="$GAME/BepInEx/config/ovo.ovomium.$f"
+    if [ -f "$OLD_CFG" ] && [ ! -e "$NEW_CFG" ]; then
+        mv "$OLD_CFG" "$NEW_CFG"
+        echo "Renommé : $OLD_CFG → $NEW_CFG"
+    fi
+done
+
 mkdir -p "$DEST"
 cp "$DLL" "$DEST/"
-echo "Déployé : $DEST/OvoMiam.dll"
+echo "Déployé : $DEST/Ovomium.dll"
 if [ -d "$PROJECT/valheim_art" ]; then
     rsync -a "$PROJECT/valheim_art/" "$DEST/loading/"
     echo "Artworks : $(ls "$DEST/loading" | wc -l) fichier(s) dans $DEST/loading/"

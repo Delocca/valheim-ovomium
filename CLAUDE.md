@@ -1,4 +1,4 @@
-# OvoMiam — mod Valheim (BepInEx 5 + Harmony, C#)
+# Ovomium — mod Valheim (BepInEx 5 + Harmony, C#)
 
 Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un agent doit savoir pour travailler ici.
 
@@ -14,7 +14,7 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   raccourcis qui « ne marchent plus »). Après un build, lancer `tools/deploy.sh --wait` en arrière-plan
   (`run_in_background`) : il attend la fermeture du jeu et copie ; Edia relance ensuite le jeu sans prévenir.
   Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal
-  (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomiam.cfg`, désactivée par défaut).
+  (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomium.cfg`, désactivée par défaut).
 
 ## Code du jeu
 
@@ -39,7 +39,7 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   `GuiInputField` de `gui_framework.dll`, non référencé : dérivé de `TMP_InputField`, on passe par ce type) et
   `ZNet.OnPasswordEntered(string)` (privée, branchée sur `OnInputSubmit` ; ne ferme le dialogue que si le mot de
   passe est non vide ; le serveur est identifié par `ZNet.GetServerString(true)` ; mots de passe mémorisés dans
-  `BepInEx/config/ovo.ovomiam.passwords.txt`, AES à clé dérivée machine+utilisateur, cf. `PasswordStore`).
+  `BepInEx/config/ovo.ovomium.passwords.txt`, AES à clé dérivée machine+utilisateur, cf. `PasswordStore`).
   Le champ `FejdStartup.m_serverPassword` (mot de passe d'un monde qu'on héberge) est un autre champ, non traité.
   Caméra : `GameCamera.GetCameraOffset` a une branche première personne vanilla (`m_distance <= 0 → m_fpsOffset`
   depuis `m_eye`), bloquée par `m_minDistance` du prefab (mis à 0 par FirstPerson, molette clampée dans
@@ -57,12 +57,22 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   noir. Aucun artwork en clair dans les données du jeu (tout est dans les bundles `StreamingAssets/SoftRef/`).
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.
+  Menu Paramètres : prefab `Menu.m_settingsPrefab` / `FejdStartup.m_settingsPrefab`, composant `Settings` (`Awake`
+  privé → `InitializeTabs` lit `TabHandler.m_tabs` public, une page = un MonoBehaviour `ISettingsTab` public de
+  `Valheim.SettingsGui` ; `OnOkAsync` doit invoquer son callback sinon la fenêtre ne se ferme jamais ; `OnBack`
+  puis `CloseSettings` détruit l'objet). L'interface a des membres à implémentation par défaut : les redéclarer
+  tous, le compilateur net48 refuse d'en hériter. Boutons des menus : `Menu.m_settingsButton` public (`Menu.Start`
+  privé pose `m_instance`), menu principal = boutons de `FejdStartup.m_menuList` (celui dont le listener persistant
+  vise `OnButtonSettings`). Fermeture par Échap du menu de jeu : `Menu.m_settingsInstance` et
+  `m_closeMenuState = SettingsOpen` (privés, publicisés). Lignes vanilla clonées (SettingsMenu) : champs sérialisés
+  d'`AccessibilitySettings` (`m_toggleRun`, `m_guiScaleSlider`, `m_guiScaleText`) ; leurs `onValueChanged`
+  persistants visent le composant vanilla, à remplacer par un événement neuf sur le clone.
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).
 
 ## Règles de code
 
-- **Une fonctionnalité = un dossier** `OvoMiam/Features/<Nom>/` avec `<Nom>Config.cs` (ConfigEntry, section
-  du même nom) et `<Nom>Patch.cs`. Le partagé métier va dans `OvoMiam/Food/`. `Plugin.cs` ne fait que binder
+- **Une fonctionnalité = un dossier** `Ovomium/Features/<Nom>/` avec `<Nom>Config.cs` (ConfigEntry, section
+  du même nom) et `<Nom>Patch.cs`. Le partagé métier va dans `Ovomium/Food/`. `Plugin.cs` ne fait que binder
   les configs et `PatchAll`.
 - Patches Harmony **toujours avec types d'arguments explicites** (`typeof(...)` ou `new System.Type[0]`) :
   la 1.0 a ajouté des surcharges, un patch ambigu fait échouer tout le plugin au chargement.

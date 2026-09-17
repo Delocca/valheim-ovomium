@@ -1,11 +1,11 @@
-# OvoMiam — mod Valheim
+# Ovomium — mod Valheim
 
-Plugin BepInEx 5 pour Valheim 1.0.x (Unity 6, Mono, Linux natif). Organisé par fonctionnalité dans `OvoMiam/Features/`,
-logique nutritive partagée dans `OvoMiam/Food/`.
+Plugin BepInEx 5 pour Valheim 1.0.x (Unity 6, Mono, Linux natif). Organisé par fonctionnalité dans `Ovomium/Features/`,
+logique nutritive partagée dans `Ovomium/Food/`.
 
 ## Fonctionnalités
 
-Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
+Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
 
 - **FoodRecipeSort** : trie les recettes du chaudron et de la table de préparation (`Stations`) par groupe de stat
   dominante (`GroupByStat`) puis valeur nutritive décroissante ; recettes réalisables en tête (`CraftableFirst`).
@@ -40,7 +40,7 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
 - **PasswordReveal** : bouton « Afficher / Masquer » dans le champ de mot de passe demandé à la connexion à un
   serveur ; l'état choisi est mémorisé (`ShowPassword`). Case « Mémoriser » sous le champ : le mot de passe est
   retrouvé prérempli à la prochaine connexion à ce serveur (décocher puis valider l'oublie). Stocké dans
-  `BepInEx/config/ovo.ovomiam.passwords.txt`, chiffré avec une clé dérivée du nom de machine et d'utilisateur :
+  `BepInEx/config/ovo.ovomium.passwords.txt`, chiffré avec une clé dérivée du nom de machine et d'utilisateur :
   simple obfuscation, pas une protection contre quelqu'un ayant accès à la session. Libellés `ShowLabel`,
   `HideLabel`, `RememberLabel`.
 - **FirstPerson** : zoomer (molette, ou zoom caméra à la manette) au-delà de la distance minimale du jeu passe en
@@ -55,11 +55,18 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
   (oui par défaut) joue ou non la vidéo d'introduction avant le menu principal.
 - **LoadingArt** : le fond des écrans de chargement (démarrage du jeu, chargement de partie, mort, sommeil,
   téléportation) est une image tirée au sort, différente de la précédente, dans le dossier `Folder` (`loading`,
-  relatif à la DLL du mod : `BepInEx/plugins/OvoMiam/loading/`, jpg/jpeg/png). Image entière, non déformée, bandes
+  relatif à la DLL du mod : `BepInEx/plugins/Ovomium/loading/`, jpg/jpeg/png). Image entière, non déformée, bandes
   noires si le ratio diffère de l'écran. Couvre aussi l'écran « Loading » du menu et la connexion au serveur.
   `HideTeleportAnimation` (oui) masque l'animation vanilla de téléportation pour laisser voir l'artwork. Le jeu n'embarque aucun artwork exploitable : `valheim_art/` du dépôt en
-  est la source, copiée par `tools/deploy.sh`. Pour partager le mod, distribuer le dossier `BepInEx/plugins/OvoMiam/`
+  est la source, copiée par `tools/deploy.sh`. Pour partager le mod, distribuer le dossier `BepInEx/plugins/Ovomium/`
   complet (DLL + `loading/`).
+- **SettingsMenu** : bouton « Ovomium » sous « Paramètres » dans le menu principal et le menu Échap. Il ouvre la
+  fenêtre Paramètres du jeu avec, à la place des onglets vanilla, trois onglets (Cuisine, Interface, Jeu) listant les
+  options du mod : bascule pour les oui/non, curseur pour les nombres ; Appliquer écrit le `.cfg`, Retour annule.
+  Les options texte (glyphe, libellés, stations, dossier) restent dans le `.cfg`. Les options marquées
+  « (au redémarrage) » n'agissent qu'au prochain lancement. Navigation à la manette non câblée pour ce bouton (les
+  listes de navigation `FejdStartup.m_menuButtons` et celle de `Menu` sont laissées vanilla). `DumpHierarchy` (non)
+  journalise la hiérarchie du prefab Paramètres à l'ouverture, pour le débogage.
 
 ## Prérequis
 
@@ -71,8 +78,8 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
 
 ```
 podman build -t ovomiam-build -f tools/Containerfile tools   # une fois
-tools/build.sh            # → OvoMiam/bin/Release/net48/OvoMiam.dll
-tools/deploy.sh           # copie dans BepInEx/plugins/OvoMiam/
+tools/build.sh            # → Ovomium/bin/Release/net48/Ovomium.dll
+tools/deploy.sh           # copie dans BepInEx/plugins/Ovomium/
 tools/decompile.sh build/decompiled   # code du jeu décompilé, pour référence (non versionné)
 ```
 
@@ -80,5 +87,20 @@ Le csproj référence les DLL du jeu (publicisées) et `BepInEx.Core` 5.4.21 dep
 La version du mod se change uniquement dans `<Version>` du csproj (constante `PluginVersion.Value` générée au build).
 Les patches Harmony précisent toujours les types d'arguments : la 1.0 a ajouté des surcharges, un patch ambigu fait échouer tout le plugin.
 
-Vérification : `BepInEx/LogOutput.log` doit contenir `OvoMiam <version> chargé`, puis, si `LogSortOrder = true`,
+Vérification : `BepInEx/LogOutput.log` doit contenir `Ovomium <version> chargé`, puis, si `LogSortOrder = true`,
 `$piece_cauldron trié :` à l'ouverture d'un chaudron.
+
+## Distribution (Windows)
+
+Releases GitHub publiques sur `Delocca/valheim-ovomium` (nom du dépôt à garder identique dans `tools/release.sh` et
+`installer/Installer-Ovomium.bat`). Pas de Thunderstore.
+
+```
+tools/package.sh                       # → build/dist/Ovomium-<version>-windows.zip (BepInEx inclus, sans artworks)
+tools/release.sh --notes "…"           # build + package + tag v<version> + release avec le zip et l'installateur
+```
+
+Côté amies : télécharger `Installer-Ovomium.bat` depuis la dernière release et le lancer (Windows affiche un
+avertissement de sécurité sur un `.bat` téléchargé : « Exécuter »). Il trouve Valheim via Steam, télécharge la
+dernière release et l'installe ; relancer le même fichier met à jour (compare `BepInEx/plugins/Ovomium/version.txt`).
+Ces deux scripts ont besoin du réseau (Thunderstore, GitHub) : à lancer hors bac à sable.

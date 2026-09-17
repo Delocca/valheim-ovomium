@@ -1,4 +1,4 @@
-# Image de build/décompilation du mod ovomiam (aucune chaîne C# sur l'hôte).
+# Image de build/décompilation du mod ovomium (aucune chaîne C# sur l'hôte).
 # Construire : podman build -t ovomiam-build -f tools/Containerfile tools
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 
