@@ -79,8 +79,16 @@ try {
     Write-Ok $game
 
     Write-Step 'Recherche de la dernière version sur GitHub'
-    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$GITHUB_REPO/releases/latest" `
-        -Headers @{ 'User-Agent' = 'Ovomium-Installer'; 'Accept' = 'application/vnd.github+json' }
+    try {
+        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$GITHUB_REPO/releases/latest" `
+            -Headers @{ 'User-Agent' = 'Ovomium-Installer'; 'Accept' = 'application/vnd.github+json' }
+    } catch {
+        # Le dépôt n'est ouvert au public que le temps des mises à jour : 404 le reste du temps.
+        if ($_.Exception.Response -and [int]$_.Exception.Response.StatusCode -eq 404) {
+            throw "Les mises à jour ne sont pas ouvertes en ce moment : demande à Edia, puis relance ce fichier."
+        }
+        throw
+    }
     $asset = @($release.assets | Where-Object { $_.name -like 'Ovomium-*-windows.zip' })[0]
     if (-not $asset) { throw "La release $($release.tag_name) ne contient pas d'archive Ovomium-*-windows.zip." }
     $latest = [regex]::Match($asset.name, '^Ovomium-(.+)-windows\.zip$').Groups[1].Value

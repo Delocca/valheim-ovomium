@@ -93,16 +93,19 @@ Vérification : `BepInEx/LogOutput.log` doit contenir `Ovomium <version> chargé
 
 ## Distribution (Windows)
 
-Releases GitHub publiques sur `Delocca/valheim-ovomium` (nom du dépôt à garder identique dans `tools/release.sh` et
-`installer/Installer-Ovomium.bat`). Pas de Thunderstore.
+Releases GitHub sur `Delocca/valheim-ovomium` (nom du dépôt à garder identique dans `tools/release.sh`,
+`tools/repo-visibility.sh` et `installer/Installer-Ovomium.bat`). Pas de Thunderstore. **Le dépôt est privé** sauf
+pendant les fenêtres de mise à jour : Edia l'ouvre, prévient les amies, referme. Privé, l'API `releases/latest` répond
+404 et l'installateur affiche « Les mises à jour ne sont pas ouvertes en ce moment ».
 
 ```
 tools/package.sh                       # → build/dist/Ovomium-<version>-windows.zip (BepInEx inclus, sans artworks)
 tools/package-art.sh [px max]          # → build/dist/Ovomium-loading.zip (artworks jpg 95 %, à héberger hors GitHub)
 tools/release.sh --notes "…"           # build + package + tag v<version> + release avec le zip et l'installateur
+tools/repo-visibility.sh public|private|status   # fenêtre de mise à jour (la release se fait dépôt privé)
 ```
 
 Côté amies : télécharger `Installer-Ovomium.bat` depuis la dernière release et le lancer (Windows affiche un
 avertissement de sécurité sur un `.bat` téléchargé : « Exécuter »). Il trouve Valheim via Steam, télécharge la
 dernière release et l'installe ; relancer le même fichier met à jour (compare `BepInEx/plugins/Ovomium/version.txt`).
-Ces deux scripts ont besoin du réseau (Thunderstore, GitHub) : à lancer hors bac à sable.
+Ces scripts ont besoin du réseau (Thunderstore, GitHub) : à lancer hors bac à sable.
