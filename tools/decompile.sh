@@ -6,7 +6,8 @@ set -euo pipefail
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
 GAME="${VALHEIM_DIR:-$HOME/.local/share/Steam/steamapps/common/Valheim}"
 MANAGED="$GAME/valheim_Data/Managed"
-OUT="${1:-${TMPDIR:-/tmp}/valheim-decompiled}"
+# Chemin absolu obligatoire : podman prend un chemin relatif pour un nom de volume
+OUT="$(realpath -m "${1:-${TMPDIR:-/tmp}/valheim-decompiled}")"
 
 [ -f "$MANAGED/assembly_valheim.dll" ] || { echo "Introuvable : $MANAGED/assembly_valheim.dll" >&2; exit 1; }
 mkdir -p "$OUT"

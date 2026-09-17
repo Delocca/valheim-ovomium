@@ -4,7 +4,7 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 
 ## Environnement
 
-- Jeu : `~/.local/share/Steam/steamapps/common/Valheim`, Valheim **1.0.12**, Unity 6, Mono, Linux natif.
+- Jeu : `~/.local/share/Steam/steamapps/common/Valheim`, Valheim **1.0.14** (patch du 2026-09-17, ancrages revérifiés), Unity 6, Mono, Linux natif.
   BepInExPack_Valheim 5.4.2350 installé (`tools/install-bepinex.sh`). Journal : `BepInEx/LogOutput.log` (lisible).
 - Aucun outil .NET sur l'hôte : tout passe par l'image podman `ovomiam-build` (`tools/Containerfile`).
 - `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
@@ -50,8 +50,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   qu'à un changement d'équipement ; shaders végétation : propriété `_CamCull`.
   Démarrage : une seule scène native (EntryPoint) puis `loading.unity` → `start.unity` → `main.unity` en bundles.
   `SceneLoader.Awake` force `_showLogos = true` (logos affichés par la coroutine `LoadSceneAsync`, 2 s chacun) ;
-  `CinematicsManager.m_introOnStartup` conditionne la vidéo d'intro (`FejdStartup.PlayIntroCinematic`, seulement
-  au premier passage par le menu) ; pas de flag `-skipintro` vanilla. Écrans de chargement : `Hud.m_loadingScreen`
+  la vidéo d'intro a une option vanilla depuis le patch du 2026-09-17 (`PlatformPrefs` « SkipIntroCinematic »,
+  onglet Gameplay ; ex-`IntroVideo` du mod). Écrans de chargement : `Hud.m_loadingScreen`
   (partie, mort, sommeil, téléportation) piloté par `Hud.UpdateBlackScreen`, image de fond `Hud.m_loadingImage`
   unique, jamais tirée au sort en vanilla ; écran de démarrage = `SceneLoader.gameLogo` + `LoadingIndicator` sur
   noir. Aucun artwork en clair dans les données du jeu (tout est dans les bundles `StreamingAssets/SoftRef/`).

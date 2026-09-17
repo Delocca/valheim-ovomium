@@ -51,8 +51,8 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   seulement (vanilla met la caméra 50 cm devant l'œil et la fait tourner avec le regard complet : elle décrit un
   arc). Inspiré de
   [Landoria.FirstPerson](https://github.com/landoria-gaming/Landoria.FirstPerson) (MIT).
-- **StartupSkip** : au lancement du jeu, saute les logos Coffee Stain et Iron Gate (`SkipLogos`) ; `IntroVideo`
-  (oui par défaut) joue ou non la vidéo d'introduction avant le menu principal.
+- **StartupSkip** : au lancement du jeu, saute les logos Coffee Stain et Iron Gate (`SkipLogos`). La vidéo
+  d'introduction se désactive dans les options vanilla depuis le patch du 2026-09-17 (option `IntroVideo` retirée).
 - **LoadingArt** : le fond des écrans de chargement (démarrage du jeu, chargement de partie, mort, sommeil,
   téléportation) est une image tirée au sort, différente de la précédente, dans le dossier `Folder` (`loading`,
   relatif à la DLL du mod : `BepInEx/plugins/Ovomium/loading/`, jpg/jpeg/png). Image entière, non déformée, bandes
