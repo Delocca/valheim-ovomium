@@ -23,6 +23,7 @@ namespace Ovomium.Features.LoadingArt
                 typeof(ImageConversion).GetMethod("LoadImage", new[] { typeof(Texture2D), typeof(byte[]), typeof(bool) }));
 
         private static string[] s_files;
+        private static volatile bool s_rescan;
         private static int s_last = -1;
         private static Texture2D s_texture;
         private static Sprite s_sprite;
@@ -31,18 +32,33 @@ namespace Ovomium.Features.LoadingArt
         {
             get
             {
-                if (s_files == null)
+                if (s_files == null || s_rescan)
                     Scan();
                 return LoadingArtConfig.Enabled.Value && s_files.Length > 0;
             }
         }
 
+        /// <summary>Dossier des images, absolu (option Folder relative au dossier de la DLL du mod).</summary>
+        internal static string Folder
+        {
+            get
+            {
+                string folder = LoadingArtConfig.Folder.Value;
+                return Path.IsPathRooted(folder) ? folder : Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), folder);
+            }
+        }
+
+        /// <summary>
+        /// Demande une relecture du dossier au prochain accès (thread principal). Appelable depuis un autre thread :
+        /// le téléchargeur s'en sert une fois les artworks en place.
+        /// </summary>
+        internal static void Invalidate() => s_rescan = true;
+
         private static void Scan()
         {
+            s_rescan = false;
             s_files = new string[0];
-            string folder = LoadingArtConfig.Folder.Value;
-            if (!Path.IsPathRooted(folder))
-                folder = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), folder);
+            string folder = Folder;
             if (!Directory.Exists(folder))
             {
                 Plugin.Log.LogInfo($"LoadingArt : dossier absent, fonctionnalité inactive : {folder}");

@@ -13,6 +13,7 @@ namespace Ovomium.Features.LoadingArt
     {
         private static void Postfix(SceneLoader __instance)
         {
+            LoadingArtDownloader.StartIfNeeded(); // premier point d'entrée du jeu : une fois par session
             if (!LoadingArtLibrary.Available)
                 return;
             Transform logo = __instance.gameLogo.transform;

@@ -58,9 +58,10 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   relatif à la DLL du mod : `BepInEx/plugins/Ovomium/loading/`, jpg/jpeg/png). Image entière, non déformée, bandes
   noires si le ratio diffère de l'écran. Couvre aussi l'écran « Loading » du menu et la connexion au serveur.
   `HideTeleportAnimation` (oui) masque l'animation vanilla de téléportation pour laisser voir l'artwork. Le jeu n'embarque aucun artwork exploitable : `valheim_art/` du dépôt en
-  est la source, copiée par `tools/deploy.sh`. Sans dossier `loading/`, la fonctionnalité est inactive (écrans vanilla).
-  Pour les amies : `tools/package-art.sh` produit `build/dist/Ovomium-loading.zip` (jpg qualité 95, 3840 px max,
-  ~60 Mo), à héberger hors GitHub (artworks Iron Gate) et à décompresser dans `BepInEx/plugins/Ovomium/`.
+  est la source, copiée par `tools/deploy.sh`. Sans dossier `loading/`, le mod télécharge au premier lancement le zip
+  de la release GitHub « artworks » (`DownloadUrl` ; produit par `tools/package-art.sh` puis publié par
+  `tools/release-art.sh`), pendant une fenêtre où le dépôt est public ; hors fenêtre, nouvel essai au lancement
+  suivant (écrans vanilla en attendant).
 - **SettingsMenu** : bouton « Ovomium » sous « Paramètres » dans le menu principal et le menu Échap. Il ouvre la
   fenêtre Paramètres du jeu avec, à la place des onglets vanilla, trois onglets (Cuisine, Interface, Jeu) listant les
   options du mod : bascule pour les oui/non, curseur pour les nombres ; Appliquer écrit le `.cfg`, Retour annule.
@@ -100,7 +101,8 @@ pendant les fenêtres de mise à jour : Edia l'ouvre, prévient les amies, refer
 
 ```
 tools/package.sh                       # → build/dist/Ovomium-<version>-windows.zip (BepInEx inclus, sans artworks)
-tools/package-art.sh [px max]          # → build/dist/Ovomium-loading.zip (artworks jpg 95 %, à héberger hors GitHub)
+tools/package-art.sh [px max]          # → build/dist/Ovomium-loading.zip (artworks jpg 95 %, ~60 Mo)
+tools/release-art.sh                   # publie/remplace ce zip dans la release « artworks » (téléchargée par le mod)
 tools/release.sh --notes "…"           # build + package + tag v<version> + release avec le zip et l'installateur
 tools/repo-visibility.sh public|private|status   # fenêtre de mise à jour (la release se fait dépôt privé)
 ```

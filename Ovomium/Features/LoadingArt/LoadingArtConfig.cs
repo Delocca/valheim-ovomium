@@ -8,7 +8,11 @@ namespace Ovomium.Features.LoadingArt
     {
         public static ConfigEntry<bool> Enabled { get; private set; }
         public static ConfigEntry<string> Folder { get; private set; }
+        public static ConfigEntry<string> DownloadUrl { get; private set; }
         public static ConfigEntry<bool> HideTeleportAnimation { get; private set; }
+
+        /// <summary>Doit rester identique à tools/release-art.sh (GITHUB_REPO, tag « artworks »).</summary>
+        private const string DefaultDownloadUrl = "https://github.com/Delocca/valheim-ovomium/releases/download/artworks/Ovomium-loading.zip";
 
         public static void Bind(ConfigFile config)
         {
@@ -21,6 +25,8 @@ namespace Ovomium.Features.LoadingArt
                     null, new SettingLabel("Activé")));
             Folder = config.Bind("LoadingArt", "Folder", "loading",
                 "Dossier des images (jpg, jpeg, png), relatif au dossier de la DLL du mod ou absolu.");
+            DownloadUrl = config.Bind("LoadingArt", "DownloadUrl", DefaultDownloadUrl,
+                "Adresse du zip des artworks, téléchargé une seule fois si le dossier Folder n'existe pas ; vide pour désactiver.");
         }
     }
 }
