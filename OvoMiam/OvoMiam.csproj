@@ -6,7 +6,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>OvoMiam</AssemblyName>
     <RootNamespace>OvoMiam</RootNamespace>
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU1900 : audit de vulnérabilités NuGet injoignable ne doit pas bloquer le build -->
     <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
@@ -28,6 +28,15 @@
     </Reference>
     <Reference Include="assembly_utils">
       <HintPath>$(ValheimManaged)/assembly_utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- CanvasGroup (Hud.m_loadingScreen) et Rigidbody (Character.m_body) -->
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <!-- Façade UnityEngine.dll : BepInEx.Core y référence MonoBehaviour (redirigé vers CoreModule) -->

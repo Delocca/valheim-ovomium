@@ -14,6 +14,18 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
 - **FoodMarker** : point coloré devant chaque plat selon sa stat dominante (rouge vie, jaune endurance, bleu eitr,
   plusieurs points si mixte, même critère que la pastille d'inventaire du jeu). `Glyph`, `GlyphScale`.
 - **RecipeKeyboardNav** : flèches haut/bas pour changer de recette dans toute station.
+- **StackDrag** : manipulation fine des piles dans l'inventaire et les coffres. Alt+clic sur une pile prend 1 objet
+  en main, et 1 de plus à chaque Alt+clic sur une pile du même objet. Avec une pile en main : Ctrl+clic pose 1 objet
+  dans la case, Shift+clic pose la quantité choisie dans la case et rend le reste, clic maintenu + glisser pose
+  1 objet sur chaque case vide survolée (pour préparer l'emplacement des futurs transferts par Ctrl+clic).
+  Le clic simple pose toute la pile, au relâchement du bouton. Ctrl+clic mains vides reste le transfert rapide du jeu.
+  Double-clic sur une pile : toutes les piles du même objet de cet inventaire sont versées dans celle la plus en bas à
+  droite (parcours vers la gauche puis vers le haut) jusqu'à la remplir, et cette pile est prise en main
+  (`DoubleClickSeconds`).
+- **FastPortal** : la téléportation par portail se termine dès que la zone d'arrivée est chargée, au lieu des 8 s
+  imposées par le jeu (≈ 1 s entre deux portails d'une même base). Vers une zone non chargée, attend le chargement
+  complet de l'aire d'arrivée (zones voisines, objets lointains) plus `SettleSeconds` (1 s). `FadeSeconds` : durée
+  de chaque fondu au noir (0,5 s ; 1 s dans le jeu).
 
 ## Prérequis
 
