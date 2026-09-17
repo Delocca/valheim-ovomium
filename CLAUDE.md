@@ -11,7 +11,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   directement. Toute autre commande podman ou accès à nuget/mcr/thunderstore échoue dans le bac à sable.
 - **Ne jamais déployer jeu lancé** (`deploy.sh` refuse) : Mono lit les méthodes à la demande dans le fichier, la DLL
   remplacée casse les patches pas encore exécutés (`BadImageFormatException: Method has zero rva`, symptôme :
-  raccourcis qui « ne marchent plus »). Relancer le jeu complètement après chaque déploiement.
+  raccourcis qui « ne marchent plus »). Après un build, lancer `tools/deploy.sh --wait` en arrière-plan
+  (`run_in_background`) : il attend la fermeture du jeu et copie ; Edia relance ensuite le jeu sans prévenir.
   Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal
   (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomiam.cfg`, désactivée par défaut).
 
