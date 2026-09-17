@@ -51,7 +51,7 @@ namespace OvoMiam.Features.PasswordReveal
             return toggle;
         }
 
-        private static void CopyBackground(Image source, Image target)
+        internal static void CopyBackground(Image source, Image target)
         {
             target.raycastTarget = true;
             if (source == null)
@@ -65,7 +65,8 @@ namespace OvoMiam.Features.PasswordReveal
             target.color = source.color;
         }
 
-        private static TMP_Text BuildLabel(Transform parent, TMP_Text reference)
+        /// <summary>Libellé centré couvrant le parent, police et couleur du champ (atténuées), partagé avec la case Mémoriser.</summary>
+        internal static TMP_Text BuildLabel(Transform parent, TMP_Text reference)
         {
             GameObject go = new GameObject("label", typeof(RectTransform), typeof(TextMeshProUGUI));
             go.transform.SetParent(parent, false);

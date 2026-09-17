@@ -19,9 +19,8 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
   dans la case, Shift+clic pose la quantité choisie dans la case et rend le reste, clic maintenu + glisser pose
   1 objet sur chaque case vide survolée (pour préparer l'emplacement des futurs transferts par Ctrl+clic).
   Le clic simple pose toute la pile, au relâchement du bouton. Ctrl+clic mains vides reste le transfert rapide du jeu.
-  Double-clic sur une pile : toutes les piles du même objet de cet inventaire sont versées dans celle la plus en bas à
-  droite (parcours vers la gauche puis vers le haut) jusqu'à la remplir, et cette pile est prise en main
-  (`DoubleClickSeconds`).
+  Double-clic sur une pile : les autres piles du même objet de cet inventaire y sont versées (depuis le bas à droite,
+  vers la gauche puis vers le haut) jusqu'à la remplir, et elle reste en main (`DoubleClickSeconds`).
 - **FastPortal** : la téléportation par portail se termine dès que la zone d'arrivée est chargée, au lieu des 8 s
   imposées par le jeu (≈ 1 s entre deux portails d'une même base). Vers une zone non chargée, attend le chargement
   complet de l'aire d'arrivée (zones voisines, objets lointains) plus `SettleSeconds` (1 s). `FadeSeconds` : durée
@@ -39,7 +38,11 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
   serveur (favoris, récents, amis, communauté) s'y connecte — même effet que le bouton Démarrer / Connecter, et
   seulement si ce bouton est actif (`DoubleClickSeconds`). Sans effet à la manette.
 - **PasswordReveal** : bouton « Afficher / Masquer » dans le champ de mot de passe demandé à la connexion à un
-  serveur ; l'état choisi est mémorisé (`ShowPassword`). Libellés `ShowLabel`, `HideLabel`.
+  serveur ; l'état choisi est mémorisé (`ShowPassword`). Case « Mémoriser » sous le champ : le mot de passe est
+  retrouvé prérempli à la prochaine connexion à ce serveur (décocher puis valider l'oublie). Stocké dans
+  `BepInEx/config/ovo.ovomiam.passwords.txt`, chiffré avec une clé dérivée du nom de machine et d'utilisateur :
+  simple obfuscation, pas une protection contre quelqu'un ayant accès à la session. Libellés `ShowLabel`,
+  `HideLabel`, `RememberLabel`.
 
 ## Prérequis
 

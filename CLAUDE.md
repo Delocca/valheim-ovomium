@@ -36,7 +36,10 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   `ServerListGui.OnSelectedServer(ServerJoinData)` (privées, seules cibles du `onClick` des lignes de liste ; validation
   par `FejdStartup.OnWorldStart` / `OnJoinStart`, boutons `m_worldStart` / `m_joinGameButton`), et
   `ZNet.RPC_ClientHandshake` (ouvre `ZNet.m_passwordDialog`, le dialogue de mot de passe serveur ; son champ est un
-  `GuiInputField` de `gui_framework.dll`, non référencé : dérivé de `TMP_InputField`, on passe par ce type).
+  `GuiInputField` de `gui_framework.dll`, non référencé : dérivé de `TMP_InputField`, on passe par ce type) et
+  `ZNet.OnPasswordEntered(string)` (privée, branchée sur `OnInputSubmit` ; ne ferme le dialogue que si le mot de
+  passe est non vide ; le serveur est identifié par `ZNet.GetServerString(true)` ; mots de passe mémorisés dans
+  `BepInEx/config/ovo.ovomiam.passwords.txt`, AES à clé dérivée machine+utilisateur, cf. `PasswordStore`).
   Le champ `FejdStartup.m_serverPassword` (mot de passe d'un monde qu'on héberge) est un autre champ, non traité.
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.

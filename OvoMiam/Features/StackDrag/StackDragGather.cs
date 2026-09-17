@@ -4,9 +4,9 @@ using UnityEngine;
 namespace OvoMiam.Features.StackDrag
 {
     /// <summary>
-    /// Double-clic sur une pile : toutes les piles du même objet de cet inventaire sont versées dans celle située
-    /// le plus en bas à droite (parcours de droite à gauche puis de bas en haut), jusqu'à ce qu'elle soit pleine,
-    /// et cette pile est prise en main. La pile double-cliquée ne sert qu'à désigner l'objet.
+    /// Double-clic sur une pile : les autres piles du même objet de cet inventaire y sont versées (parcours depuis le
+    /// bas à droite, vers la gauche puis vers le haut) jusqu'à ce qu'elle soit pleine, et elle reste en main.
+    /// Au second clic, la pile double-cliquée est déjà en main (le premier clic l'a prise) : c'est m_dragItem.
     /// </summary>
     internal static class StackDragGather
     {
@@ -33,32 +33,33 @@ namespace OvoMiam.Features.StackDrag
         {
             if (!IsDoubleClick(grid, pos))
                 return false;
-            ItemDrop.ItemData clicked = gui.m_dragItem;
+            ItemDrop.ItemData receiver = gui.m_dragItem;
             Inventory inventory = grid.GetInventory();
-            if (gui.m_dragInventory != inventory || clicked.m_shared.m_maxStackSize <= 1)
+            if (gui.m_dragInventory != inventory || receiver.m_shared.m_maxStackSize <= 1
+                || inventory.GetItemAt(pos.x, pos.y) != receiver)
                 return false;
-            List<ItemDrop.ItemData> piles = SameTypePiles(inventory, clicked);
-            if (piles.Count < 2)
+            List<ItemDrop.ItemData> others = OtherPiles(inventory, receiver);
+            if (others.Count == 0)
                 return false;
 
-            ItemDrop.ItemData receiver = piles[0];
-            for (int i = 1; i < piles.Count && receiver.GetSpaceLeftInStack() > 0; i++)
+            for (int i = 0; i < others.Count && receiver.GetSpaceLeftInStack() > 0; i++)
             {
-                int amount = Mathf.Min(piles[i].m_stack, receiver.GetSpaceLeftInStack());
-                inventory.MoveItemToThis(inventory, piles[i], amount, receiver.m_gridPos.x, receiver.m_gridPos.y);
+                int amount = Mathf.Min(others[i].m_stack, receiver.GetSpaceLeftInStack());
+                inventory.MoveItemToThis(inventory, others[i], amount, receiver.m_gridPos.x, receiver.m_gridPos.y);
             }
+            // Même pile en main, quantité mise à jour.
             gui.SetupDragItem(receiver, inventory, receiver.m_stack);
             gui.UpdateCraftingPanel();
             return true;
         }
 
-        /// <summary>Piles du même objet, de bas en haut puis de droite à gauche (la première est en bas à droite).</summary>
-        private static List<ItemDrop.ItemData> SameTypePiles(Inventory inventory, ItemDrop.ItemData reference)
+        /// <summary>Autres piles du même objet, de bas en haut puis de droite à gauche (la première est en bas à droite).</summary>
+        private static List<ItemDrop.ItemData> OtherPiles(Inventory inventory, ItemDrop.ItemData reference)
         {
             List<ItemDrop.ItemData> piles = new List<ItemDrop.ItemData>();
             foreach (ItemDrop.ItemData item in inventory.GetAllItems())
             {
-                if (item.IsSameType(reference))
+                if (item != reference && item.IsSameType(reference))
                     piles.Add(item);
             }
             piles.Sort((a, b) => a.m_gridPos.y != b.m_gridPos.y
