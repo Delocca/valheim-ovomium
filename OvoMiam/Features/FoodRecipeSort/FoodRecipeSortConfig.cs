@@ -11,6 +11,7 @@ namespace OvoMiam.Features.FoodRecipeSort
         public static ConfigEntry<bool> Enabled { get; private set; }
         public static ConfigEntry<bool> CraftableFirst { get; private set; }
         public static ConfigEntry<bool> GroupByStat { get; private set; }
+        public static ConfigEntry<bool> LogSortOrder { get; private set; }
         private static ConfigEntry<string> s_stations;
 
         /// <summary>Noms (m_name) des stations dont la liste de recettes est triée.</summary>
@@ -28,6 +29,8 @@ namespace OvoMiam.Features.FoodRecipeSort
                 "Grouper d'abord par stat dominante (vie, endurance, eitr, puis plats mixtes), puis trier par valeur nutritive.");
             s_stations = config.Bind(section, "Stations", "$piece_cauldron,$piece_preptable",
                 "Stations concernées (noms internes séparés par des virgules) : chaudron, table de préparation culinaire.");
+            LogSortOrder = config.Bind(section, "LogSortOrder", false,
+                "Écrire la liste triée (score, réalisable, stats, nom) dans le journal BepInEx à chaque ouverture d'une station. Pour le débogage.");
 
             s_stations.SettingChanged += (_, _) => ParseStations();
             ParseStations();

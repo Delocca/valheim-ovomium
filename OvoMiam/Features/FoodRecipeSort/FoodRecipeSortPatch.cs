@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
-using OvoMiam.Features.Food;
+using OvoMiam.Food;
 using UnityEngine;
 
 namespace OvoMiam.Features.FoodRecipeSort
@@ -10,6 +10,7 @@ namespace OvoMiam.Features.FoodRecipeSort
     /// Après que le jeu a construit et trié la liste des recettes, la re-trie quand la station courante
     /// est une station de cuisine configurée, puis repositionne les éléments d'interface
     /// (le jeu les place à la main : anchoredPosition = index * -m_recipeListSpace, pas de LayoutGroup).
+    /// Sûr vis-à-vis de la sélection : le jeu mémorise la recette sélectionnée par valeur, pas par index.
     /// </summary>
     [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.UpdateRecipeList), typeof(List<Recipe>))]
     internal static class FoodRecipeSortPatch
@@ -27,7 +28,8 @@ namespace OvoMiam.Features.FoodRecipeSort
             recipes.Clear();
             recipes.AddRange(sorted);
             Reposition(__instance);
-            LogOrder(station, recipes);
+            if (FoodRecipeSortConfig.LogSortOrder.Value)
+                LogOrder(station, recipes);
         }
 
         private static CraftingStation CurrentStation()

@@ -13,7 +13,8 @@ namespace OvoMiam
     {
         public const string Guid = "ovo.ovomiam";
         public const string Name = "OvoMiam";
-        public const string Version = "0.3.0";
+        /// <summary>Générée par le csproj depuis &lt;Version&gt; (obj/…/PluginVersion.g.cs).</summary>
+        public const string Version = PluginVersion.Value;
 
         internal static ManualLogSource Log;
 

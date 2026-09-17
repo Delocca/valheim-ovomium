@@ -7,7 +7,6 @@
     <AssemblyName>OvoMiam</AssemblyName>
     <RootNamespace>OvoMiam</RootNamespace>
     <Version>0.3.0</Version>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU1900 : audit de vulnérabilités NuGet injoignable ne doit pas bloquer le build -->
     <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
@@ -49,5 +48,18 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <!-- Seule source de vérité de la version : <Version> ci-dessus, exposée au code via PluginVersion.Value -->
+  <Target Name="GeneratePluginVersion" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <PluginVersionFile>$(IntermediateOutputPath)PluginVersion.g.cs</PluginVersionFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginVersionFile)" Overwrite="true" WriteOnlyWhenDifferent="true"
+      Lines="// Généré par OvoMiam.csproj (GeneratePluginVersion). Ne pas modifier.;namespace OvoMiam { internal static class PluginVersion { public const string Value = &quot;$(Version)&quot;%3B } }" />
+    <ItemGroup>
+      <Compile Include="$(PluginVersionFile)" />
+      <FileWrites Include="$(PluginVersionFile)" />
+    </ItemGroup>
+  </Target>
 
 </Project>

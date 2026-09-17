@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace OvoMiam.Features.Food
+namespace OvoMiam.Food
 {
     internal enum FoodStat { Health, Stamina, Eitr }
 

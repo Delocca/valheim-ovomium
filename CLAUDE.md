@@ -10,7 +10,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 - `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
   directement. Toute autre commande podman ou accès à nuget/mcr/thunderstore échoue dans le bac à sable.
 - Le jeu doit être **relancé complètement** après chaque déploiement (Mono ne recharge pas les DLL).
-  Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal.
+  Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal
+  (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomiam.cfg`, désactivée par défaut).
 
 ## Code du jeu
 
@@ -18,18 +19,20 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   une mise à jour du jeu. Types dans le namespace global ; `assembly_valheim.dll` est publicisée dans le csproj
   (accès direct aux membres privés, ex. `InventoryGui.m_availableRecipes`).
 - Points d'ancrage utilisés : `InventoryGui.UpdateRecipeList` (tri natif : craftable → `Recipe.m_listSortWeight`
-  → SortMethod ; positions posées à la main via `anchoredPosition`), `AddRecipeToList` (nom = `TMP_Text` « name »,
-  rich text), `InventoryGui.Update` (clavier), `CookingStation.m_conversion` (cru → cuit).
+  → SortMethod ; positions posées à la main via `anchoredPosition` ; sélection mémorisée par valeur, donc
+  réordonner est sûr ; nom d'une ligne = `TMP_Text` « name », rich text), `InventoryGui.Update` (clavier),
+  `CookingStation.m_conversion` (cru → cuit).
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).
 
 ## Règles de code
 
 - **Une fonctionnalité = un dossier** `OvoMiam/Features/<Nom>/` avec `<Nom>Config.cs` (ConfigEntry, section
-  du même nom) et `<Nom>Patch.cs`. Le partagé métier va dans `Features/Food/`. `Plugin.cs` ne fait que binder
+  du même nom) et `<Nom>Patch.cs`. Le partagé métier va dans `OvoMiam/Food/`. `Plugin.cs` ne fait que binder
   les configs et `PatchAll`.
 - Patches Harmony **toujours avec types d'arguments explicites** (`typeof(...)` ou `new System.Type[0]`) :
   la 1.0 a ajouté des surcharges, un patch ambigu fait échouer tout le plugin au chargement.
 - `Console` du jeu masque `System.Console` : ne pas importer `System` dans les patches qui l'utilisent.
-- Warnings = erreurs (`TreatWarningsAsErrors`). Version du mod : `Plugin.Version` **et** `<Version>` du csproj.
-- Journal : `Plugin.Log`. Traces de tri en `LogInfo` (une par ouverture de station) ; le niveau Debug
+- Warnings = erreurs (`TreatWarningsAsErrors`). Version du mod : `<Version>` du csproj uniquement (cible
+  `GeneratePluginVersion` → `PluginVersion.Value`).
+- Journal : `Plugin.Log`. Traces de tri en `LogInfo` derrière `LogSortOrder` ; le niveau Debug
   n'est pas écrit dans `LogOutput.log` par défaut.

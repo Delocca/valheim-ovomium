@@ -1,4 +1,4 @@
-namespace OvoMiam.Features.Food
+namespace OvoMiam.Food
 {
     /// <summary>Couleurs hex des stats, celles du tooltip d'item du jeu (ItemDrop.ItemData.GetTooltip).</summary>
     internal static class FoodColors

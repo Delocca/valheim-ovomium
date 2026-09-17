@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace OvoMiam.Features.Food
+namespace OvoMiam.Food
 {
     /// <summary>
     /// Relie un plat cru à sa version cuite via les conversions des stations de cuisson

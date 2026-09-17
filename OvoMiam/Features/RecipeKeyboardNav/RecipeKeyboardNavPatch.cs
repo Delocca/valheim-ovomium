@@ -7,7 +7,7 @@ namespace OvoMiam.Features.RecipeKeyboardNav
     /// À chaque frame où l'inventaire est visible, les flèches haut/bas déplacent la recette sélectionnée,
     /// comme le fait le stick de la manette (InventoryGui.UpdateRecipeGamepadInput), avec centrage dans la liste.
     /// </summary>
-    [HarmonyPatch(typeof(InventoryGui), "Update", new System.Type[0])]
+    [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.Update), new System.Type[0])]
     internal static class RecipeKeyboardNavPatch
     {
         private static void Postfix(InventoryGui __instance)
