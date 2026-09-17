@@ -2,8 +2,11 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using OvoMiam.Features.FastPortal;
+using OvoMiam.Features.FirstPerson;
 using OvoMiam.Features.FoodMarker;
 using OvoMiam.Features.FoodRecipeSort;
+using OvoMiam.Features.LoadingArt;
+using OvoMiam.Features.StartupSkip;
 using OvoMiam.Features.MapZoomToCursor;
 using OvoMiam.Features.MenuDoubleClick;
 using OvoMiam.Features.MinimapSize;
@@ -36,6 +39,9 @@ namespace OvoMiam
             MapZoomToCursorConfig.Bind(Config);
             MenuDoubleClickConfig.Bind(Config);
             PasswordRevealConfig.Bind(Config);
+            FirstPersonConfig.Bind(Config);
+            StartupSkipConfig.Bind(Config);
+            LoadingArtConfig.Bind(Config);
 
             new Harmony(Guid).PatchAll(typeof(Plugin).Assembly);
             Log.LogInfo($"{Name} {Version} chargé");

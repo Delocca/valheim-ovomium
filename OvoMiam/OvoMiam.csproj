@@ -6,7 +6,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>OvoMiam</AssemblyName>
     <RootNamespace>OvoMiam</RootNamespace>
-    <Version>0.5.0</Version>
+    <Version>0.6.0</Version>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU1900 : audit de vulnérabilités NuGet injoignable ne doit pas bloquer le build -->
     <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
@@ -37,6 +37,21 @@
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>$(ValheimManaged)/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Animator / AnimatorCullingMode (FirstPerson) -->
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Texture2D.LoadImage (LoadingArt) ; ce module cible netstandard 2.1, absent des assemblies de référence
+         net48 : on prend la façade netstandard.dll du jeu -->
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>$(ValheimManaged)/netstandard.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <!-- Façade UnityEngine.dll : BepInEx.Core y référence MonoBehaviour (redirigé vers CoreModule) -->

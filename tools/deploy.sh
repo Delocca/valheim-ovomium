@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copie OvoMiam.dll dans BepInEx/plugins/ du jeu (à lancer hors bac à sable).
+# Copie OvoMiam.dll dans BepInEx/plugins/OvoMiam/ du jeu, et les artworks valheim_art/ dans son sous-dossier
+# loading/ (LoadingArt). À lancer hors bac à sable.
 # Usage : tools/deploy.sh [--wait] [Debug|Release]   (défaut : Release)
 #   --wait : si le jeu tourne, attend sa fermeture (sondage toutes les 5 s) au lieu de refuser.
 set -euo pipefail
@@ -30,3 +31,7 @@ fi
 mkdir -p "$DEST"
 cp "$DLL" "$DEST/"
 echo "Déployé : $DEST/OvoMiam.dll"
+if [ -d "$PROJECT/valheim_art" ]; then
+    rsync -a "$PROJECT/valheim_art/" "$DEST/loading/"
+    echo "Artworks : $(ls "$DEST/loading" | wc -l) fichier(s) dans $DEST/loading/"
+fi

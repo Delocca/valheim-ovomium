@@ -41,6 +41,20 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   passe est non vide ; le serveur est identifié par `ZNet.GetServerString(true)` ; mots de passe mémorisés dans
   `BepInEx/config/ovo.ovomiam.passwords.txt`, AES à clé dérivée machine+utilisateur, cf. `PasswordStore`).
   Le champ `FejdStartup.m_serverPassword` (mot de passe d'un monde qu'on héberge) est un autre champ, non traité.
+  Caméra : `GameCamera.GetCameraOffset` a une branche première personne vanilla (`m_distance <= 0 → m_fpsOffset`
+  depuis `m_eye`), bloquée par `m_minDistance` du prefab (mis à 0 par FirstPerson, molette clampée dans
+  `UpdateCamera`, placement dans `GetCameraPosition` : `m_smoothYTilt` éloigne à 1,5 m en regardant en bas,
+  clamp au-dessus de l'eau `m_minWaterDistance`, `ApplyCameraTilt` roulis bateau max à distance min) ;
+  `Character.SetVisible` masque le joueur local à moins de 2 m via le point de référence du LODGroup ;
+  `Player.AlwaysRotateCamera` fait suivre le regard au corps ; `VisEquipment.UpdateLodgroup` n'est appelé
+  qu'à un changement d'équipement ; shaders végétation : propriété `_CamCull`.
+  Démarrage : une seule scène native (EntryPoint) puis `loading.unity` → `start.unity` → `main.unity` en bundles.
+  `SceneLoader.Awake` force `_showLogos = true` (logos affichés par la coroutine `LoadSceneAsync`, 2 s chacun) ;
+  `CinematicsManager.m_introOnStartup` conditionne la vidéo d'intro (`FejdStartup.PlayIntroCinematic`, seulement
+  au premier passage par le menu) ; pas de flag `-skipintro` vanilla. Écrans de chargement : `Hud.m_loadingScreen`
+  (partie, mort, sommeil, téléportation) piloté par `Hud.UpdateBlackScreen`, image de fond `Hud.m_loadingImage`
+  unique, jamais tirée au sort en vanilla ; écran de démarrage = `SceneLoader.gameLogo` + `LoadingIndicator` sur
+  noir. Aucun artwork en clair dans les données du jeu (tout est dans les bundles `StreamingAssets/SoftRef/`).
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).

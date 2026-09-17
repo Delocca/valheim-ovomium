@@ -43,6 +43,23 @@ Options dans `BepInEx/config/ovo.ovomiam.cfg`, une section par fonctionnalité.
   `BepInEx/config/ovo.ovomiam.passwords.txt`, chiffré avec une clé dérivée du nom de machine et d'utilisateur :
   simple obfuscation, pas une protection contre quelqu'un ayant accès à la session. Libellés `ShowLabel`,
   `HideLabel`, `RememberLabel`.
+- **FirstPerson** : zoomer (molette, ou zoom caméra à la manette) au-delà de la distance minimale du jeu passe en
+  vue subjective, dézoomer en ressort. Le corps est masqué, les objets en main restent visibles, la végétation
+  n'est plus effacée près de la caméra et le corps suit toujours le regard. La vue survit à la mort et aux
+  cinématiques. `NearClip` (0,05 m) : distance minimale de dessin en vue subjective. `ForwardOffset` (0,1 m) et
+  `UpOffset` (0) : position de la caméra par rapport au point œil du personnage, tournée avec le regard horizontal
+  seulement (vanilla met la caméra 50 cm devant l'œil et la fait tourner avec le regard complet : elle décrit un
+  arc). Inspiré de
+  [Landoria.FirstPerson](https://github.com/landoria-gaming/Landoria.FirstPerson) (MIT).
+- **StartupSkip** : au lancement du jeu, saute les logos Coffee Stain et Iron Gate (`SkipLogos`) ; `IntroVideo`
+  (oui par défaut) joue ou non la vidéo d'introduction avant le menu principal.
+- **LoadingArt** : le fond des écrans de chargement (démarrage du jeu, chargement de partie, mort, sommeil,
+  téléportation) est une image tirée au sort, différente de la précédente, dans le dossier `Folder` (`loading`,
+  relatif à la DLL du mod : `BepInEx/plugins/OvoMiam/loading/`, jpg/jpeg/png). Image entière, non déformée, bandes
+  noires si le ratio diffère de l'écran. Couvre aussi l'écran « Loading » du menu et la connexion au serveur.
+  `HideTeleportAnimation` (oui) masque l'animation vanilla de téléportation pour laisser voir l'artwork. Le jeu n'embarque aucun artwork exploitable : `valheim_art/` du dépôt en
+  est la source, copiée par `tools/deploy.sh`. Pour partager le mod, distribuer le dossier `BepInEx/plugins/OvoMiam/`
+  complet (DLL + `loading/`).
 
 ## Prérequis
 
