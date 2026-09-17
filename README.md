@@ -41,8 +41,8 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   serveur ; l'état choisi est mémorisé (`ShowPassword`). Case « Mémoriser » sous le champ : le mot de passe est
   retrouvé prérempli à la prochaine connexion à ce serveur (décocher puis valider l'oublie). Stocké dans
   `BepInEx/config/ovo.ovomium.passwords.txt`, chiffré avec une clé dérivée du nom de machine et d'utilisateur :
-  simple obfuscation, pas une protection contre quelqu'un ayant accès à la session. Libellés `ShowLabel`,
-  `HideLabel`, `RememberLabel`.
+  simple obfuscation, pas une protection contre quelqu'un ayant accès à la session. Bouton « OK » sous le champ,
+  à droite : même effet que la touche Entrée. Libellés `ShowLabel`, `HideLabel`, `RememberLabel`, `OkLabel`.
 - **FirstPerson** : zoomer (molette, ou zoom caméra à la manette) au-delà de la distance minimale du jeu passe en
   vue subjective, dézoomer en ressort. Le corps est masqué, les objets en main restent visibles, la végétation
   n'est plus effacée près de la caméra et le corps suit toujours le regard. La vue survit à la mort et aux

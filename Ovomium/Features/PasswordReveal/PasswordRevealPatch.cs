@@ -6,8 +6,8 @@ namespace Ovomium.Features.PasswordReveal
     /// <summary>
     /// Le dialogue « mot de passe du serveur » est ZNet.m_passwordDialog, ouvert par RPC_ClientHandshake quand le
     /// serveur en demande un (le champ est un GuiInputField, dérivé de TMP_InputField, trouvé par
-    /// GetComponentInChildren comme le fait le jeu). Après cette ouverture, on pose le bouton Afficher / Masquer et
-    /// la case Mémoriser (une fois par instance), on remet le champ dans l'état mémorisé et on le préremplit si un
+    /// GetComponentInChildren comme le fait le jeu). Après cette ouverture, on pose le bouton Afficher / Masquer,
+    /// la case Mémoriser et le bouton OK (une fois par instance), on remet le champ dans l'état mémorisé et on le préremplit si un
     /// mot de passe est mémorisé pour ce serveur (identifié par ZNet.GetServerString : backend + hôte:port, id
     /// PlayFab ou SteamID). Si un mot de passe est passé en ligne de commande, le jeu soumet et referme aussitôt :
     /// rien à faire. À la soumission (OnInputSubmit → ZNet.OnPasswordEntered, qui ferme le dialogue si le mot de
@@ -40,6 +40,7 @@ namespace Ovomium.Features.PasswordReveal
                 field.text = remembered ?? "";
                 field.MoveTextEnd(false);
                 PasswordRememberToggle.Setup(field, remembered != null);
+                PasswordOkButton.Setup(field);
             }
         }
 
