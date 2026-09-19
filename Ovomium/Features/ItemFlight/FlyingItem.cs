@@ -31,7 +31,9 @@ namespace Ovomium.Features.ItemFlight
         /// <summary>Vrai tant que le craft qui a lancé ce vol n'a pas consommé ses ingrédients (annulable).</summary>
         public bool FromCraft { get; set; }
 
-        public void Setup(Vector3 from, Vector3 to, float duration, float delay, Transform mesh, GameObject trail)
+        /// <summary><paramref name="phase"/> décale l'ondulation : identique pour plusieurs exemplaires d'un même
+        /// ingrédient, ils suivent exactement la même trajectoire, en file.</summary>
+        public void Setup(Vector3 from, Vector3 to, float duration, float delay, Transform mesh, GameObject trail, float phase)
         {
             float distance = Vector3.Distance(from, to);
             Vector3 dir = to - from;
@@ -46,7 +48,7 @@ namespace Ovomium.Features.ItemFlight
                 m_arc[i] = m_arc[i - 1] + Vector3.Distance(Bezier((i - 1f) / ArcSamples), Bezier((float)i / ArcSamples));
             m_side = Vector3.Cross(dir, Vector3.up);
             m_wobble = Mathf.Clamp(distance * 0.01f, 0.05f, 0.25f);
-            m_phase = Random.value * Mathf.PI * 2f;
+            m_phase = phase;
             m_spinAxis = Random.onUnitSphere;
             m_spinSpeed = Random.Range(60f, 180f);
             m_duration = duration;

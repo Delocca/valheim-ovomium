@@ -7,40 +7,93 @@ namespace Ovomium.Features.ItemFlight
     /// <summary>Registre des vols en cours (plafond, annulation des vols d'un craft interrompu, déchargement à chaud).</summary>
     internal static class ItemFlight
     {
+        /// <summary>Écart entre deux exemplaires d'un même ingrédient (ils se suivent en file).</summary>
+        private const float TrainSeconds = 0.15f;
+        /// <summary>Écart supplémentaire entre deux ingrédients différents partant du même coffre.</summary>
         private const float StaggerSeconds = 0.35f;
 
         private static readonly List<FlyingItem> s_flights = new List<FlyingItem>();
         private static readonly List<GameObject> s_lingering = new List<GameObject>();
 
-        /// <summary>Un vol par retrait (un objet par type et par coffre), depuis le dessus du coffre.</summary>
+        /// <summary>
+        /// Envoie les objets retirés depuis la face avant de leur coffre : plusieurs exemplaires par type
+        /// (<see cref="ItemFlightConfig.MaxPerType"/>), en file sur la même trajectoire, dont seul le premier
+        /// porte une traînée.
+        /// </summary>
         public static void Launch(List<Pull> pulls, Vector3 destination, bool fromCraft)
         {
             if (!ItemFlightConfig.Enabled.Value) return;
-            var perChest = new Dictionary<Container, int>();
-            foreach (var pull in pulls)
+            int[] counts = Share(pulls);
+            var delays = new Dictionary<Container, float>();
+            for (int i = 0; i < pulls.Count; i++)
             {
-                if (pull.Chest == null || pull.Item == null) continue;
-                s_flights.RemoveAll(f => f == null);
-                if (s_flights.Count >= ItemFlightConfig.MaxInFlight.Value) return;
-                perChest.TryGetValue(pull.Chest, out int rank);
-                perChest[pull.Chest] = rank + 1;
+                Pull pull = pulls[i];
+                if (counts[i] <= 0) continue;
                 Vector3 from = Front(pull.Chest.gameObject);
-                s_flights.Add(Create(pull.Item, from, destination, rank * StaggerSeconds, fromCraft));
+                float phase = Random.value * Mathf.PI * 2f;
+                delays.TryGetValue(pull.Chest, out float delay);
+                for (int n = 0; n < counts[i]; n++)
+                {
+                    s_flights.RemoveAll(f => f == null);
+                    if (s_flights.Count >= ItemFlightConfig.MaxInFlight.Value) return;
+                    s_flights.Add(Create(pull.Item, from, destination, delay, phase, n == 0, fromCraft));
+                    delay += TrainSeconds;
+                }
+                delays[pull.Chest] = delay + StaggerSeconds;
+                if (CraftFromChestsConfig.LogPulls.Value)
+                    Plugin.Log.LogInfo($"ItemFlight : {counts[i]} × {pull.Item.name} de {pull.Chest.m_name} vers {destination}");
             }
         }
 
-        private static FlyingItem Create(ItemDrop item, Vector3 from, Vector3 to, float delay, bool fromCraft)
+        /// <summary>
+        /// Nombre d'exemplaires animés pour chaque retrait : au plus <see cref="ItemFlightConfig.MaxPerType"/> par
+        /// type d'objet, d'abord un par coffre qui y contribue (on voit tous les coffres puiser), le reste distribué
+        /// à tour de rôle sans dépasser ce que chacun fournit.
+        /// </summary>
+        private static int[] Share(List<Pull> pulls)
+        {
+            var counts = new int[pulls.Count];
+            var byItem = new Dictionary<string, List<int>>();
+            for (int i = 0; i < pulls.Count; i++)
+            {
+                if (pulls[i].Chest == null || pulls[i].Item == null || pulls[i].Amount <= 0) continue;
+                string name = pulls[i].Item.m_itemData.m_shared.m_name;
+                if (!byItem.TryGetValue(name, out List<int> indexes))
+                    byItem[name] = indexes = new List<int>();
+                indexes.Add(i);
+            }
+            foreach (List<int> indexes in byItem.Values)
+            {
+                int budget = ItemFlightConfig.MaxPerType.Value;
+                foreach (int i in indexes)
+                    if (budget > 0) { counts[i] = 1; budget--; }
+                bool grew = true;
+                while (budget > 0 && grew)
+                {
+                    grew = false;
+                    foreach (int i in indexes)
+                    {
+                        if (budget <= 0) break;
+                        if (counts[i] <= 0 || counts[i] >= pulls[i].Amount) continue;
+                        counts[i]++;
+                        budget--;
+                        grew = true;
+                    }
+                }
+            }
+            return counts;
+        }
+
+        private static FlyingItem Create(ItemDrop item, Vector3 from, Vector3 to, float delay, float phase, bool withTrail, bool fromCraft)
         {
             var root = new GameObject("OvomiumFlight");
             GameObject mesh = FlightVisuals.CreateItem(item, root.transform);
-            GameObject trail = FlightVisuals.CreateTrail(root.transform);
+            GameObject trail = withTrail ? FlightVisuals.CreateTrail(root.transform) : null;
             float span = Mathf.Clamp01(Vector3.Distance(from, to) / CraftFromChestsConfig.Range.Value);
             float duration = Mathf.Lerp(ItemFlightConfig.MinDuration.Value, ItemFlightConfig.MaxDuration.Value, span);
             var flight = root.AddComponent<FlyingItem>();
             flight.FromCraft = fromCraft;
-            flight.Setup(from, to, duration, delay, mesh.transform, trail);
-            if (CraftFromChestsConfig.LogPulls.Value)
-                Plugin.Log.LogInfo($"ItemFlight : {item.name} de {from} vers {to} en {duration:0.0} s, traînée {(trail != null ? "oui" : "non")}");
+            flight.Setup(from, to, duration, delay, mesh.transform, trail, phase);
             return flight;
         }
 

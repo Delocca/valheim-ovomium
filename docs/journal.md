@@ -2,6 +2,11 @@
 
 Une entrée par jour de travail, plus récent en haut : fait, décisions (avec leurs raisons), en suspens. Ce que git dit déjà n'y va pas. Règles : `CLAUDE.md`, section « Suivi ».
 
+## 2026-09-20 — ItemFlight : plusieurs exemplaires par ingrédient
+
+- **Fait** : un retrait de N objets envoie jusqu'à `MaxPerType` (5) exemplaires au lieu d'un seul, en file sur la même trajectoire (phase d'ondulation imposée à `FlyingItem.Setup` au lieu d'un tirage par vol), 0,15 s d'écart, 0,35 s de plus entre deux types d'un même coffre. Répartition par type et non par coffre (`ItemFlight.Share`) : un exemplaire par coffre contributeur d'abord, le reste à tour de rôle sans dépasser ce que chacun fournit. Validé en jeu par Edia.
+- **Décisions d'Edia** : pas de particules supplémentaires, d'où une seule traînée par type et par coffre, portée par le premier du chapelet (les suivants passent dans son sillage, ce qui suppose la trajectoire identique). Le plafond global `MaxInFlight` (30) reste inchangé : une recette à six ingrédients ou plus saturera, à monter dans le menu si le cas se présente.
+
 ## 2026-09-19 — Boucle de test rapide, rafale de features, suivi
 
 - **Fait** : déploiement atomique jeu lancé + relance auto (`deploy.sh --relaunch`), AutoJoin, hot reload ScriptEngine avec `Unload()` par feature, autocontrôle des patches au chargement, puis FocusClick, ContinueButton, MapExplore, PortalRange, ButcherKnife, AmbientOcclusion, UpgradeDiff, SkillTooltip, TooltipStyle, SettingsMenu en direct. Tout validé en jeu par Edia. Mise en place de `TODO.md`, `CHANGELOG.md` et de ce journal ; `release.sh` prend ses notes dans le changelog. Updater (TODO 5) livré et validé en jeu par un vrai cycle (DLL de test en 0.7.0, dépôt ouvert, release 0.8.0 détectée, fenêtre avec changelog, téléchargement, patcher « Ovomium 0.8.0 installée » à la relance ; cas AutoJoin : message HUD puis fenêtre au menu Échap) : solution à deux projets (`Ovomium.sln`, `Directory.Build.props`), patcher `Ovomium.Updater` ajouté au zip et à `deploy.sh`.

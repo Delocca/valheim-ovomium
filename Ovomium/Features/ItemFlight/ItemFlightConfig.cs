@@ -9,6 +9,7 @@ namespace Ovomium.Features.ItemFlight
         public static ConfigEntry<bool> Enabled { get; private set; }
         public static ConfigEntry<float> MinDuration { get; private set; }
         public static ConfigEntry<float> MaxDuration { get; private set; }
+        public static ConfigEntry<int> MaxPerType { get; private set; }
         public static ConfigEntry<float> TrailLinger { get; private set; }
         public static ConfigEntry<float> TrailDensity { get; private set; }
         public static ConfigEntry<float> TrailSize { get; private set; }
@@ -29,6 +30,10 @@ namespace Ovomium.Features.ItemFlight
             MaxDuration = config.Bind("ItemFlight", "MaxDuration", 3f,
                 new ConfigDescription("Durée du vol, en secondes, pour un coffre à la limite de la portée de CraftFromChests.",
                     new AcceptableValueRange<float>(0.5f, 15f), new SettingLabel("Durée maximale (s)")));
+            MaxPerType = config.Bind("ItemFlight", "MaxPerType", 5,
+                new ConfigDescription("Nombre maximal d'exemplaires animés pour un même ingrédient : ils s'envolent en file "
+                    + "sur la même trajectoire, et un seul porte la traînée.",
+                    new AcceptableValueRange<int>(1, 20), new SettingLabel("Exemplaires par ingrédient")));
             TrailLinger = config.Bind("ItemFlight", "TrailLinger", 10f,
                 new ConfigDescription("Durée de vie, en secondes, de chaque particule de la traînée (elle s'efface derrière l'objet à ce rythme).",
                     new AcceptableValueRange<float>(1f, 30f), new SettingLabel("Persistance de la traînée (s)")));
