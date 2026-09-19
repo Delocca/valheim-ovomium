@@ -18,31 +18,37 @@ namespace Ovomium.Features.ItemFlight
         /// <summary>
         /// Envoie les objets retirés depuis la face avant de leur coffre : plusieurs exemplaires par type
         /// (<see cref="ItemFlightConfig.MaxPerType"/>), en file sur la même trajectoire, dont seul le premier
-        /// porte une traînée.
+        /// porte une traînée. Créés rang par rang (le premier de chaque retrait, puis les deuxièmes, etc.) :
+        /// si <see cref="ItemFlightConfig.MaxInFlight"/> sature, ce sont des doublons qui manquent, jamais un type.
         /// </summary>
         public static void Launch(List<Pull> pulls, Vector3 destination, bool fromCraft)
         {
             if (!ItemFlightConfig.Enabled.Value) return;
             int[] counts = Share(pulls);
-            var delays = new Dictionary<Container, float>();
+            var starts = new float[pulls.Count];
+            var phases = new float[pulls.Count];
+            var perChest = new Dictionary<Container, float>();
+            int ranks = 0;
             for (int i = 0; i < pulls.Count; i++)
             {
-                Pull pull = pulls[i];
                 if (counts[i] <= 0) continue;
-                Vector3 from = Front(pull.Chest.gameObject);
-                float phase = Random.value * Mathf.PI * 2f;
-                delays.TryGetValue(pull.Chest, out float delay);
-                for (int n = 0; n < counts[i]; n++)
+                perChest.TryGetValue(pulls[i].Chest, out starts[i]);
+                perChest[pulls[i].Chest] = starts[i] + counts[i] * TrainSeconds + StaggerSeconds;
+                phases[i] = Random.value * Mathf.PI * 2f;
+                ranks = Mathf.Max(ranks, counts[i]);
+                if (CraftFromChestsConfig.LogPulls.Value)
+                    Plugin.Log.LogInfo($"ItemFlight : {counts[i]} × {pulls[i].Item.name} de {pulls[i].Chest.m_name} vers {destination}");
+            }
+            for (int n = 0; n < ranks; n++)
+                for (int i = 0; i < pulls.Count; i++)
                 {
+                    if (counts[i] <= n) continue;
                     s_flights.RemoveAll(f => f == null);
                     if (s_flights.Count >= ItemFlightConfig.MaxInFlight.Value) return;
-                    s_flights.Add(Create(pull.Item, from, destination, delay, phase, n == 0, fromCraft));
-                    delay += TrainSeconds;
+                    Vector3 from = Front(pulls[i].Chest.gameObject);
+                    float delay = starts[i] + n * TrainSeconds;
+                    s_flights.Add(Create(pulls[i].Item, from, destination, delay, phases[i], n == 0, fromCraft));
                 }
-                delays[pull.Chest] = delay + StaggerSeconds;
-                if (CraftFromChestsConfig.LogPulls.Value)
-                    Plugin.Log.LogInfo($"ItemFlight : {counts[i]} × {pull.Item.name} de {pull.Chest.m_name} vers {destination}");
-            }
         }
 
         /// <summary>

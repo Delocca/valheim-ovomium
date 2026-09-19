@@ -5,7 +5,7 @@ Une entrée par jour de travail, plus récent en haut : fait, décisions (avec l
 ## 2026-09-20 — ItemFlight : plusieurs exemplaires par ingrédient
 
 - **Fait** : un retrait de N objets envoie jusqu'à `MaxPerType` (5) exemplaires au lieu d'un seul, en file sur la même trajectoire (phase d'ondulation imposée à `FlyingItem.Setup` au lieu d'un tirage par vol), 0,15 s d'écart, 0,35 s de plus entre deux types d'un même coffre. Répartition par type et non par coffre (`ItemFlight.Share`) : un exemplaire par coffre contributeur d'abord, le reste à tour de rôle sans dépasser ce que chacun fournit. Validé en jeu par Edia.
-- **Décisions d'Edia** : pas de particules supplémentaires, d'où une seule traînée par type et par coffre, portée par le premier du chapelet (les suivants passent dans son sillage, ce qui suppose la trajectoire identique). Le plafond global `MaxInFlight` (30) reste inchangé : une recette à six ingrédients ou plus saturera, à monter dans le menu si le cas se présente.
+- **Décisions d'Edia** : pas de particules supplémentaires, d'où une seule traînée par type et par coffre, portée par le premier du chapelet (les suivants passent dans son sillage, ce qui suppose la trajectoire identique). Le plafond global `MaxInFlight` (30) reste inchangé, mais les vols sont créés rang par rang (le premier exemplaire de chaque retrait, puis les deuxièmes…) : en saturation, ce sont des doublons qui manquent, jamais un type entier.
 
 ## 2026-09-19 — Boucle de test rapide, rafale de features, suivi
 
