@@ -15,8 +15,8 @@ namespace Ovomium.Features.AmbientOcclusion
                 new ConfigDescription("Intensité de l'occlusion ambiante (SSAO) réglable, par rapport à celle que le jeu choisit selon "
                     + "l'environnement et l'heure.",
                     null, new SettingLabel("Activé")));
-            Intensity = config.Bind("AmbientOcclusion", "Intensity", 1f,
-                new ConfigDescription("Multiplicateur de l'intensité vanilla (0 : pas d'occlusion, 1 : jeu inchangé).",
+            Intensity = config.Bind("AmbientOcclusion", "Intensity", 0.8f,
+                new ConfigDescription("Multiplicateur de l'intensité vanilla (0 : pas d'occlusion, 1 : jeu inchangé, 0.8 par défaut).",
                     new AcceptableValueRange<float>(0f, 1f), new SettingLabel("Intensité (× vanilla)")));
         }
     }
