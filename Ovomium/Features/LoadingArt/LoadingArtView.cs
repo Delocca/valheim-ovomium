@@ -7,7 +7,8 @@ namespace Ovomium.Features.LoadingArt
     /// <summary>
     /// Mise en place d'une image de fond plein écran, entière et non déformée (bandes noires au besoin), insérée
     /// dans une hiérarchie d'écran de chargement vanilla : fond noir puis artwork à l'index demandé, les fonds unis
-    /// vanilla du même parent (Image opaque sans sprite) désactivés pour ne pas recouvrir l'artwork.
+    /// vanilla du même parent (Image opaque sans sprite) désactivés pour ne pas recouvrir l'artwork. L'artwork reste
+    /// désactivé tant qu'il n'a pas de sprite (une Image sans sprite se dessine en blanc uni).
     /// Tout ce qui est posé sur la scène est retrouvé par nom (jamais par type : rechargement à chaud) et mémorisé
     /// pour <see cref="Unload"/>.
     /// </summary>
@@ -32,21 +33,34 @@ namespace Ovomium.Features.LoadingArt
             black.transform.SetSiblingIndex(siblingIndex);
             Image art = Find(parent, ArtName) ?? CreateImage(parent, ArtName);
             art.transform.SetSiblingIndex(siblingIndex + 1);
+            art.enabled = !IsBlank(art);
             DisableSolidBackgrounds(parent);
             return art;
         }
 
         /// <summary>Affecte une image tirée au sort à <paramref name="image"/>, étirée à son parent.</summary>
-        internal static void Apply(Image image)
+        internal static void Apply(Image image) => Apply(image, LoadingArtLibrary.Next());
+
+        /// <summary>Affecte <paramref name="sprite"/> (rien si null) à <paramref name="image"/>, étirée à son parent.</summary>
+        internal static void Apply(Image image, Sprite sprite)
         {
-            Sprite sprite = LoadingArtLibrary.Next();
             if (sprite == null)
                 return;
             image.sprite = sprite;
             image.type = Image.Type.Simple;
             image.preserveAspect = true;
             image.color = Color.white;
+            image.enabled = true;
             Stretch(image.rectTransform);
+        }
+
+        /// <summary>
+        /// Vrai si l'artwork se dessinerait en blanc : sprite absent ou détruit, ou texture détruite (une Image sans
+        /// sprite valide rend un rectangle blanc uni).
+        /// </summary>
+        internal static bool IsBlank(Image image)
+        {
+            return image == null || image.sprite == null || image.sprite.texture == null;
         }
 
         /// <summary>Désactive une Image vanilla, mémorisée pour <see cref="Unload"/>.</summary>
@@ -99,7 +113,8 @@ namespace Ovomium.Features.LoadingArt
                 {
                     Transform child = parent.GetChild(i);
                     Image image = child.GetComponent<Image>();
-                    string tint = image == null ? "-" : $"{image.color} {(image.sprite == null ? "sans sprite" : image.sprite.name)}";
+                    string tint = image == null ? "-"
+                        : $"{(image.enabled ? "" : "(désactivée) ")}{image.color} {(image.sprite == null ? "sans sprite" : image.sprite.name)}";
                     Plugin.Log.LogInfo($"LoadingArt :   {parent.name}[{i}] {child.name} actif={child.gameObject.activeSelf} image={tint}");
                 }
             }

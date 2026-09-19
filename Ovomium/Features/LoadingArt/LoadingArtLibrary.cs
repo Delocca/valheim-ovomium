@@ -29,6 +29,7 @@ namespace Ovomium.Features.LoadingArt
         private static int s_last = -1;
         private static Texture2D s_texture;
         private static Sprite s_sprite;
+        private static bool s_keepForGame;
 
         internal static bool Available
         {
@@ -78,6 +79,32 @@ namespace Ovomium.Features.LoadingArt
             files.Sort(System.StringComparer.Ordinal);
             s_files = files.ToArray();
             Plugin.Log.LogInfo($"LoadingArt : {s_files.Length} image(s) dans {folder}");
+        }
+
+        /// <summary>Image courante si elle est encore vivante (texture comprise), sinon null.</summary>
+        internal static Sprite Current => s_sprite != null && s_texture != null ? s_sprite : null;
+
+        /// <summary>
+        /// Réserve l'image courante pour l'écran de chargement en jeu qui suit : un chargement de partie garde la
+        /// même image du menu à l'apparition du joueur. La réservation vit dans un statique, elle survit au changement
+        /// de scène (pas à un rechargement à chaud : nouveau tirage, sans conséquence).
+        /// </summary>
+        internal static void KeepForGame() => s_keepForGame = true;
+
+        /// <summary>Image de l'écran en jeu : celle réservée par le menu si elle vit encore, sinon un nouveau tirage.</summary>
+        internal static Sprite NextForGame()
+        {
+            bool keep = s_keepForGame;
+            s_keepForGame = false;
+            Sprite current = Current;
+            if (keep && current != null)
+            {
+                Plugin.Log.LogInfo("LoadingArt : image du menu reprise en jeu");
+                return current;
+            }
+            if (keep)
+                Plugin.Log.LogWarning("LoadingArt : image du menu perdue au changement de scène, nouveau tirage");
+            return Next();
         }
 
         /// <summary>Charge une nouvelle image au hasard ; l'ancienne est détruite.</summary>

@@ -14,7 +14,8 @@ namespace Ovomium.Features.AutoJoin
     /// </summary>
     internal static class AutoJoinPatch
     {
-        private static bool s_attempted;
+        /// <summary>Garde « un seul essai » dans l'AppDomain : un statique serait remis à zéro au rechargement à chaud.</summary>
+        private const string AttemptedKey = "Ovomium.AutoJoin.Attempted";
         private static bool s_passwordPending;
 
         [HarmonyPatch(typeof(FejdStartup), "Start", new System.Type[0])]
@@ -22,15 +23,15 @@ namespace Ovomium.Features.AutoJoin
         {
             private static void Postfix(FejdStartup __instance)
             {
-                if (s_attempted)
+                System.AppDomain domain = System.AppDomain.CurrentDomain;
+                if (domain.GetData(AttemptedKey) != null)
                 {
                     s_passwordPending = false;
                     return;
                 }
-                s_attempted = true;
-                if (!AutoJoinConfig.IsRequested())
-                    return;
-                TryJoin(__instance);
+                domain.SetData(AttemptedKey, true);
+                if (AutoJoinConfig.IsRequested())
+                    TryJoin(__instance);
             }
         }
 

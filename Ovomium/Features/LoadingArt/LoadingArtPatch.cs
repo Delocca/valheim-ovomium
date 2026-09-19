@@ -23,8 +23,13 @@ namespace Ovomium.Features.LoadingArt
 
     /// <summary>
     /// Écran « Loading » du menu, affiché pendant le chargement synchrone de la scène principale : préparé à l'Awake,
-    /// image tirée au moment de l'affichage (hiérarchie retrouvée ou recréée à ce moment : après un rechargement à
-    /// chaud dans le menu, l'Awake n'est pas rejoué).
+    /// image tirée dès <c>TransitionToMainScene</c> (Démarrer / Rejoindre) et réservée pour l'écran en jeu qui suit
+    /// (une seule image par chargement de partie). Le clip <c>startmenu_fadeout</c> du menu (déclencheur « FadeOut »,
+    /// posé par TransitionToMainScene) active <c>m_loading</c> lui-même et fond son CanvasGroup de 0 à 1 en 1,5 s,
+    /// bien avant LoadMainScene (attente du backend serveur, parfois 10 s) : l'image doit donc être en place à ce
+    /// moment, sinon l'artwork sans sprite se dessine en blanc uni jusqu'au chargement, et la dernière image
+    /// présentée avant le gel synchrone est celle-là. Le prefix de LoadMainScene reste en secours (hiérarchie
+    /// retrouvée ou recréée : après un rechargement à chaud dans le menu, l'Awake n'est pas rejoué).
     /// </summary>
     [HarmonyPatch(typeof(FejdStartup))]
     internal static class LoadingArtMenuPatch
@@ -36,11 +41,26 @@ namespace Ovomium.Features.LoadingArt
                 LoadingArtView.Install(__instance.m_loading.transform, 0);
         }
 
+        [HarmonyPrefix, HarmonyPatch("TransitionToMainScene", new System.Type[0])]
+        private static void TransitionPrefix(FejdStartup __instance) => PrepareMenuArt(__instance, force: true);
+
         [HarmonyPrefix, HarmonyPatch("LoadMainScene", new System.Type[0])]
-        private static void LoadMainScenePrefix(FejdStartup __instance)
+        private static void LoadMainScenePrefix(FejdStartup __instance) => PrepareMenuArt(__instance, force: false);
+
+        /// <summary>
+        /// Tire et pose l'image du menu ; sans <paramref name="force"/>, seulement si l'artwork n'en a pas.
+        /// (Pas « Prepare » : nom réservé par Harmony dans une classe de patch.)
+        /// </summary>
+        private static void PrepareMenuArt(FejdStartup startup, bool force)
         {
-            if (LoadingArtLibrary.Available && __instance.m_loading != null)
-                LoadingArtView.Apply(LoadingArtView.Install(__instance.m_loading.transform, 0));
+            if (!LoadingArtLibrary.Available || startup.m_loading == null)
+                return;
+            Image art = LoadingArtView.Install(startup.m_loading.transform, 0);
+            if (force || LoadingArtView.IsBlank(art))
+            {
+                LoadingArtView.Apply(art);
+                LoadingArtLibrary.KeepForGame();
+            }
         }
     }
 
@@ -48,7 +68,8 @@ namespace Ovomium.Features.LoadingArt
     /// Écran de chargement en jeu (<c>Hud.m_loadingScreen</c>) : actif dès la connexion au serveur (joueur absent),
     /// à la mort, au sommeil, à la téléportation et au chargement. L'image vanilla <c>m_loadingImage</c> n'est visible
     /// que dans la branche des astuces : on installe notre artwork directement sous l'écran, nouvelle image à chaque
-    /// apparition.
+    /// apparition (sauf la première d'une partie, qui reprend celle du menu). Un artwork devenu blanc pendant
+    /// l'affichage (sprite ou texture détruits) est retiré à nouveau, avec avertissement.
     /// </summary>
     [HarmonyPatch(typeof(Hud), "UpdateBlackScreen", typeof(Player), typeof(float))]
     internal static class LoadingArtHudPatch
@@ -61,11 +82,19 @@ namespace Ovomium.Features.LoadingArt
             bool shown = __instance.m_loadingScreen.gameObject.activeSelf;
             if (s_art == null)
                 s_shown = false; // nouveau Hud (retour au menu puis nouvelle partie) : l'ancien artwork a été détruit avec lui
-            if (shown && !s_shown && LoadingArtLibrary.Available)
+            if (shown && LoadingArtLibrary.Available)
             {
-                if (s_art == null)
-                    Install(__instance);
-                LoadingArtView.Apply(s_art);
+                if (!s_shown)
+                {
+                    if (s_art == null)
+                        Install(__instance);
+                    LoadingArtView.Apply(s_art, LoadingArtLibrary.NextForGame());
+                }
+                else if (LoadingArtView.IsBlank(s_art))
+                {
+                    Plugin.Log.LogWarning("LoadingArt : artwork en jeu devenu blanc (sprite ou texture détruit), nouveau tirage");
+                    LoadingArtView.Apply(s_art);
+                }
             }
             s_shown = shown;
         }

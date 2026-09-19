@@ -76,7 +76,12 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   onglet Gameplay ; ex-`IntroVideo` du mod). Écrans de chargement : `Hud.m_loadingScreen`
   (partie, mort, sommeil, téléportation) piloté par `Hud.UpdateBlackScreen`, image de fond `Hud.m_loadingImage`
   unique, jamais tirée au sort en vanilla ; écran de démarrage = `SceneLoader.gameLogo` + `LoadingIndicator` sur
-  noir. Aucun artwork en clair dans les données du jeu (tout est dans les bundles `StreamingAssets/SoftRef/`).
+  noir. Écran « Loading » du menu (`FejdStartup.m_loading`) : `TransitionToMainScene` (privée) pose le déclencheur
+  « FadeOut » de `m_menuAnimator` dont le clip `startmenu_fadeout` (bundle `b8689a71`, `Assets/UI/animations/`)
+  **active `Loading` lui-même** et fond son CanvasGroup 0 → 1 en 1,5 s, puis `Invoke(LoadMainSceneIfBackendSelected)`
+  réessaie toutes les 0,25 s jusqu'à `ZNet.HasServerHost()` (résolution PlayFab d'un serveur dédié : jusqu'à ~10 s
+  d'écran `Loading` visible avant `LoadMainScene`) ; `m_instantStart` ne change que le délai (0 au lieu de 1,5 s).
+  Bundles UnityFS lisibles par un petit décompresseur Python (lz4 + lzma), liaisons de clip = CRC32 des chemins. Aucun artwork en clair dans les données du jeu (tout est dans les bundles `StreamingAssets/SoftRef/`).
   L'apparition au login/respawn (`Game.FindSpawnPoint`, 8 s + `IsAreaReady`) est volontairement laissée vanilla
   (décision d'Edia, 2026-09-17) même si le décor y est parfois incomplet à l'arrivée sur un serveur.
   Menu Paramètres : prefab `Menu.m_settingsPrefab` / `FejdStartup.m_settingsPrefab`, composant `Settings` (`Awake`
@@ -99,6 +104,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   les configs et `PatchAll`.
 - Patches Harmony **toujours avec types d'arguments explicites** (`typeof(...)` ou `new System.Type[0]`) :
   la 1.0 a ajouté des surcharges, un patch ambigu fait échouer tout le plugin au chargement.
+- Dans une classe de patch, `Prepare`, `Cleanup`, `TargetMethod(s)` sont des noms réservés par Harmony : un helper
+  ainsi nommé est appelé par Harmony avec d'autres arguments et fait échouer le patch.
 - `Console` du jeu masque `System.Console` : ne pas importer `System` dans les patches qui l'utilisent.
 - Warnings = erreurs (`TreatWarningsAsErrors`). Version du mod : `<Version>` du csproj uniquement (cible
   `GeneratePluginVersion` → `PluginVersion.Value`).
