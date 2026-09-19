@@ -101,6 +101,7 @@ namespace Ovomium
             TooltipStylePatch.Unload();
             UpdaterPatch.Unload();
             ChestReservation.Unload();
+            RequirementBackdrop.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }

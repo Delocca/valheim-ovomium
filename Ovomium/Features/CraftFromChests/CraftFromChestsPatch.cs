@@ -143,8 +143,9 @@ namespace Ovomium.Features.CraftFromChests
             amount.richText = true;
             amount.textWrappingMode = TextWrappingModes.NoWrap;
             amount.overflowMode = TextOverflowModes.Overflow;
-            amount.text = $"{need} <size=70%>({total})</size>";
+            amount.text = $"{need} <size=70%><color=#80E080>({total})</color></size>";
             if (total >= need) amount.color = Color.white;
+            RequirementBackdrop.Fit(amount);
         }
     }
 }

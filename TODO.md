@@ -13,4 +13,6 @@ Chantiers restants, par priorité. Une entrée par chantier avec le contexte uti
 
 4. **SettingsMenu : pages défilables** (Edia, 2026-09-19) : les pages d'options Ovomium défilent à la molette, avec une barre de défilement latérale qui n'apparaît que si le contenu dépasse. L'onglet Jeu compte déjà 10 sections.
 
-5. **FirstPerson phase 2 : corps visible** : caméra sur l'os tête, tête en ShadowsOnly ou os rétréci. Références : Landoria.FirstPerson (MIT), ImmersiveFirstPerson (GPL).
+5. **Deux emplacements rapides de plus** (Edia, 2026-09-19) : touches 9 et 0 en plus des 1 à 8 vanilla (barre d'objets `HotkeyBar`, `Player.UseHotbarItem`, cases de l'inventaire ; regarder les mods existants, ex. AzuExtendedPlayerInventory, QuickSlots).
+
+6. **FirstPerson phase 2 : corps visible** : caméra sur l'os tête, tête en ShadowsOnly ou os rétréci. Références : Landoria.FirstPerson (MIT), ImmersiveFirstPerson (GPL).
