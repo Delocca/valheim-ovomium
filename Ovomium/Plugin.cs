@@ -6,6 +6,7 @@ using Ovomium.Features.AmbientOcclusion;
 using Ovomium.Features.AutoJoin;
 using Ovomium.Features.ButcherKnife;
 using Ovomium.Features.ContinueButton;
+using Ovomium.Features.CraftFromChests;
 using Ovomium.Features.FastPortal;
 using Ovomium.Features.FirstPerson;
 using Ovomium.Features.FocusClick;
@@ -68,6 +69,7 @@ namespace Ovomium
             PortalRangeConfig.Bind(Config);
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);
+            CraftFromChestsConfig.Bind(Config);
             SkillTooltipConfig.Bind(Config);
             TooltipStyleConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
@@ -98,6 +100,7 @@ namespace Ovomium
             PortalRangePatch.Unload();
             TooltipStylePatch.Unload();
             UpdaterPatch.Unload();
+            ChestReservation.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }
