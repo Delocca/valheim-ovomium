@@ -8,7 +8,10 @@ GITHUB_REPO="Delocca/valheim-ovomium"
 
 case "${1:-status}" in
     public|private)
-        gh repo edit "$GITHUB_REPO" --visibility "$1" --accept-visibility-change-consequences
+        # Option de confirmation exigée par gh ≥ 2.53, inconnue des versions antérieures (Ubuntu 24.04 : 2.45).
+        ACCEPT=()
+        gh repo edit --help 2>/dev/null | grep -q -- --accept-visibility-change-consequences && ACCEPT=(--accept-visibility-change-consequences)
+        gh repo edit "$GITHUB_REPO" --visibility "$1" "${ACCEPT[@]}"
         echo "Dépôt $GITHUB_REPO : $1" ;;
     status)
         gh repo view "$GITHUB_REPO" --json visibility --jq '"Dépôt '"$GITHUB_REPO"' : " + (.visibility | ascii_downcase)' ;;
