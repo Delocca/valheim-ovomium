@@ -16,9 +16,8 @@ namespace Ovomium.Features.AmbientOcclusion
                     + "l'environnement et l'heure.",
                     null, new SettingLabel("Activé")));
             Intensity = config.Bind("AmbientOcclusion", "Intensity", 1f,
-                new ConfigDescription("Multiplicateur de l'intensité vanilla (0 : pas d'occlusion, 1 : jeu inchangé). "
-                    + "Le shader reçoit l'intensité comme alpha d'une couleur : au-delà de 1, l'effet peut être plafonné.",
-                    new AcceptableValueRange<float>(0f, 3f), new SettingLabel("Intensité (× vanilla)")));
+                new ConfigDescription("Multiplicateur de l'intensité vanilla (0 : pas d'occlusion, 1 : jeu inchangé).",
+                    new AcceptableValueRange<float>(0f, 1f), new SettingLabel("Intensité (× vanilla)")));
         }
     }
 }

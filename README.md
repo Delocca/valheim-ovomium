@@ -89,9 +89,8 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   d'ignorance des clics après le retour du focus ; un clic maintenu ne déclenche rien non plus à la fin du délai.
 - **MapExplore** : rayon de découverte de la carte multiplié par `LandFactor` (3) à pied et `BoatFactor` (5) à bord
   d'un bateau (vanilla : 100 m).
-- **AmbientOcclusion** : intensité de l'occlusion ambiante (SSAO) multipliée par `Intensity` (1 = jeu inchangé, 0 = pas
-  d'occlusion, jusqu'à 3), appliquée à l'intensité que le jeu choisit selon l'environnement et l'heure ; effet
-  immédiat. Au-delà de 1, l'effet peut être plafonné par le shader.
+- **AmbientOcclusion** : intensité de l'occlusion ambiante (SSAO) multipliée par `Intensity` (0 = pas d'occlusion,
+  1 = jeu inchangé), appliquée à l'intensité que le jeu choisit selon l'environnement et l'heure ; effet immédiat.
 - **PortalRange** : distance à laquelle un joueur allume le halo et le bourdonnement d'un portail, `ActivationRange`
   (2 m ; 5 m dans le jeu). Appliquée aux portails déjà en scène dès le changement de réglage.
 - **ButcherKnife** : le couteau de boucher (toute arme réservée aux animaux apprivoisés) ne frappe que la créature
