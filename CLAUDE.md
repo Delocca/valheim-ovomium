@@ -4,8 +4,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 
 ## Environnement
 
-- Jeu : `~/.local/share/Steam/steamapps/common/Valheim`, Valheim **1.0.15** (patch du 2026-09-19 ; le décompilé est encore en 1.0.14, à régénérer — membres du chargement
-  inchangés d'après `strings`, ancrages non revérifiés), Unity 6, Mono, Linux natif.
+- Jeu : `~/.local/share/Steam/steamapps/common/Valheim`, Valheim **1.0.15** (patch du 2026-09-19 ; décompilé régénéré, tous les ancrages revérifiés OK), Unity 6, Mono,
+  Linux natif.
   BepInExPack_Valheim 5.4.2350 installé (`tools/install-bepinex.sh`). Journal : `BepInEx/LogOutput.log` (lisible).
 - Aucun outil .NET sur l'hôte : tout passe par l'image podman `ovomiam-build` (`tools/Containerfile`).
 - `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
