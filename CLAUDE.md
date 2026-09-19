@@ -8,7 +8,9 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   BepInExPack_Valheim 5.4.2350 installé (`tools/install-bepinex.sh`). Journal : `BepInEx/LogOutput.log` (lisible).
 - Aucun outil .NET sur l'hôte : tout passe par l'image podman `ovomiam-build` (`tools/Containerfile`).
 - `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
-  directement. Toute autre commande podman ou accès à nuget/mcr/thunderstore échoue dans le bac à sable.
+  **exactement** sous la forme `cd <dépôt> && tools/build.sh Release` (un argument obligatoire, rien d'autre dans la
+  commande : pas de `| tail`, pas de `2>&1`, sinon podman échoue dans le bac à sable). Toute autre commande podman ou
+  accès à nuget/mcr/thunderstore échoue dans le bac à sable.
 - **Déploiement possible jeu lancé** : `deploy.sh` remplace la DLL par renommage atomique (`Ovomium.dll.new` puis
   `mv -f`), l'ancien fichier reste mappé par Mono (qui lit les méthodes à la demande : le réécrire en place casserait
   les patches pas encore exécutés, `BadImageFormatException: Method has zero rva`) ; la nouvelle DLL sert au prochain
