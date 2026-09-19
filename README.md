@@ -102,9 +102,9 @@ sans `--dev` revient au mode normal, à garder pour le test final avant release.
 
 Le csproj référence les DLL du jeu (publicisées) et `BepInEx.Core` 5.4.21 depuis `nuget.bepinex.dev`.
 La version du mod se change uniquement dans `<Version>` du csproj (constante `PluginVersion.Value` générée au build).
-Les patches Harmony précisent toujours les types d'arguments : la 1.0 a ajouté des surcharges, un patch ambigu fait échouer tout le plugin.
+Les patches Harmony précisent toujours les types d'arguments : la 1.0 a ajouté des surcharges, un patch ambigu ferait échouer le patch. Les patches sont posés classe par classe : un ancrage disparu après une mise à jour du jeu ne désactive que sa fonctionnalité, signalée en erreur dans le journal.
 
-Vérification : `BepInEx/LogOutput.log` doit contenir `Ovomium <version> chargé`, puis, si `LogSortOrder = true`,
+Vérification : `BepInEx/LogOutput.log` doit contenir `Autocontrôle OK : …` puis `Ovomium <version> chargé`, puis, si `LogSortOrder = true`,
 `$piece_cauldron trié :` à l'ouverture d'un chaudron.
 
 ## Distribution (Windows)

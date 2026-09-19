@@ -54,7 +54,7 @@ namespace Ovomium
             SettingsMenuConfig.Bind(Config);
 
             m_harmony = new Harmony(Guid);
-            m_harmony.PatchAll(typeof(Plugin).Assembly);
+            PatchInstaller.Install(m_harmony);
             OvomiumMenuButton.Install();  // rechargement à chaud : les menus existent déjà, leurs Start ne rejouent pas
             Log.LogInfo($"{Name} {Version} chargé");
         }

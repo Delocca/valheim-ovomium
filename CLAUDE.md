@@ -110,5 +110,9 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 - `Console` du jeu masque `System.Console` : ne pas importer `System` dans les patches qui l'utilisent.
 - Warnings = erreurs (`TreatWarningsAsErrors`). Version du mod : `<Version>` du csproj uniquement (cible
   `GeneratePluginVersion` → `PluginVersion.Value`).
+- Autocontrôle au chargement (`PatchInstaller`) : patches posés classe par classe puis JIT forcé de toutes les
+  méthodes du mod ; le journal conclut par `Autocontrôle OK : N classes de patch posées, M méthodes compilées` ou
+  une erreur par ancrage manquant (la feature concernée est perdue, les autres tournent). Après une mise à jour
+  du jeu, lire cette ligne avant toute autre vérification.
 - Journal : `Plugin.Log`. Traces de tri en `LogInfo` derrière `LogSortOrder` ; le niveau Debug
   n'est pas écrit dans `LogOutput.log` par défaut.
