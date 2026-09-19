@@ -99,6 +99,10 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   `m_closeMenuState = SettingsOpen` (privés, publicisés). Lignes vanilla clonées (SettingsMenu) : champs sérialisés
   d'`AccessibilitySettings` (`m_toggleRun`, `m_guiScaleSlider`, `m_guiScaleText`) ; leurs `onValueChanged`
   persistants visent le composant vanilla, à remplacer par un événement neuf sur le clone.
+- Fenêtre des compétences : `SkillsDialog.Setup(Player)` (publique) repose à chaque ouverture le `UITooltip` de chaque
+  ligne (`m_elements[j]` ↔ `GetSkillList()[j]`, `Set("", m_description, …)` ; `UITooltip.m_text` public dans
+  `assembly_guiutils`, non décompilé) ; niveau affiché = `Skills.GetSkillLevel` (bonus d'effets de statut, floor),
+  facteur = niveau/100. Formules des compétences : en-tête de `SkillEffects.cs`.
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).
 
 ## Règles de code

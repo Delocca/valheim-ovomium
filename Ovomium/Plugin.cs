@@ -21,6 +21,7 @@ using Ovomium.Features.PasswordReveal;
 using Ovomium.Features.PortalRange;
 using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.SettingsMenu;
+using Ovomium.Features.SkillTooltip;
 using Ovomium.Features.StackDrag;
 using Ovomium.Features.UpgradeDiff;
 
@@ -65,6 +66,7 @@ namespace Ovomium
             PortalRangeConfig.Bind(Config);
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);
+            SkillTooltipConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
 
             m_harmony = new Harmony(Guid);

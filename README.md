@@ -97,6 +97,9 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   visée par le joueur, au lieu de toutes celles du cône d'attaque ; sans créature visée, le coup ne touche rien.
 - **UpgradeDiff** : onglet Amélioration, à côté de chaque valeur qui change (armure, durabilité, dégâts, blocage…),
   différence avec l'objet actuel en vert (+) ou rouge (−).
+- **SkillTooltip** : fenêtre des compétences, l'infobulle de chaque compétence indique sous sa description l'effet
+  chiffré au niveau actuel (bonus d'effets de statut compris) puis, en gris, au niveau 100 : endurance, vitesse,
+  dégâts, blocage, chances de bonus, etc.
 
 ## Prérequis
 
