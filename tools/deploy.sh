@@ -1,6 +1,7 @@
 #!/bin/bash
-# Copie Ovomium.dll dans BepInEx/plugins/Ovomium/ du jeu, et les artworks valheim_art/ dans son sous-dossier
-# loading/ (LoadingArt). À lancer hors bac à sable.
+# Copie Ovomium.dll dans BepInEx/plugins/Ovomium/ du jeu, le patcher Ovomium.Updater.dll dans BepInEx/patchers/
+# (pris en compte à la relance), et les artworks valheim_art/ dans le sous-dossier loading/ du plugin (LoadingArt).
+# À lancer hors bac à sable.
 # Sûr jeu lancé : la DLL est remplacée par renommage atomique, l'ancien fichier (mappé par Mono, qui lit les
 # méthodes à la demande) reste intact ; la nouvelle DLL sert au prochain lancement.
 # Usage : tools/deploy.sh [--build] [--dev] [--relaunch] [Debug|Release]   (défaut : Release)
@@ -28,12 +29,15 @@ while [ $# -gt 0 ]; do
 done
 CONFIG="${1:-Release}"
 DLL="$PROJECT/Ovomium/bin/$CONFIG/net48/Ovomium.dll"
+PATCHER="$PROJECT/Ovomium.Updater/bin/$CONFIG/net48/Ovomium.Updater.dll"
+PATCHERS="$GAME/BepInEx/patchers"
 DEST="$GAME/BepInEx/plugins/Ovomium"
 SCRIPTS="$GAME/BepInEx/scripts"
 GAME_PROC="$GAME/valheim.x86_64"
 
 [ "$BUILD" = 0 ] || "$PROJECT/tools/build.sh" "$CONFIG"
 [ -f "$DLL" ] || { echo "DLL absente, lance d'abord tools/build.sh : $DLL" >&2; exit 1; }
+[ -f "$PATCHER" ] || { echo "Patcher absent, lance d'abord tools/build.sh : $PATCHER" >&2; exit 1; }
 [ -d "$GAME/BepInEx" ] || { echo "BepInEx absent dans $GAME, lance d'abord tools/install-bepinex.sh" >&2; exit 1; }
 [ "$DEV" = 0 ] || [ -f "$GAME/BepInEx/plugins/ScriptEngine.dll" ] \
     || { echo "ScriptEngine absent, lance d'abord tools/install-scriptengine.sh" >&2; exit 1; }
@@ -73,6 +77,10 @@ fi
 cp "$DLL" "$TARGET.new"
 mv -f "$TARGET.new" "$TARGET"
 echo "Déployé : $TARGET"
+mkdir -p "$PATCHERS"
+cp "$PATCHER" "$PATCHERS/Ovomium.Updater.dll.new"
+mv -f "$PATCHERS/Ovomium.Updater.dll.new" "$PATCHERS/Ovomium.Updater.dll"
+echo "Patcher : $PATCHERS/Ovomium.Updater.dll (actif à la relance)"
 if [ -d "$PROJECT/valheim_art" ]; then
     rsync -a "$PROJECT/valheim_art/" "$DEST/loading/"
     echo "Artworks : $(ls "$DEST/loading" | wc -l) fichier(s) dans $DEST/loading/"

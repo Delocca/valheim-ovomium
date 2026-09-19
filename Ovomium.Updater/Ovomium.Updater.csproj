@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Patcher BepInEx (BepInEx/patchers/Ovomium.Updater.dll) : installe la mise à jour préparée par la feature
+       Updater du mod avant que Ovomium.dll ne soit chargée. Version fixe : il ne peut pas se mettre à jour lui-même
+       (chargé, donc verrouillé sous Windows), l'installateur .bat s'en charge s'il doit changer un jour.
+       Propriétés communes : ../Directory.Build.props -->
+  <PropertyGroup>
+    <AssemblyName>Ovomium.Updater</AssemblyName>
+    <RootNamespace>Ovomium.Updater</RootNamespace>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx.Paths, BepInEx.Logging ; Mono.Cecil (AssemblyDefinition de la signature Patch) vient en dépendance -->
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

@@ -1,13 +1,15 @@
 #!/bin/bash
 # Construit l'archive Windows distribuée aux joueuses : build/dist/Ovomium-<version>-windows.zip
 # Contenu (à extraire tel quel dans le dossier de Valheim) : BepInExPack_Valheim pour Windows (winhttp.dll,
-# doorstop_config.ini, BepInEx/) + BepInEx/plugins/Ovomium/{Ovomium.dll,version.txt}. Pas d'artworks.
+# doorstop_config.ini, BepInEx/) + BepInEx/plugins/Ovomium/{Ovomium.dll,version.txt} + BepInEx/patchers/Ovomium.Updater.dll
+# (installe la mise à jour téléchargée par la feature Updater au lancement suivant). Pas d'artworks.
 # Le pack est téléchargé depuis Thunderstore (même version que install-bepinex.sh) et gardé dans build/cache/.
 # À lancer hors bac à sable (téléchargement). Usage : tools/package.sh   (après tools/build.sh)
 set -euo pipefail
 
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
 DLL="$PROJECT/Ovomium/bin/Release/net48/Ovomium.dll"
+PATCHER="$PROJECT/Ovomium.Updater/bin/Release/net48/Ovomium.Updater.dll"
 VERSION="$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' "$PROJECT/Ovomium/Ovomium.csproj")"
 BEPINEX_VERSION="$(sed -n 's/^VERSION="\(.*\)"$/\1/p' "$PROJECT/tools/install-bepinex.sh")"
 CACHE="$PROJECT/build/cache/BepInExPack_Valheim-$BEPINEX_VERSION.zip"
@@ -17,6 +19,7 @@ ZIP="$DIST/Ovomium-$VERSION-windows.zip"
 [ -n "$VERSION" ] || { echo "Version introuvable dans Ovomium/Ovomium.csproj" >&2; exit 1; }
 [ -n "$BEPINEX_VERSION" ] || { echo "VERSION= introuvable dans tools/install-bepinex.sh" >&2; exit 1; }
 [ -f "$DLL" ] || { echo "DLL absente, lance d'abord tools/build.sh : $DLL" >&2; exit 1; }
+[ -f "$PATCHER" ] || { echo "Patcher absent, lance d'abord tools/build.sh : $PATCHER" >&2; exit 1; }
 
 # 1. Pack BepInEx (cache) — téléchargé dans un fichier temporaire pour ne pas garder un zip tronqué en cache.
 if [ ! -f "$CACHE" ]; then
@@ -50,6 +53,8 @@ PLUGIN="$WORK/root/BepInEx/plugins/Ovomium"
 mkdir -p "$PLUGIN"
 cp "$DLL" "$PLUGIN/"
 printf '%s\n' "$VERSION" > "$PLUGIN/version.txt"   # lu par installer/Installer-Ovomium.bat (« déjà à jour »)
+mkdir -p "$WORK/root/BepInEx/patchers"
+cp "$PATCHER" "$WORK/root/BepInEx/patchers/"
 
 # 3. Zip (-X : pas d'attributs Unix, inutiles sous Windows).
 mkdir -p "$DIST"
@@ -59,3 +64,4 @@ rm -f "$ZIP"
 echo "Archive : $ZIP ($(du -h "$ZIP" | cut -f1))"
 echo "Racine  : $(ls "$WORK/root" | tr '\n' ' ')"
 echo "Plugin  : $(ls "$PLUGIN" | tr '\n' ' ')"
+echo "Patcher : $(ls "$WORK/root/BepInEx/patchers" | tr '\n' ' ')"

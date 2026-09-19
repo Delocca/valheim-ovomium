@@ -1,0 +1,16 @@
+<Project>
+
+  <!-- Propriétés communes aux deux projets (Ovomium/ et Ovomium.Updater/), compilés ensemble par Ovomium.sln. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- NU1900 : audit de vulnérabilités NuGet injoignable ne doit pas bloquer le build -->
+    <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
+    <!-- DLL du jeu : surchargeable (build.sh monte le dossier du jeu sur /game/Managed) -->
+    <ValheimManaged Condition="'$(ValheimManaged)' == ''">/game/Managed</ValheimManaged>
+    <RestoreAdditionalProjectSources>https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+</Project>

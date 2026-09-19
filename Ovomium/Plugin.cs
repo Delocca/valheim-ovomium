@@ -24,6 +24,7 @@ using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
 using Ovomium.Features.StackDrag;
 using Ovomium.Features.TooltipStyle;
+using Ovomium.Features.Updater;
 using Ovomium.Features.UpgradeDiff;
 
 namespace Ovomium
@@ -70,12 +71,14 @@ namespace Ovomium
             SkillTooltipConfig.Bind(Config);
             TooltipStyleConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
+            UpdaterConfig.Bind(Config);
 
             m_harmony = new Harmony(Guid);
             PatchInstaller.Install(m_harmony);
             OvomiumMenuButton.Install();  // rechargement à chaud : les menus existent déjà, leurs Start ne rejouent pas
             ContinueMenuButton.Install();
             FocusClickPatch.Install(gameObject);
+            UpdaterPatch.Install(gameObject);
             PortalRangePatch.Install();
             Log.LogInfo($"{Name} {Version} chargé");
         }
@@ -94,6 +97,7 @@ namespace Ovomium
             MinimapSizePatch.Unload();
             PortalRangePatch.Unload();
             TooltipStylePatch.Unload();
+            UpdaterPatch.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }

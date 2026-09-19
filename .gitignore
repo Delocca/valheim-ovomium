@@ -5,7 +5,10 @@ build/
 valheim_art/
 .claude/settings.local.json
 
-# Caches .NET du conteneur de build (pas de HOME : écrits dans le cwd /src/Ovomium)
+# Caches .NET du conteneur de build (pas de HOME : écrits dans le cwd, /src puis autrefois /src/Ovomium)
+.dotnet/
+.local/
+.nuget/
 Ovomium/.dotnet/
 Ovomium/.local/
 Ovomium/.nuget/

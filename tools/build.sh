@@ -1,6 +1,7 @@
 #!/bin/bash
-# Compile Ovomium.dll dans le conteneur ovomiam-build (à lancer hors bac à sable).
-# Usage : tools/build.sh [Debug|Release]   (défaut : Release). Sortie : Ovomium/bin/<config>/net48/Ovomium.dll
+# Compile Ovomium.sln (Ovomium.dll + patcher Ovomium.Updater.dll) dans le conteneur ovomiam-build (à lancer hors
+# bac à sable). Usage : tools/build.sh [Debug|Release]   (défaut : Release).
+# Sorties : Ovomium/bin/<config>/net48/Ovomium.dll et Ovomium.Updater/bin/<config>/net48/Ovomium.Updater.dll
 set -euo pipefail
 
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -16,8 +17,9 @@ podman run --rm --userns=keep-id \
     -v "$PROJECT:/src" \
     -v "$MANAGED:/game/Managed:ro" \
     -v "$PROJECT/build/nuget:/nuget" \
-    -w /src/Ovomium \
+    -w /src \
     ovomiam-build \
-    dotnet build -c "$CONFIG" -nologo
+    dotnet build Ovomium.sln -c "$CONFIG" -nologo
 
-echo "DLL : $PROJECT/Ovomium/bin/$CONFIG/net48/Ovomium.dll"
+echo "DLL     : $PROJECT/Ovomium/bin/$CONFIG/net48/Ovomium.dll"
+echo "Patcher : $PROJECT/Ovomium.Updater/bin/$CONFIG/net48/Ovomium.Updater.dll"

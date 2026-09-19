@@ -12,5 +12,3 @@ Chantiers restants, par priorité. Une entrée par chantier avec le contexte uti
    - craft et construction puisant les ingrédients dans les coffres proches (type CraftFromContainers / AzuCraftyBoxes).
 
 4. **FirstPerson phase 2 : corps visible** : caméra sur l'os tête, tête en ShadowsOnly ou os rétréci. Références : Landoria.FirstPerson (MIT), ImmersiveFirstPerson (GPL).
-
-5. **Updater phase 2** : notification « nouvelle version » dans le jeu + mini plugin `Ovomium.Updater` qui remplace la DLL au lancement suivant (Windows verrouille la DLL en cours d'exécution).

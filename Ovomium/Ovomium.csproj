@@ -1,18 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Propriétés communes (net48, warnings = erreurs, ValheimManaged…) : ../Directory.Build.props -->
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <LangVersion>10</LangVersion>
-    <Nullable>disable</Nullable>
     <AssemblyName>Ovomium</AssemblyName>
     <RootNamespace>Ovomium</RootNamespace>
     <Version>0.9.0</Version>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- NU1900 : audit de vulnérabilités NuGet injoignable ne doit pas bloquer le build -->
-    <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
-    <!-- DLL du jeu : surchargeable (build.sh monte le dossier du jeu sur /game/Managed) -->
-    <ValheimManaged Condition="'$(ValheimManaged)' == ''">/game/Managed</ValheimManaged>
-    <RestoreAdditionalProjectSources>https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
 
   <ItemGroup>

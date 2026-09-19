@@ -28,6 +28,7 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
 - **ButcherKnife** : le couteau de boucher (toute arme réservée aux animaux apprivoisés) ne frappe que la créature visée par le joueur, au lieu de toutes celles du cône d'attaque ; sans créature visée, le coup ne touche rien.
 - **UpgradeDiff** : onglet Amélioration, à côté de chaque valeur qui change (armure, durabilité, dégâts, blocage…), différence avec l'objet actuel en vert (+) ou rouge (−).
 - **SkillTooltip** : fenêtre des compétences, l'infobulle de chaque compétence indique sous sa description l'effet chiffré au niveau actuel (bonus d'effets de statut compris) puis, en gris, au niveau 100 : endurance, vitesse, dégâts, blocage, chances de bonus, etc.
+- **Updater** : au menu principal, le mod interroge la dernière release GitHub ; si elle est plus récente, une ligne sous la version du jeu l'annonce et une fenêtre affiche ses notes de version (le changelog) avec « Oui » pour télécharger. L'archive est déposée dans `BepInEx/plugins/Ovomium/update/` et le patcher `BepInEx/patchers/Ovomium.Updater.dll` l'installe au lancement suivant, avant que la DLL du mod ne soit chargée (Windows la verrouille en cours de jeu). Si le menu principal a été sauté (AutoJoin), un message en jeu l'annonce et la fenêtre apparaît au premier menu Échap. Dépôt fermé : rien, nouvel essai au lancement suivant. « Non » repousse à la prochaine session. `ReleasesApiUrl` (cfg seulement). Le patcher et BepInEx ne se mettent pas à jour ainsi : `Installer-Ovomium.bat`.
 - **TooltipStyle** : les infobulles cadrées (objets, craft, compétences) ont un fond marron sombre opaque (`BackgroundOpacity`, 1 par défaut ; le jeu est noir à 0,95 sur un sprite translucide), des coins arrondis (`CornerRadius`, 14 px ; 0 = forme vanilla) et un liseré clair de 1 px (`BorderOpacity`, 0,35 ; 0 = sans). `LogHierarchy` (cfg seulement) écrit la hiérarchie de chaque infobulle dans le journal.
 
 ## Prérequis
@@ -40,14 +41,14 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
 
 ```
 podman build -t ovomiam-build -f tools/Containerfile tools   # une fois
-tools/build.sh            # → Ovomium/bin/Release/net48/Ovomium.dll
+tools/build.sh            # → Ovomium/bin/Release/net48/Ovomium.dll + Ovomium.Updater/bin/Release/net48/Ovomium.Updater.dll
 tools/deploy.sh           # copie dans BepInEx/plugins/Ovomium/ (--relaunch : attend la fermeture du jeu, le relance)
 tools/decompile.sh build/decompiled   # code du jeu décompilé, pour référence (non versionné)
 ```
 
 Rechargement à chaud (jeu lancé, quelques secondes par itération) : `tools/install-scriptengine.sh` une fois (ScriptEngine de BepInEx.Debug), puis `tools/deploy.sh --dev` place la DLL dans `BepInEx/scripts/`, rechargée automatiquement (ou F6). Le mod se retire proprement avant chaque rechargement (`Plugin.OnDestroy`). Limites : ce qui s'exécute avant le menu principal (StartupSkip, AutoJoin, écran de démarrage) exige une relance ; `tools/deploy.sh` sans `--dev` revient au mode normal, à garder pour le test final avant release.
 
-Le csproj référence les DLL du jeu (publicisées) et `BepInEx.Core` 5.4.21 depuis `nuget.bepinex.dev`. La version du mod se change uniquement dans `<Version>` du csproj (constante `PluginVersion.Value` générée au build). Les patches Harmony précisent toujours les types d'arguments : la 1.0 a ajouté des surcharges, un patch ambigu ferait échouer le patch. Les patches sont posés classe par classe : un ancrage disparu après une mise à jour du jeu ne désactive que sa fonctionnalité, signalée en erreur dans le journal.
+`Ovomium.sln` compile deux projets : le mod (`Ovomium/`) et le patcher de mise à jour (`Ovomium.Updater/`, version fixe), propriétés communes dans `Directory.Build.props`. Le csproj du mod référence les DLL du jeu (publicisées) et `BepInEx.Core` 5.4.21 depuis `nuget.bepinex.dev`. La version du mod se change uniquement dans `<Version>` du csproj (constante `PluginVersion.Value` générée au build). Les patches Harmony précisent toujours les types d'arguments : la 1.0 a ajouté des surcharges, un patch ambigu ferait échouer le patch. Les patches sont posés classe par classe : un ancrage disparu après une mise à jour du jeu ne désactive que sa fonctionnalité, signalée en erreur dans le journal.
 
 Vérification : `BepInEx/LogOutput.log` doit contenir `Autocontrôle OK : …` puis `Ovomium <version> chargé`, puis, si `LogSortOrder = true`, `$piece_cauldron trié :` à l'ouverture d'un chaudron.
 
@@ -63,4 +64,4 @@ tools/release.sh                       # build + package + tag v<version> + rele
 tools/repo-visibility.sh public|private|status   # fenêtre de mise à jour (la release se fait dépôt privé)
 ```
 
-Côté amies : télécharger `Installer-Ovomium.bat` depuis la dernière release et le lancer (Windows affiche un avertissement de sécurité sur un `.bat` téléchargé : « Exécuter »). Il trouve Valheim via Steam, télécharge la dernière release et l'installe ; relancer le même fichier met à jour (compare `BepInEx/plugins/Ovomium/version.txt`). Ces scripts ont besoin du réseau (Thunderstore, GitHub) : à lancer hors bac à sable.
+Côté amies, première installation : télécharger `Installer-Ovomium.bat` depuis la dernière release et le lancer (Windows affiche un avertissement de sécurité sur un `.bat` téléchargé : « Exécuter »). Il trouve Valheim via Steam, télécharge la dernière release et l'installe ; relancer le même fichier met à jour (compare `BepInEx/plugins/Ovomium/version.txt`). Mises à jour suivantes, sans rien télécharger à la main (Updater) : pendant la fenêtre d'ouverture du dépôt, lancer le jeu, lire les nouveautés dans la fenêtre qui s'affiche, répondre « Oui », puis relancer le jeu une fois (l'installation se fait à ce lancement, ligne `Ovomium <version> installée` du journal). L'installateur `.bat` reste nécessaire pour mettre à jour BepInEx ou le patcher `Ovomium.Updater.dll` lui-même. Ces scripts ont besoin du réseau (Thunderstore, GitHub) : à lancer hors bac à sable.
