@@ -23,26 +23,24 @@ namespace Ovomium.Features.LoadingArt
 
     /// <summary>
     /// Écran « Loading » du menu, affiché pendant le chargement synchrone de la scène principale : préparé à l'Awake,
-    /// image tirée au moment de l'affichage.
+    /// image tirée au moment de l'affichage (hiérarchie retrouvée ou recréée à ce moment : après un rechargement à
+    /// chaud dans le menu, l'Awake n'est pas rejoué).
     /// </summary>
     [HarmonyPatch(typeof(FejdStartup))]
     internal static class LoadingArtMenuPatch
     {
-        private static Image s_art;
-
         [HarmonyPostfix, HarmonyPatch("Awake", new System.Type[0])]
         private static void AwakePostfix(FejdStartup __instance)
         {
-            s_art = null;
             if (LoadingArtLibrary.Available && __instance.m_loading != null)
-                s_art = LoadingArtView.Install(__instance.m_loading.transform, 0);
+                LoadingArtView.Install(__instance.m_loading.transform, 0);
         }
 
         [HarmonyPrefix, HarmonyPatch("LoadMainScene", new System.Type[0])]
-        private static void LoadMainScenePrefix()
+        private static void LoadMainScenePrefix(FejdStartup __instance)
         {
-            if (s_art != null)
-                LoadingArtView.Apply(s_art);
+            if (LoadingArtLibrary.Available && __instance.m_loading != null)
+                LoadingArtView.Apply(LoadingArtView.Install(__instance.m_loading.transform, 0));
         }
     }
 
@@ -78,8 +76,7 @@ namespace Ovomium.Features.LoadingArt
             LoadingArtView.LogHierarchy(hud.m_loadingScreen.transform, hud.m_loadingProgress.transform,
                 hud.m_teleportingProgress.transform, hud.m_sleepingProgress.transform);
             s_art = LoadingArtView.Install(hud.m_loadingScreen.transform, 0);
-            if (hud.m_loadingImage != null)
-                hud.m_loadingImage.enabled = false;
+            LoadingArtView.Hide(hud.m_loadingImage);
             if (LoadingArtConfig.HideTeleportAnimation.Value)
             {
                 int hidden = LoadingArtView.HideSprites(hud.m_teleportingProgress.transform, "teleport");

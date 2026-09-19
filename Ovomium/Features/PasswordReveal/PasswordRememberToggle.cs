@@ -27,15 +27,20 @@ namespace Ovomium.Features.PasswordReveal
         private Image m_mark;
         private TMP_Text m_label;
 
-        /// <summary>Crée la case s'il le faut, puis la met dans l'état demandé.</summary>
+        /// <summary>Pose la case (une case déjà présente est retirée puis reconstruite), puis la met dans l'état demandé.</summary>
         internal static void Setup(TMP_InputField field, bool isChecked)
         {
-            Transform existing = field.transform.Find(ObjectName);
-            PasswordRememberToggle toggle = existing != null
-                ? existing.GetComponent<PasswordRememberToggle>()
-                : Build(field);
+            Remove(field);
             Checked = isChecked;
-            toggle.Apply();
+            Build(field).Apply();
+        }
+
+        /// <summary>Retire la case si elle est présente.</summary>
+        internal static void Remove(TMP_InputField field)
+        {
+            Transform existing = field.transform.Find(ObjectName);
+            if (existing != null)
+                Object.Destroy(existing.gameObject);
         }
 
         private static PasswordRememberToggle Build(TMP_InputField field)

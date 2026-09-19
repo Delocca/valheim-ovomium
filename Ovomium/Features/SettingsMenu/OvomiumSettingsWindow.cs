@@ -13,6 +13,40 @@ namespace Ovomium.Features.SettingsMenu
     internal static class OvomiumSettingsWindow
     {
         private static bool s_pending;
+        /// <summary>Préfixe des objets que nous posons dans l'instance du prefab : signe une fenêtre Ovomium par nom.</summary>
+        public const string NamePrefix = "Ovomium.";
+
+        /// <summary>
+        /// Déchargement / rechargement à chaud : ferme une fenêtre Ovomium ouverte (par le même chemin que son bouton
+        /// Retour), ses pages viennent de l'ancienne assembly. Reconnue par nom, jamais par type de composant du mod.
+        /// </summary>
+        public static void CloseAll()
+        {
+            if (Menu.instance != null)
+                CloseIfOurs(Menu.instance.m_settingsInstance);
+            if (FejdStartup.instance != null)
+                CloseIfOurs(FejdStartup.instance.m_settingsPopup);
+        }
+
+        private static void CloseIfOurs(GameObject window)
+        {
+            if (window == null)
+                return;
+            var settings = window.GetComponent<Settings>();
+            if (settings == null || !IsOvomiumWindow(window.transform))
+                return;
+            if (SettingsMenuConfig.DumpHierarchy.Value)
+                Plugin.Log.LogInfo("SettingsMenu : fermeture de la fenêtre Ovomium au déchargement");
+            settings.OnBack();
+        }
+
+        private static bool IsOvomiumWindow(Transform window)
+        {
+            foreach (var t in window.GetComponentsInChildren<Transform>(true))
+                if (t.name.StartsWith(NamePrefix, System.StringComparison.Ordinal))
+                    return true;
+            return false;
+        }
 
         /// <summary>Même séquence que <c>Menu.OnSettings</c>, pour que le menu Échap gère la fermeture pareil.</summary>
         public static void OpenFromMenu(Menu menu)
@@ -130,7 +164,7 @@ namespace Ovomium.Features.SettingsMenu
         private static Button CloneTabButton(Button template, string title, int siblingIndex)
         {
             var button = Object.Instantiate(template, template.transform.parent);
-            button.name = "Ovomium.Tab." + title;
+            button.name = NamePrefix + "Tab." + title;
             button.transform.SetSiblingIndex(siblingIndex);
             button.gameObject.SetActive(true);
             button.interactable = true;

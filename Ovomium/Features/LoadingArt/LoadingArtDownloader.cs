@@ -10,18 +10,20 @@ namespace Ovomium.Features.LoadingArt
     /// Téléchargement unique du zip des artworks (option DownloadUrl) quand le dossier Folder n'existe pas, sur un
     /// thread d'arrière-plan. Écriture atomique : zip dans <c>loading.zip.part</c>, extraction dans
     /// <c>loading.tmp/</c>, puis renommage vers Folder (même volume : jamais de dossier à moitié rempli). Les
-    /// temporaires sont posés à côté de Folder. Une seule tentative par session.
+    /// temporaires sont posés à côté de Folder. Une seule tentative par session : la garde vit dans l'AppDomain, pas
+    /// dans un statique (perdu au rechargement à chaud, le thread de l'ancienne assembly continuant, lui).
     /// </summary>
     internal static class LoadingArtDownloader
     {
-        private static bool s_started;
+        private const string StartedKey = "Ovomium.LoadingArt.Downloader.Started";
 
         /// <summary>À appeler une fois au démarrage (thread principal).</summary>
         internal static void StartIfNeeded()
         {
-            if (s_started)
+            System.AppDomain domain = System.AppDomain.CurrentDomain;
+            if (domain.GetData(StartedKey) != null)
                 return;
-            s_started = true;
+            domain.SetData(StartedKey, true);
             string url = (LoadingArtConfig.DownloadUrl.Value ?? "").Trim();
             string folder = LoadingArtLibrary.Folder;
             if (!LoadingArtConfig.Enabled.Value || url.Length == 0 || Directory.Exists(folder))

@@ -18,21 +18,41 @@ namespace Ovomium.Features.PasswordReveal
         private const float Margin = 4f;
         private static readonly Color s_idle = new Color(1f, 1f, 1f, 0.75f);
 
+        /// <summary>Type de contenu vanilla du champ, capturé à la première pose pour le rendre au retrait.</summary>
+        private static TMP_InputField.ContentType? s_vanillaContentType;
+
         private TMP_InputField m_field;
         private TMP_Text m_label;
 
-        /// <summary>Crée le bouton s'il n'existe pas encore sur ce champ, et applique l'état voulu.</summary>
+        /// <summary>
+        /// Pose le bouton sur ce champ et applique l'état voulu. Un bouton déjà présent (assembly précédente après
+        /// rechargement à chaud : son composant n'est plus du type attendu) est retiré puis reconstruit.
+        /// </summary>
         internal static void Setup(TMP_InputField field)
         {
+            Remove(field);
+            Build(field).Apply();
+        }
+
+        /// <summary>Retire le bouton s'il est présent et rend au champ sa zone de texte et son type de contenu vanilla.</summary>
+        internal static void Remove(TMP_InputField field)
+        {
             Transform existing = field.transform.Find(ObjectName);
-            PasswordRevealToggle toggle = existing != null
-                ? existing.GetComponent<PasswordRevealToggle>()
-                : Build(field);
-            toggle.Apply();
+            if (existing == null)
+                return;
+            Object.Destroy(existing.gameObject);
+            if (field.textViewport != null)
+                field.textViewport.offsetMax += new Vector2(Width + Margin, 0f);
+            if (s_vanillaContentType.HasValue)
+            {
+                field.contentType = s_vanillaContentType.Value;
+                field.ForceLabelUpdate();
+            }
         }
 
         private static PasswordRevealToggle Build(TMP_InputField field)
         {
+            s_vanillaContentType ??= field.contentType;
             GameObject go = new GameObject(ObjectName, typeof(RectTransform), typeof(Image), typeof(PasswordRevealToggle));
             go.transform.SetParent(field.transform, false);
             RectTransform rect = (RectTransform)go.transform;

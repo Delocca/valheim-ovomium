@@ -6,9 +6,11 @@ namespace Ovomium.Features.FirstPerson
     /// <summary>
     /// État de la vue subjective. Le jeu contient déjà la caméra première personne : dans
     /// <c>GameCamera.GetCameraOffset</c>, <c>m_distance &lt;= 0</c> place la caméra sur <c>m_fpsOffset</c> depuis l'œil,
-    /// mais <c>m_minDistance</c> du prefab (&gt; 0) rend cette branche inatteignable. On la libère (min 0) et on
-    /// bascule par hystérésis sur la molette : sous la distance minimale vanilla → 0 ; au-dessus de 0 → distance
-    /// minimale vanilla. <see cref="Wanted"/> survit à la mort et aux cinématiques, <see cref="Active"/> non.
+    /// mais <c>m_minDistance</c> du prefab (&gt; 0) rend cette branche inatteignable. On la libère (min 0, posé à la
+    /// volée tant que la caméra porte sa valeur vanilla, mémorisée à ce moment) et on bascule par hystérésis sur la
+    /// molette : sous la distance minimale vanilla → 0 ; au-dessus de 0 → distance minimale vanilla.
+    /// <see cref="Wanted"/> survit à la mort et aux cinématiques, <see cref="Active"/> non.
+    /// <see cref="Unload"/> rend la scène vanilla (fin de session, rechargement à chaud).
     /// Inspiré de Landoria.FirstPerson (MIT).
     /// </summary>
     internal static class FirstPersonMode
@@ -22,11 +24,23 @@ namespace Ovomium.Features.FirstPerson
         /// <summary>Vue subjective réellement appliquée (joueur vivant, hors cinématique et vol libre).</summary>
         internal static bool Active { get; private set; }
 
-        internal static void CaptureReturnDistance(GameCamera camera)
+        /// <summary>Mémorise la distance minimale vanilla si la caméra la porte encore, puis autorise la distance 0.</summary>
+        private static void ReleaseMinDistance(GameCamera camera)
         {
-            if (camera.m_minDistance > Epsilon)
-                ReturnDistance = camera.m_minDistance;
+            if (camera.m_minDistance <= Epsilon)
+                return;
+            ReturnDistance = camera.m_minDistance;
+            camera.m_minDistance = 0f;
             Plugin.Log.LogInfo($"FirstPerson : distance minimale vanilla {ReturnDistance}, m_fpsOffset {camera.m_fpsOffset}");
+        }
+
+        /// <summary>Rend la distance minimale vanilla, sans laisser la caméra sur l'œil.</summary>
+        private static void RestoreMinDistance(GameCamera camera)
+        {
+            if (camera.m_minDistance < ReturnDistance)
+                camera.m_minDistance = ReturnDistance;
+            if (camera.m_distance < ReturnDistance)
+                camera.m_distance = ReturnDistance;
         }
 
         /// <summary>Hystérésis molette ; après le clamp de m_distance, avant le placement de la caméra.</summary>
@@ -35,10 +49,10 @@ namespace Ovomium.Features.FirstPerson
             if (!FirstPersonConfig.Enabled.Value)
             {
                 Wanted = false;
-                if (camera.m_distance < ReturnDistance)
-                    camera.m_distance = ReturnDistance; // désactivé en cours de jeu : ne pas rester sur l'œil
+                RestoreMinDistance(camera); // désactivé en cours de jeu
                 return;
             }
+            ReleaseMinDistance(camera);
             if (!Wanted && camera.m_distance < ReturnDistance - Epsilon)
             {
                 Wanted = true;
@@ -70,23 +84,21 @@ namespace Ovomium.Features.FirstPerson
             }
         }
 
-        internal static void Reset()
+        /// <summary>
+        /// Rend la scène vanilla : corps, végétation, lissage accroupi, caméra (distance minimale et distance courante).
+        /// Idempotent. Near clip, m_smoothYTilt et offset de base sont recalculés par le jeu à chaque frame : rien à
+        /// restaurer.
+        /// </summary>
+        internal static void Unload()
         {
             Wanted = false;
-            UpdateActive();
-        }
-    }
-
-    /// <summary>Mémorise la distance minimale du prefab, puis autorise la distance 0.</summary>
-    [HarmonyPatch(typeof(GameCamera), "Awake", new System.Type[0])]
-    internal static class FirstPersonAwakePatch
-    {
-        private static void Prefix(GameCamera __instance) => FirstPersonMode.CaptureReturnDistance(__instance);
-
-        private static void Postfix(GameCamera __instance)
-        {
-            if (FirstPersonConfig.Enabled.Value)
-                __instance.m_minDistance = 0f;
+            Active = false;
+            FirstPersonVisibility.Restore();
+            FirstPersonVegetation.Restore();
+            FirstPersonCrouch.StopSmoothing();
+            GameCamera camera = GameCamera.instance;
+            if (camera != null)
+                RestoreMinDistance(camera);
         }
     }
 
@@ -170,6 +182,6 @@ namespace Ovomium.Features.FirstPerson
     [HarmonyPatch(typeof(ZNet), "OnDestroy", new System.Type[0])]
     internal static class FirstPersonSessionEndPatch
     {
-        private static void Prefix() => FirstPersonMode.Reset();
+        private static void Prefix() => FirstPersonMode.Unload();
     }
 }

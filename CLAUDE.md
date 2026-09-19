@@ -20,9 +20,8 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomium.cfg`, désactivée par défaut).
 - **Rechargement à chaud** (ScriptEngine installé, `tools/install-scriptengine.sh`) : `tools/deploy.sh --dev Release`
   copie DLL + `.pdb` (exigé par ScriptEngine) dans `BepInEx/scripts/`, rechargées ~3 s après par le guetteur (F6 en
-  secours), journal `… déchargé` puis `… chargé`. `Plugin.OnDestroy` fait `UnpatchSelf` + `FirstPersonMode.Reset`.
-  Les effets de scène des autres features (bouton Ovomium, dialogue mot de passe, minicarte, écrans de chargement,
-  `m_minDistance` caméra) ne sont pas encore restaurés au rechargement : cf. mémoire `hot-reload-scriptengine`.
+  secours), journal `… déchargé` puis `… chargé`. `Plugin.OnDestroy` appelle le `Unload()` de chaque feature à
+  effets de scène (FirstPerson, LoadingArt, SettingsMenu, PasswordReveal, MinimapSize) puis `UnpatchSelf`.
   Ce qui tourne avant le menu principal exige une relance. `deploy.sh` sans `--dev` rebascule en mode normal
   (changer de mode = relance).
 

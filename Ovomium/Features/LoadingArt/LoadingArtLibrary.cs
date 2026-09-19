@@ -25,6 +25,7 @@ namespace Ovomium.Features.LoadingArt
 
         private static string[] s_files;
         private static volatile bool s_rescan;
+        private static bool s_folderMissing;
         private static int s_last = -1;
         private static Texture2D s_texture;
         private static Sprite s_sprite;
@@ -33,7 +34,8 @@ namespace Ovomium.Features.LoadingArt
         {
             get
             {
-                if (s_files == null || s_rescan)
+                // Dossier apparu depuis (téléchargement fini par une assembly déchargée) : relecture.
+                if (s_files == null || s_rescan || (s_folderMissing && Directory.Exists(Folder)))
                     Scan();
                 return LoadingArtConfig.Enabled.Value && s_files.Length > 0;
             }
@@ -63,7 +65,8 @@ namespace Ovomium.Features.LoadingArt
             s_rescan = false;
             s_files = new string[0];
             string folder = Folder;
-            if (!Directory.Exists(folder))
+            s_folderMissing = !Directory.Exists(folder);
+            if (s_folderMissing)
             {
                 Plugin.Log.LogInfo($"LoadingArt : dossier absent, fonctionnalité inactive : {folder}");
                 return;
@@ -98,7 +101,8 @@ namespace Ovomium.Features.LoadingArt
             return s_sprite;
         }
 
-        private static void Release()
+        /// <summary>Libère la texture courante (et le sprite) ; sûr sans texture.</summary>
+        internal static void Release()
         {
             if (s_sprite != null)
                 Object.Destroy(s_sprite);

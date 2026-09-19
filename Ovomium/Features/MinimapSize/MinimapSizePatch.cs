@@ -13,6 +13,7 @@ namespace Ovomium.Features.MinimapSize
     /// mémorise SmallZoom, le Postfix le restaure sur cette frame seulement (pas lors des répétitions).
     /// Les icônes de la carte gardent leur taille vanilla (MinimapSizeIcons) et les indicateurs d'état du HUD sont
     /// poussés à gauche de la carte agrandie (MinimapSizeHud).
+    /// Tout est restauré par <see cref="Restore"/> (option désactivée en jeu, déchargement à chaud).
     /// </summary>
     [HarmonyPatch(typeof(Minimap), nameof(Minimap.Update), new System.Type[0])]
     internal static class MinimapSizePatch
@@ -22,7 +23,14 @@ namespace Ovomium.Features.MinimapSize
         {
             public float MinZoom;
             public float PinSize;
+            /// <summary>Faux si la racine était déjà modifiée à la première rencontre : pivot d'origine inconnu.</summary>
+            public bool PivotKnown;
+            public Vector2 Pivot;
+            public Vector2 AnchoredPosition;
         }
+
+        /// <summary>Valeur du prefab (initialiseur du champ), seule source si la racine était déjà modifiée à la rencontre.</summary>
+        private const float PrefabMinZoom = 0.01f;
 
         private static readonly KeyRepeat s_zoomIn = new KeyRepeat("MapZoomIn");
         private static readonly KeyRepeat s_zoomOut = new KeyRepeat("MapZoomOut");
@@ -37,11 +45,17 @@ namespace Ovomium.Features.MinimapSize
 
         private static void Postfix(Minimap __instance)
         {
-            if (!MinimapSizeConfig.Enabled.Value || __instance.m_smallRoot == null)
+            if (!MinimapSizeConfig.Enabled.Value)
+            {
+                if (s_vanillaInstance == __instance)
+                    Restore();
                 return;
-            RectTransform root = __instance.m_smallRoot.GetComponent<RectTransform>();
+            }
+            RectTransform root = SmallRoot(__instance);
             if (root == null)
                 return;
+            Vanilla vanilla = RememberVanilla(__instance, root);
+            float appliedScale = root.localScale.x;
 
             bool resizing = __instance.m_mode == Minimap.MapMode.Small && ShiftHeld() && CanResize();
             int direction = (s_zoomIn.Step(resizing) ? 1 : 0) - (s_zoomOut.Step(resizing) ? 1 : 0);
@@ -51,10 +65,49 @@ namespace Ovomium.Features.MinimapSize
                 StepScale(direction);
 
             float scale = MinimapSizeConfig.Scale.Value;
-            if (!Mathf.Approximately(root.localScale.x, scale))
-                Apply(__instance, root, scale);
-            UpdateMinZoom(__instance, scale);
-            MinimapSizeHud.Ensure(scale, root.rect.width);
+            if (!Mathf.Approximately(appliedScale, scale))
+                Apply(__instance, root, scale, vanilla.PinSize);
+            UpdateMinZoom(__instance, scale, vanilla.MinZoom);
+            MinimapSizeHud.Ensure(scale, root.rect.width, appliedScale);
+        }
+
+        /// <summary>
+        /// Remet la minicarte et le HUD dans l'état vanilla mémorisé (échelle, zoom, pivot, icônes, indicateurs
+        /// d'état) et oublie l'instance. Sans effet si rien n'a été touché ou si Minimap n'existe plus.
+        /// Appelée à la désactivation de l'option à chaud et par <see cref="Unload"/>.
+        /// </summary>
+        public static void Restore()
+        {
+            Minimap map = Minimap.instance;
+            if (map != null && s_vanillaInstance == map)
+                RestoreMap(map, SmallRoot(map));
+            s_vanillaInstance = null;
+            MinimapSizeHud.Restore();
+        }
+
+        /// <summary>Déchargement du plugin (rechargement à chaud) : rend la scène vanilla.</summary>
+        internal static void Unload() => Restore();
+
+        private static void RestoreMap(Minimap map, RectTransform root)
+        {
+            map.m_minZoom = s_vanilla.MinZoom;
+            MinimapSizeIcons.Apply(map, 1f, s_vanilla.PinSize);
+            if (root == null)
+                return;
+            float scale = root.localScale.x;
+            root.localScale = Vector3.one;
+            if (scale > 0f)
+                map.SmallZoom /= scale;
+            if (s_vanilla.PivotKnown)
+            {
+                root.pivot = s_vanilla.Pivot;
+                root.anchoredPosition = s_vanilla.AnchoredPosition;
+            }
+        }
+
+        private static RectTransform SmallRoot(Minimap map)
+        {
+            return map.m_smallRoot == null ? null : map.m_smallRoot.GetComponent<RectTransform>();
         }
 
         private static void StepScale(int direction)
@@ -84,34 +137,47 @@ namespace Ovomium.Features.MinimapSize
         /// Change l'échelle du cadre, ajuste SmallZoom du même ratio (même terrain par pixel) et compense les icônes.
         /// Appelé aussi à la création de la racine (chargement, changement de monde) si l'échelle persistée n'est pas 1.
         /// </summary>
-        private static void Apply(Minimap map, RectTransform root, float scale)
+        private static void Apply(Minimap map, RectTransform root, float scale, float vanillaPinSize)
         {
             AnchorPivotToCorner(root);
             float ratio = scale / root.localScale.x;
             root.localScale = new Vector3(scale, scale, 1f);
-            Vanilla vanilla = RememberVanilla(map);
             map.m_minZoom = MinimapSizeConfig.MinZoom.Value * scale;
             map.SmallZoom *= ratio;
-            MinimapSizeIcons.Apply(map, scale, vanilla.PinSize);
+            MinimapSizeIcons.Apply(map, scale, vanillaPinSize);
         }
 
         /// <summary>
         /// m_minZoom borne aussi LargeZoom : la borne configurée (MinZoom, mise à l'échelle) ne s'applique qu'en
         /// mode Small, pour laisser la grande carte vanilla.
         /// </summary>
-        private static void UpdateMinZoom(Minimap map, float scale)
+        private static void UpdateMinZoom(Minimap map, float scale, float vanillaMinZoom)
         {
-            float vanillaMinZoom = RememberVanilla(map).MinZoom;
             map.m_minZoom = map.m_mode == Minimap.MapMode.Small ? MinimapSizeConfig.MinZoom.Value * scale : vanillaMinZoom;
         }
 
-        private static Vanilla RememberVanilla(Minimap map)
+        /// <summary>
+        /// Mémorise les valeurs vanilla à la première rencontre de l'instance. Si la racine est déjà mise à
+        /// l'échelle (rechargement à chaud sans nettoyage par l'ancienne version), les valeurs lues sont déjà
+        /// modifiées : taille des pins retrouvée par calcul inverse, m_minZoom pris du prefab, pivot inconnu.
+        /// </summary>
+        private static Vanilla RememberVanilla(Minimap map, RectTransform root)
         {
-            if (s_vanillaInstance != map)
+            if (s_vanillaInstance == map)
+                return s_vanilla;
+            s_vanillaInstance = map;
+            float applied = root.localScale.x;
+            bool untouched = Mathf.Approximately(applied, 1f);
+            s_vanilla = new Vanilla
             {
-                s_vanillaInstance = map;
-                s_vanilla = new Vanilla { MinZoom = map.m_minZoom, PinSize = map.m_pinSizeSmall };
-            }
+                MinZoom = untouched ? map.m_minZoom : PrefabMinZoom,
+                PinSize = untouched ? map.m_pinSizeSmall : map.m_pinSizeSmall * applied,
+                PivotKnown = untouched,
+                Pivot = root.pivot,
+                AnchoredPosition = root.anchoredPosition,
+            };
+            if (!untouched)
+                Plugin.Log.LogWarning($"Minicarte : racine déjà à l'échelle {applied} à la rencontre, valeurs vanilla reconstruites");
             return s_vanilla;
         }
 

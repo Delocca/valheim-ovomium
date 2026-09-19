@@ -22,7 +22,7 @@ namespace Ovomium.Features.SettingsMenu
         public static OvomiumSettingsTab CreatePage(RectTransform templatePage, SettingsMenuLayout.Tab layout,
             RowTemplates templates, ConfigFile config)
         {
-            var page = new GameObject("Ovomium." + layout.Title, typeof(RectTransform));
+            var page = new GameObject(OvomiumSettingsWindow.NamePrefix + layout.Title, typeof(RectTransform));
             var rect = (RectTransform)page.transform;
             rect.SetParent(templatePage.parent, false);
             rect.SetSiblingIndex(templatePage.GetSiblingIndex() + 1);

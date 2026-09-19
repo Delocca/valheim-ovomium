@@ -24,14 +24,19 @@ namespace Ovomium.Features.PasswordReveal
         private TMP_InputField m_field;
         private TMP_Text m_label;
 
-        /// <summary>Crée le bouton s'il n'existe pas encore sur ce champ, et rafraîchit son libellé.</summary>
+        /// <summary>Pose le bouton sur ce champ (un bouton déjà présent est retiré puis reconstruit) et pose son libellé.</summary>
         internal static void Setup(TMP_InputField field)
         {
+            Remove(field);
+            Build(field).m_label.text = PasswordRevealConfig.OkLabel.Value;
+        }
+
+        /// <summary>Retire le bouton s'il est présent.</summary>
+        internal static void Remove(TMP_InputField field)
+        {
             Transform existing = field.transform.Find(ObjectName);
-            PasswordOkButton button = existing != null
-                ? existing.GetComponent<PasswordOkButton>()
-                : Build(field);
-            button.m_label.text = PasswordRevealConfig.OkLabel.Value;
+            if (existing != null)
+                Object.Destroy(existing.gameObject);
         }
 
         private static PasswordOkButton Build(TMP_InputField field)

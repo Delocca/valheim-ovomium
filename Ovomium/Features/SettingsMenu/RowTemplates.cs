@@ -56,7 +56,7 @@ namespace Ovomium.Features.SettingsMenu
                 return null;
             }
             var clone = Object.Instantiate(panel.gameObject, page.parent);
-            clone.name = "Ovomium.SettingsTooltip";
+            clone.name = OvomiumSettingsWindow.NamePrefix + "SettingsTooltip";
             clone.transform.SetAsLastSibling();
             clone.SetActive(false);
             return clone;

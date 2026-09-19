@@ -55,6 +55,7 @@ namespace Ovomium
 
             m_harmony = new Harmony(Guid);
             m_harmony.PatchAll(typeof(Plugin).Assembly);
+            OvomiumMenuButton.Install();  // rechargement à chaud : les menus existent déjà, leurs Start ne rejouent pas
             Log.LogInfo($"{Name} {Version} chargé");
         }
 
@@ -64,7 +65,11 @@ namespace Ovomium
         /// </summary>
         private void OnDestroy()
         {
-            FirstPersonMode.Reset();
+            FirstPersonMode.Unload();
+            LoadingArtView.Unload();
+            OvomiumMenuButton.Unload();
+            PasswordRevealPatch.Unload();
+            MinimapSizePatch.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }
