@@ -41,6 +41,15 @@
       <HintPath>$(ValheimManaged)/UnityEngine.AnimationModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- ParticleSystem et AudioSource (ItemFlight : traînée reprise d'un projectile, sons retirés) -->
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <!-- Texture2D.LoadImage (LoadingArt) ; ce module cible netstandard 2.1, absent des assemblies de référence
          net48 : on prend la façade netstandard.dll du jeu -->
     <Reference Include="UnityEngine.ImageConversionModule">

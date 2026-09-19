@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
@@ -102,22 +103,29 @@ namespace Ovomium.Features.CraftFromChests
         new System.Type[] { typeof(Piece.Requirement[]), typeof(int), typeof(int), typeof(int) })]
     internal static class CraftFromChestsConsumePatch
     {
+        /// <summary>Retraits effectués en coffres lors d'une consommation (craft, amélioration, pose de pièce).</summary>
+        public static event System.Action<Player, List<Pull>> Consumed;
+
         private static bool Prefix(Player __instance, Piece.Requirement[] requirements, int qualityLevel, int itemQuality, int multiplier)
         {
             if (!CraftFromChestsPatch.Active(__instance)) return true;
             CraftingStation station = __instance.GetCurrentCraftingStation();
+            var taken = new List<Pull>();
             foreach (Piece.Requirement req in requirements)
             {
                 if (!CraftFromChestsPatch.Applies(req, station)) continue;
                 int need = req.GetAmount(qualityLevel) * multiplier;
                 if (need <= 0) continue;
-                string name = req.m_resItem.m_itemData.m_shared.m_name;
+                ItemDrop item = req.m_resItem;
+                string name = item.m_itemData.m_shared.m_name;
+                Vector3 center = __instance.transform.position;
                 int missing = CraftFromChestsConfig.ChestsFirst.Value
-                    ? TakeFromInventory(__instance, name, NearbyChests.Remove(__instance.transform.position, name, need, itemQuality), itemQuality)
-                    : NearbyChests.Remove(__instance.transform.position, name, TakeFromInventory(__instance, name, need, itemQuality), itemQuality);
+                    ? TakeFromInventory(__instance, name, NearbyChests.Remove(center, item, need, itemQuality, taken), itemQuality)
+                    : NearbyChests.Remove(center, item, TakeFromInventory(__instance, name, need, itemQuality), itemQuality, taken);
                 if (missing > 0)
                     Plugin.Log.LogWarning($"CraftFromChests : {missing} × {Localization.instance.Localize(name)} introuvable(s) à la consommation");
             }
+            Consumed?.Invoke(__instance, taken);
             return false;
         }
 

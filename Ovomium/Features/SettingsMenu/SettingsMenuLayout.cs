@@ -15,7 +15,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
             new Tab { Title = "Interface", Sections = new[] { "StackDrag", "MinimapSize", "MapZoomToCursor", "MapExplore", "TooltipStyle", "SkillTooltip", "MenuDoubleClick", "PasswordReveal" } },
-            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "CraftFromChests", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
+            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "CraftFromChests", "ItemFlight", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
         };
 
         private static readonly Dictionary<string, string> s_sectionLabels = new Dictionary<string, string>
@@ -32,6 +32,7 @@ namespace Ovomium.Features.SettingsMenu
             { "PortalRange", "Rayon d'activation des portails" },
             { "ButcherKnife", "Couteau de boucher" },
             { "CraftFromChests", "Craft depuis les coffres" },
+            { "ItemFlight", "Ingrédients qui volent" },
             { "UpgradeDiff", "Diff de stats à l'amélioration" },
             { "AmbientOcclusion", "Occlusion ambiante" },
             { "MenuDoubleClick", "Double-clic dans les menus" },

@@ -67,25 +67,49 @@ namespace Ovomium.Features.CraftFromChests
             return total;
         }
 
-        /// <summary>Retire jusqu'à <paramref name="amount"/> exemplaires, coffre le plus proche d'abord ; retourne le reliquat.</summary>
-        public static int Remove(Vector3 center, string name, int amount, int itemQuality)
+        /// <summary>
+        /// Prévoit, sans rien retirer, d'où viendraient jusqu'à <paramref name="amount"/> exemplaires (coffre le plus
+        /// proche d'abord) ; ajoute les retraits prévus à <paramref name="pulls"/> et retourne le reliquat introuvable.
+        /// </summary>
+        public static int Plan(Vector3 center, ItemDrop item, int amount, int itemQuality, List<Pull> pulls)
         {
+            string name = item.m_itemData.m_shared.m_name;
             foreach (var container in Find(center))
             {
                 if (amount <= 0) break;
-                if (container.GetInventory().CountItems(name, itemQuality) <= 0) continue;
+                int n = Mathf.Min(container.GetInventory().CountItems(name, itemQuality), amount);
+                if (n <= 0) continue;
+                pulls.Add(new Pull(container, item, n));
+                amount -= n;
+            }
+            return amount;
+        }
+
+        /// <summary>
+        /// Retire jusqu'à <paramref name="amount"/> exemplaires selon <see cref="Plan"/> ; retourne le reliquat et
+        /// ajoute les retraits effectifs à <paramref name="taken"/> (facultatif).
+        /// </summary>
+        public static int Remove(Vector3 center, ItemDrop item, int amount, int itemQuality, List<Pull> taken = null)
+        {
+            var pulls = new List<Pull>();
+            int missing = Plan(center, item, amount, itemQuality, pulls);
+            string name = item.m_itemData.m_shared.m_name;
+            foreach (var pull in pulls)
+            {
+                var container = pull.Chest;
                 if (!container.m_nview.IsOwner())
                 {
                     Plugin.Log.LogInfo($"CraftFromChests : repli, prise directe de {container.m_name} (non réservé)");
                     TakeOwnership(container);
                 }
-                int taken = RemoveFrom(container.GetInventory(), name, amount, itemQuality);
-                amount -= taken;
+                int n = RemoveFrom(container.GetInventory(), name, pull.Amount, itemQuality);
+                missing += pull.Amount - n;
+                if (n > 0) taken?.Add(new Pull(container, item, n));
                 if (CraftFromChestsConfig.LogPulls.Value)
-                    Plugin.Log.LogInfo($"CraftFromChests : {taken} × {Localization.instance.Localize(name)} pris dans "
+                    Plugin.Log.LogInfo($"CraftFromChests : {n} × {Localization.instance.Localize(name)} pris dans "
                         + $"{container.m_name} à {Vector3.Distance(center, container.transform.position):0.0} m");
             }
-            return amount;
+            return missing;
         }
 
         /// <summary>Prise directe (moitié « réponse » de « Tout prendre ») : repli quand la réservation n'a pas abouti.</summary>

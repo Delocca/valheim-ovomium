@@ -23,6 +23,7 @@ using Ovomium.Features.PortalRange;
 using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
+using Ovomium.Features.ItemFlight;
 using Ovomium.Features.StackDrag;
 using Ovomium.Features.TooltipStyle;
 using Ovomium.Features.Updater;
@@ -70,6 +71,7 @@ namespace Ovomium
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);
             CraftFromChestsConfig.Bind(Config);
+            ItemFlightConfig.Bind(Config);
             SkillTooltipConfig.Bind(Config);
             TooltipStyleConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
@@ -82,6 +84,7 @@ namespace Ovomium
             FocusClickPatch.Install(gameObject);
             UpdaterPatch.Install(gameObject);
             PortalRangePatch.Install();
+            ItemFlightPatch.Install();
             Log.LogInfo($"{Name} {Version} chargé");
         }
 
@@ -102,6 +105,7 @@ namespace Ovomium
             UpdaterPatch.Unload();
             ChestReservation.Unload();
             RequirementBackdrop.Unload();
+            ItemFlightPatch.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }

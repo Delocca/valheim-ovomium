@@ -5,6 +5,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 ## Non publié
 
 - **Craft et construction depuis les coffres** : les ingrédients sont pris dans les coffres, chariots et bateaux à portée, le plus proche d'abord, puis dans l'inventaire (ordre inversable) ; chaque ingrédient affiche le total disponible (CraftFromChests).
+- **Ingrédients qui volent** : les objets pris dans les coffres s'envolent en arc jusqu'à la station, la pièce construite ou soi, avec une traînée de particules (ItemFlight).
 - **Mise à jour depuis le jeu** : quand une nouvelle version est publiée, le jeu l'annonce au lancement avec ses nouveautés et propose de la télécharger ; elle s'installe toute seule au lancement suivant (Updater).
 - **Bouton « Continuer »** au menu principal : rejoint directement la dernière partie avec le dernier personnage (ContinueButton).
 - **Carte découverte plus vite** : rayon de découverte ×3 à pied et à cheval, ×5 en bateau (MapExplore).
