@@ -33,9 +33,10 @@ Trois fichiers versionnés, seule source de vérité du suivi (la mémoire auto 
 - `TODO.md` : chantiers restants par priorité, avec le contexte utile (décisions d'Edia, ancrages). Ajouter quand
   Edia décide un chantier, enrichir dès qu'un repérage est fait, retirer quand c'est livré **et validé en jeu** (un
   commit ne suffit pas).
-- `CHANGELOG.md` : une ligne sous « Non publié » dans le même commit que tout changement visible par le joueur
-  (feature, option, correctif), préfixée du nom de la feature et formulée côté joueur. Rien pour l'interne (outils,
-  docs, refactor). `tools/release.sh` sans argument date la section et la publie comme notes de release.
+- `CHANGELOG.md` : lu par les amies. Une ligne sous « Non publié » dans le même commit que tout changement visible
+  par le joueur (feature, option, correctif) : `**Titre en français** : une phrase côté joueur (NomDeLaFeature).`,
+  insérée à sa place par importance décroissante (le nom de feature en fin de ligne renvoie à la section du cfg).
+  Rien pour l'interne (outils, docs, refactor). `tools/release.sh` sans argument date la section et la publie.
 - `docs/journal.md` : une entrée par jour de travail, complétée au fil de la session (pas seulement à la fin) : fait,
   décisions avec leurs raisons, en suspens. Ce que git dit déjà n'y va pas.
 

@@ -1,42 +1,48 @@
 # Changelog
 
-Changements visibles par le joueur, par version. La section « Non publié » devient la version courante à la release
-(`tools/release.sh` la date et la publie comme notes). Règles : `CLAUDE.md`, section « Suivi ».
+Notes de version destinées aux joueuses : un titre en français, une phrase, le nom de la section du fichier de
+config entre parenthèses. Dans chaque version, du plus important au moins important. La section « Non publié » devient
+la version courante à la release (`tools/release.sh` la date et la publie comme notes). Règles : `CLAUDE.md` « Suivi ».
 
 ## Non publié
 
-- MapExplore : rayon de découverte de la carte ×3 à pied et à cheval, ×5 en bateau.
-- PortalRange : les portails ne s'activent (particules, son) qu'à 2 m au lieu de 5.
-- ButcherKnife : le couteau de boucher n'abat que la créature visée.
-- AmbientOcclusion : intensité de l'occlusion ambiante réglable (0,8 par défaut).
-- UpgradeDiff : à l'amélioration d'un objet, différence de stats en vert/rouge à côté de chaque valeur.
-- SkillTooltip : infobulle des compétences avec l'effet chiffré au niveau actuel et au niveau 100.
-- TooltipStyle : infobulles cadrées, fond marron sombre opaque, coins arrondis et liseré.
-- SettingsMenu : chaque réglage s'applique en direct, Retour restaure, la fenêtre s'efface pendant le glissement
-  d'un curseur ; sections TooltipStyle et SkillTooltip.
-- FocusClick : le clic qui redonne le focus à la fenêtre ne déclenche ni attaque, ni blocage, ni interaction, ni pose.
-- ContinueButton : bouton « Continuer : <partie> serveur|local » au menu principal (dernière partie, dernier personnage).
-- AutoJoin : connexion automatique au lancement avec `-ovomium-autojoin`.
-- FirstPerson : caméra abaissée accroupi (hauteur fixe, transition 0,1 s).
-- LoadingArt : artwork affiché dès l'écran « Loading » du menu (plus d'écran blanc), une seule image par chargement.
-- Autocontrôle au chargement : un ancrage disparu ne désactive que sa fonctionnalité, signalée dans le journal.
+- **Bouton « Continuer »** au menu principal : rejoint directement la dernière partie avec le dernier personnage
+  (ContinueButton).
+- **Carte découverte plus vite** : rayon de découverte ×3 à pied et à cheval, ×5 en bateau (MapExplore).
+- **Comparaison à l'amélioration** : à la table d'amélioration, la différence de stats en vert/rouge à côté de chaque
+  valeur (UpgradeDiff).
+- **Infobulles des compétences** : effet chiffré de chaque compétence au niveau actuel et au niveau 100 (SkillTooltip).
+- **Réglages en direct** : chaque option de la fenêtre Ovomium s'applique immédiatement, Retour annule, et la fenêtre
+  s'efface pendant qu'on glisse un curseur (SettingsMenu).
+- **Couteau de boucher plus sûr** : n'abat que la créature visée (ButcherKnife).
+- **Portails plus discrets** : particules et son seulement à 2 m au lieu de 5 (PortalRange).
+- **Occlusion ambiante réglable** : intensité des ombres de contact, 0,8 par défaut (AmbientOcclusion).
+- **Infobulles plus lisibles** : cadre à fond marron sombre opaque, coins arrondis, liseré (TooltipStyle).
+- **Clic de reprise de fenêtre inoffensif** : revenir dans le jeu par un clic ne déclenche plus d'attaque, de blocage,
+  d'interaction ni de pose (FocusClick).
+- **Vue première personne accroupie** : caméra abaissée à hauteur fixe avec une transition douce (FirstPerson).
+- **Écran de chargement sans blanc** : l'artwork s'affiche dès l'écran « Loading » du menu, une seule image par
+  chargement (LoadingArt).
+- **Connexion automatique au lancement** avec l'argument `-ovomium-autojoin` (AutoJoin).
+- **Mod plus robuste aux mises à jour du jeu** : une fonctionnalité dont l'ancrage a disparu est désactivée seule et
+  signalée dans le journal, les autres continuent.
 
 ## 0.8.0 — 2026-09-18
 
-- LoadingArt : artworks de chargement téléchargés automatiquement (release GitHub « artworks »).
-- PasswordReveal : bouton OK dans le dialogue de mot de passe serveur.
-- Installateur : message « Les mises à jour ne sont pas ouvertes en ce moment » quand le dépôt est privé.
+- **Artworks de chargement automatiques** : téléchargés une fois depuis GitHub (LoadingArt).
+- **Bouton OK** dans le dialogue de mot de passe serveur (PasswordReveal).
+- **Installateur** : message clair quand les mises à jour ne sont pas ouvertes.
 
 ## 0.7.0 — 2026-09-17
 
+- **Fenêtre d'options Ovomium** dans le menu Paramètres, avec onglets et infobulles (SettingsMenu).
+- **Installation Windows** : archive avec BepInEx et installateur `Installer-Ovomium.bat`.
 - Mod renommé Ovomium.
-- SettingsMenu : fenêtre d'options Ovomium dans le menu Paramètres (onglets, infobulles).
-- Distribution Windows : archive avec BepInEx et installateur `Installer-Ovomium.bat`.
 
 ## 0.6.0 — 2026-09-17
 
-- FirstPerson : vue à la première personne.
-- StartupSkip : logos et attentes du démarrage sautés.
-- LoadingArt : artwork sur les écrans de chargement.
+- **Vue à la première personne** (FirstPerson).
+- **Démarrage accéléré** : logos et attentes sautés (StartupSkip).
+- **Artworks sur les écrans de chargement** (LoadingArt).
 
 Versions antérieures : voir l'historique git.
