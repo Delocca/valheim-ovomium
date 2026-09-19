@@ -3,7 +3,8 @@
 # loading/ (LoadingArt). À lancer hors bac à sable.
 # Sûr jeu lancé : la DLL est remplacée par renommage atomique, l'ancien fichier (mappé par Mono, qui lit les
 # méthodes à la demande) reste intact ; la nouvelle DLL sert au prochain lancement.
-# Usage : tools/deploy.sh [--dev] [--relaunch] [Debug|Release]   (défaut : Release)
+# Usage : tools/deploy.sh [--build] [--dev] [--relaunch] [Debug|Release]   (défaut : Release)
+#   --build    : compile d'abord (tools/build.sh), en une seule commande hors bac à sable.
 #   --dev      : rechargement à chaud (ScriptEngine, tools/install-scriptengine.sh) : la DLL va dans BepInEx/scripts/
 #                et celle de plugins/Ovomium/ est retirée (sinon double chargement) ; ScriptEngine la recharge
 #                automatiquement ~3 s après la copie (ou F6 en jeu). Sans --dev, retour au mode normal.
@@ -16,8 +17,10 @@ PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
 GAME="${VALHEIM_DIR:-$HOME/.local/share/Steam/steamapps/common/Valheim}"
 DEV=0
 RELAUNCH=0
+BUILD=0
 while [ $# -gt 0 ]; do
     case "$1" in
+        --build) BUILD=1; shift ;;
         --dev) DEV=1; shift ;;
         --relaunch) RELAUNCH=1; shift ;;
         *) break ;;
@@ -29,6 +32,7 @@ DEST="$GAME/BepInEx/plugins/Ovomium"
 SCRIPTS="$GAME/BepInEx/scripts"
 GAME_PROC="$GAME/valheim.x86_64"
 
+[ "$BUILD" = 0 ] || "$PROJECT/tools/build.sh" "$CONFIG"
 [ -f "$DLL" ] || { echo "DLL absente, lance d'abord tools/build.sh : $DLL" >&2; exit 1; }
 [ -d "$GAME/BepInEx" ] || { echo "BepInEx absent dans $GAME, lance d'abord tools/install-bepinex.sh" >&2; exit 1; }
 [ "$DEV" = 0 ] || [ -f "$GAME/BepInEx/plugins/ScriptEngine.dll" ] \

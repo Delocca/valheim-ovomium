@@ -78,6 +78,12 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   mémorisé par PasswordReveal est soumis tout seul. L'argument de ligne de commande `-ovomium-autojoin` force
   l'activation même si `Enabled` est non : c'est ce que passe `tools/deploy.sh --relaunch`
   (`steam -applaunch 892970 -ovomium-autojoin`).
+- **ContinueButton** : bouton « Continuer : *nom de la partie* serveur | local » au-dessus de « Démarrer » dans le
+  menu principal ; relance la dernière partie avec le dernier personnage, sans passer par les menus (serveur : mot de
+  passe mémorisé soumis tout seul ; monde local : le panneau des mondes reste ouvert si le monde n'est pas
+  démarrable). Le jeu ne retient pas si la dernière partie était un serveur ou un monde : le mod le note au départ
+  vers la partie (`PlatformPrefs` « OvomiumLastSession »). Pas de bouton tant qu'aucune partie n'a été lancée avec le
+  mod, ou si la cible a disparu (monde supprimé, liste Récents vide).
 
 ## Prérequis
 

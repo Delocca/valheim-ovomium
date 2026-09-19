@@ -49,7 +49,16 @@ namespace Ovomium.Features.AutoJoin
                 Plugin.Log.LogInfo($"AutoJoin : serveur « {AutoJoinConfig.Server.Value} » inconnu (aucun serveur récent ?), abandon");
                 return;
             }
-            Plugin.Log.LogInfo($"AutoJoin : personnage {startup.m_profiles[profile].GetName()} "
+            Join(startup, profile, server, "AutoJoin");
+        }
+
+        /// <summary>
+        /// Connexion sans fondu au serveur avec le personnage d'index <paramref name="profile"/>, mot de passe mémorisé
+        /// soumis automatiquement. Partagé avec le bouton « Continuer » (ContinueButton). Faux si le jeu refuse la demande.
+        /// </summary>
+        internal static bool Join(FejdStartup startup, int profile, ServerJoinData server, string logPrefix)
+        {
+            Plugin.Log.LogInfo($"{logPrefix} : personnage {startup.m_profiles[profile].GetName()} "
                 + $"({startup.m_profiles[profile].GetFilename()}), serveur {MultiBackendMatchmaking.GetServerName(server)} ({server})");
 
             startup.m_profileIndex = profile;
@@ -57,12 +66,13 @@ namespace Ovomium.Features.AutoJoin
             startup.ProceedJoinRequest(server);
             if (!startup.m_queuedJoinServer.IsValid)
             {
-                Plugin.Log.LogInfo("AutoJoin : demande de connexion refusée par le jeu (privilège multijoueur ?)");
-                return;
+                Plugin.Log.LogInfo($"{logPrefix} : demande de connexion refusée par le jeu (privilège multijoueur ?)");
+                return false;
             }
             s_passwordPending = true;
             startup.OnCharacterStart();
-            Plugin.Log.LogInfo("AutoJoin : connexion lancée");
+            Plugin.Log.LogInfo($"{logPrefix} : connexion lancée");
+            return true;
         }
 
         [HarmonyPatch(typeof(ZNet), "RPC_ClientHandshake", typeof(ZRpc), typeof(bool), typeof(string))]

@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using Ovomium.Features.AutoJoin;
+using Ovomium.Features.ContinueButton;
 using Ovomium.Features.FastPortal;
 using Ovomium.Features.FirstPerson;
 using Ovomium.Features.FoodMarker;
@@ -51,11 +52,13 @@ namespace Ovomium
             StartupSkipConfig.Bind(Config);
             LoadingArtConfig.Bind(Config);
             AutoJoinConfig.Bind(Config);
+            ContinueButtonConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
 
             m_harmony = new Harmony(Guid);
             PatchInstaller.Install(m_harmony);
             OvomiumMenuButton.Install();  // rechargement à chaud : les menus existent déjà, leurs Start ne rejouent pas
+            ContinueMenuButton.Install();
             Log.LogInfo($"{Name} {Version} chargé");
         }
 
@@ -68,6 +71,7 @@ namespace Ovomium
             FirstPersonMode.Unload();
             LoadingArtView.Unload();
             OvomiumMenuButton.Unload();
+            ContinueMenuButton.Unload();
             PasswordRevealPatch.Unload();
             MinimapSizePatch.Unload();
             m_harmony?.UnpatchSelf();
