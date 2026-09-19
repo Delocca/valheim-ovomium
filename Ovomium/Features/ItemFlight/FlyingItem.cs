@@ -7,7 +7,7 @@ namespace Ovomium.Features.ItemFlight
     /// de la cible et le troisième à cette hauteur au-dessus de la cible (ligne quasi droite qui s'incurve à la fin
     /// pour arriver par le haut), vitesse décroissante, légère ondulation verticale et latérale nulle aux extrémités,
     /// rotation lente du mesh (la racine ne tourne pas : la traînée est émise dans l'espace monde), grossissement
-    /// au départ et rétrécissement à l'arrivée sur <see cref="ScaleSeconds"/>. À l'arrivée ou à l'annulation, la traînée est détachée et s'éteint d'elle-même.
+    /// au départ et rétrécissement à l'arrivée sur <see cref="ScaleSeconds"/>. À l'arrivée, la traînée est détachée et s'éteint d'elle-même ; à l'annulation, tout disparaît.
     /// </summary>
     internal sealed class FlyingItem : MonoBehaviour
     {
@@ -108,7 +108,15 @@ namespace Ovomium.Features.ItemFlight
             return 1f;
         }
 
-        /// <summary>Fin de vol ou annulation : l'objet disparaît, la traînée persiste puis se détruit.</summary>
+        /// <summary>Craft interrompu : objet et traînée disparaissent sur-le-champ.</summary>
+        public void Cancel()
+        {
+            if (m_released) return;
+            m_released = true;
+            Destroy(gameObject);
+        }
+
+        /// <summary>Fin de vol : l'objet disparaît, la traînée persiste puis se détruit.</summary>
         public void Release()
         {
             if (m_released) return;

@@ -51,11 +51,11 @@ namespace Ovomium.Features.ItemFlight
                 if (flight != null) flight.FromCraft = false;
         }
 
-        /// <summary>Le craft a été interrompu : ses objets disparaissent, les traînées s'éteignent.</summary>
+        /// <summary>Le craft a été interrompu : ses objets et leurs traînées disparaissent.</summary>
         public static void CancelCraft()
         {
             foreach (var flight in s_flights.ToArray())
-                if (flight != null && flight.FromCraft) flight.Release();
+                if (flight != null && flight.FromCraft) flight.Cancel();
         }
 
         /// <summary>Face avant du coffre (sens <c>forward</c> du prefab), au milieu, à 60 % de sa hauteur ; sinon sa position.</summary>
