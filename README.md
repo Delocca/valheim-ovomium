@@ -84,6 +84,9 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   démarrable). Le jeu ne retient pas si la dernière partie était un serveur ou un monde : le mod le note au départ
   vers la partie (`PlatformPrefs` « OvomiumLastSession »). Pas de bouton tant qu'aucune partie n'a été lancée avec le
   mod, ou si la cible a disparu (monde supprimé, liste Récents vide).
+- **FocusClick** : le clic qui redonne le focus à la fenêtre du jeu ne déclenche ni attaque, ni blocage, ni
+  interaction, ni pose de construction (le jeu n'a aucune gestion du focus). `IgnoreSeconds` (0,3) : durée
+  d'ignorance des clics après le retour du focus ; un clic maintenu ne déclenche rien non plus à la fin du délai.
 
 ## Prérequis
 

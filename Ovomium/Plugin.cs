@@ -6,6 +6,7 @@ using Ovomium.Features.AutoJoin;
 using Ovomium.Features.ContinueButton;
 using Ovomium.Features.FastPortal;
 using Ovomium.Features.FirstPerson;
+using Ovomium.Features.FocusClick;
 using Ovomium.Features.FoodMarker;
 using Ovomium.Features.FoodRecipeSort;
 using Ovomium.Features.LoadingArt;
@@ -53,12 +54,14 @@ namespace Ovomium
             LoadingArtConfig.Bind(Config);
             AutoJoinConfig.Bind(Config);
             ContinueButtonConfig.Bind(Config);
+            FocusClickConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
 
             m_harmony = new Harmony(Guid);
             PatchInstaller.Install(m_harmony);
             OvomiumMenuButton.Install();  // rechargement à chaud : les menus existent déjà, leurs Start ne rejouent pas
             ContinueMenuButton.Install();
+            FocusClickPatch.Install(gameObject);
             Log.LogInfo($"{Name} {Version} chargé");
         }
 
