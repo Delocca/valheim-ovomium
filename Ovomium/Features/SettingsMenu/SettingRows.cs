@@ -6,11 +6,31 @@ using Valheim.SettingsGui;
 
 namespace Ovomium.Features.SettingsMenu
 {
-    /// <summary>Une ligne de la fenêtre Ovomium : lit son option à l'ouverture, l'écrit à Appliquer.</summary>
+    /// <summary>
+    /// Une ligne de la fenêtre Ovomium : lit son option à l'ouverture, l'écrit à chaque changement (les features
+    /// lisent leur config en continu, l'effet est donc immédiat) et la remet à sa valeur d'ouverture sur Retour.
+    /// </summary>
     internal abstract class SettingRow
     {
-        public abstract void Load();
-        public abstract void Save();
+        private object m_original;
+
+        protected abstract ConfigEntryBase Entry { get; }
+        /// <summary>Affiche la valeur courante de l'option dans le contrôle.</summary>
+        protected abstract void Show();
+
+        public void Load()
+        {
+            m_original = Entry.BoxedValue;
+            Show();
+        }
+
+        public void Revert() => Apply(m_original);
+
+        protected void Apply(object value)
+        {
+            if (!value.Equals(Entry.BoxedValue))
+                Entry.BoxedValue = value;
+        }
     }
 
     internal sealed class ToggleRow : SettingRow
@@ -18,20 +38,17 @@ namespace Ovomium.Features.SettingsMenu
         private readonly ConfigEntry<bool> m_entry;
         private readonly Toggle m_toggle;
 
+        protected override ConfigEntryBase Entry => m_entry;
+
         public ToggleRow(ConfigEntry<bool> entry, Toggle toggle)
         {
             m_entry = entry;
             m_toggle = toggle;
             toggle.onValueChanged = new Toggle.ToggleEvent();
+            toggle.onValueChanged.AddListener(on => Apply(on));
         }
 
-        public override void Load() => m_toggle.isOn = m_entry.Value;
-
-        public override void Save()
-        {
-            if (m_toggle.isOn != m_entry.Value)
-                m_entry.Value = m_toggle.isOn;
-        }
+        protected override void Show() => m_toggle.isOn = m_entry.Value;
     }
 
     internal sealed class SliderRow : SettingRow
@@ -40,6 +57,8 @@ namespace Ovomium.Features.SettingsMenu
         private readonly Slider m_slider;
         private readonly TMP_Text m_value;
         private readonly bool m_isInt;
+
+        protected override ConfigEntryBase Entry => m_entry;
 
         public SliderRow(ConfigEntryBase entry, Slider slider, TMP_Text value)
         {
@@ -50,7 +69,7 @@ namespace Ovomium.Features.SettingsMenu
             slider.onValueChanged = new Slider.SliderEvent();
             slider.wholeNumbers = m_isInt;
             ApplyRange();
-            slider.onValueChanged.AddListener(_ => ShowValue());
+            slider.onValueChanged.AddListener(_ => OnChanged());
         }
 
         private void ApplyRange()
@@ -73,17 +92,16 @@ namespace Ovomium.Features.SettingsMenu
             }
         }
 
-        public override void Load()
+        protected override void Show()
         {
             m_slider.value = m_isInt ? (int)m_entry.BoxedValue : (float)m_entry.BoxedValue;
             ShowValue();
         }
 
-        public override void Save()
+        private void OnChanged()
         {
-            object value = m_isInt ? (object)Mathf.RoundToInt(m_slider.value) : m_slider.value;
-            if (!value.Equals(m_entry.BoxedValue))
-                m_entry.BoxedValue = value;
+            ShowValue();
+            Apply(m_isInt ? (object)Mathf.RoundToInt(m_slider.value) : m_slider.value);
         }
 
         private void ShowValue()

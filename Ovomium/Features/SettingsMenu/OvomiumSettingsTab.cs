@@ -116,15 +116,26 @@ namespace Ovomium.Features.SettingsMenu
             return null;
         }
 
+        /// <summary>
+        /// Les lignes appliquent chaque changement aussitôt (aperçu en direct) ; l'écriture du fichier cfg est
+        /// suspendue jusqu'au OK pour ne pas écrire à chaque cran de curseur. Retour remet les valeurs d'ouverture.
+        /// </summary>
         public void Initialize()
         {
+            Plugin.ConfigFile.SaveOnConfigSet = false;
             foreach (var row in m_rows)
                 row.Load();
         }
 
         // Membres à implémentation par défaut dans ISettingsTab : redéclarés, le compilateur net48 refuse d'en hériter.
         public void Terminate() { }
-        public void OnBack() { }
+
+        public void OnBack()
+        {
+            foreach (var row in m_rows)
+                row.Revert();
+            Plugin.ConfigFile.SaveOnConfigSet = true;
+        }
         public void OnSharedSettingChanged(string setting, int value) { }
         public void OnTabOpen(Button backButton, Button okButton)
         {
@@ -134,8 +145,8 @@ namespace Ovomium.Features.SettingsMenu
 
         public void OnOkAsync(OkActionCompletedHandler okActionCompletedCallback)
         {
-            foreach (var row in m_rows)
-                row.Save();
+            Plugin.ConfigFile.SaveOnConfigSet = true;
+            Plugin.ConfigFile.Save();
             okActionCompletedCallback?.Invoke();
         }
     }
