@@ -30,7 +30,7 @@ namespace Ovomium.Features.SettingsMenu
             { "TooltipStyle", "Style des infobulles" },
             { "SkillTooltip", "Effet chiffré des compétences" },
             { "PortalRange", "Rayon d'activation des portails" },
-            { "ButcherKnife", "Couteau de boucher" },
+            { "ButcherKnife", "Couteau de boucher précis" },
             { "CraftFromChests", "Craft depuis les coffres" },
             { "ItemFlight", "Ingrédients qui volent" },
             { "UpgradeDiff", "Diff de stats à l'amélioration" },

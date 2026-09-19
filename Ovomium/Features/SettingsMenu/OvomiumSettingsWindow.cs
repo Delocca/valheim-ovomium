@@ -169,10 +169,14 @@ namespace Ovomium.Features.SettingsMenu
             button.gameObject.SetActive(true);
             button.interactable = true;
             button.onClick = new Button.ButtonClickedEvent();
-            // Seulement « Label » et « Selected/LabelSelected » : « KeyHint/Text » est l'indice de touche manette.
+            // Seulement « Label » et « Selected/LabelSelected » : « KeyHint/Text » est l'indice de touche.
             foreach (var text in button.GetComponentsInChildren<TMP_Text>(true))
                 if (text.name.Contains("Label"))
                     text.text = title;
+            // Indice de touche « Q » (TabLeft) du premier bouton vanilla : Q/E naviguent bien, mais Edia n'en veut pas.
+            var hint = button.transform.Find("KeyHint");
+            if (hint != null)
+                Object.Destroy(hint.gameObject);
             return button;
         }
     }

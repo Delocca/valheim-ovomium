@@ -27,7 +27,7 @@ namespace Ovomium.Features.SettingsMenu
             rect.SetParent(templatePage.parent, false);
             rect.SetSiblingIndex(templatePage.GetSiblingIndex() + 1);
             CopyRect(templatePage, rect);
-            var content = BuildScrollView(rect);
+            var content = BuildScrollView(rect, templates.Scrollbar);
             var tab = page.AddComponent<OvomiumSettingsTab>();
             tab.Fill(content, layout, templates, config);
             page.SetActive(false);
@@ -43,10 +43,14 @@ namespace Ovomium.Features.SettingsMenu
             to.sizeDelta = from.sizeDelta;
         }
 
-        /// <summary>Page → Viewport (masque) → Content (liste verticale ajustée à son contenu).</summary>
-        private static RectTransform BuildScrollView(RectTransform page)
+        /// <summary>
+        /// Page (ScrollRect) → Viewport (masque, image transparente pour recevoir la molette entre les lignes) →
+        /// Content (liste verticale ajustée à son contenu) ; barre vanilla clonée à droite, visible seulement si ça dépasse.
+        /// </summary>
+        private static RectTransform BuildScrollView(RectTransform page, Scrollbar scrollbarTemplate)
         {
-            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D), typeof(Image));
+            viewport.GetComponent<Image>().color = Color.clear;
             var viewRect = (RectTransform)viewport.transform;
             viewRect.SetParent(page, false);
             Stretch(viewRect);
@@ -74,8 +78,30 @@ namespace Ovomium.Features.SettingsMenu
             scroll.horizontal = false;
             scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped;
-            scroll.scrollSensitivity = 30f;
+            scroll.scrollSensitivity = 600f; // vingt lignes par cran de molette (réglage d'Edia)
+            AttachScrollbar(scroll, page, scrollbarTemplate);
             return contentRect;
+        }
+
+        /// <summary>Barre clonée sur le bord droit de la page ; Unity la masque et rend sa largeur au viewport quand tout tient.</summary>
+        private static void AttachScrollbar(ScrollRect scroll, RectTransform page, Scrollbar template)
+        {
+            if (template == null)
+                return;
+            var width = ((RectTransform)template.transform).rect.width;
+            var bar = Instantiate(template, page);
+            bar.name = "Scrollbar";
+            bar.gameObject.SetActive(true);
+            bar.direction = Scrollbar.Direction.BottomToTop;
+            var rect = (RectTransform)bar.transform;
+            rect.anchorMin = new Vector2(1f, 0f);
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(1f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(width > 0f ? width : 12f, 0f);
+            scroll.verticalScrollbar = bar;
+            scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+            scroll.verticalScrollbarSpacing = 4f;
         }
 
         private static void Stretch(RectTransform rect)

@@ -11,7 +11,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 - **Carte découverte plus vite** : rayon de découverte ×3 à pied et à cheval, ×5 en bateau (MapExplore).
 - **Comparaison à l'amélioration** : à la table d'amélioration, la différence de stats en vert/rouge à côté de chaque valeur (UpgradeDiff).
 - **Infobulles des compétences** : effet chiffré de chaque compétence au niveau actuel et au niveau 100 (SkillTooltip).
-- **Réglages en direct** : chaque option de la fenêtre Ovomium s'applique immédiatement, Retour annule, et la fenêtre s'efface pendant qu'on glisse un curseur (SettingsMenu).
+- **Réglages en direct** : chaque option de la fenêtre Ovomium s'applique immédiatement, Retour annule, la fenêtre s'efface pendant qu'on glisse un curseur, et les pages défilent à la molette avec une barre quand elles dépassent (SettingsMenu).
 - **Couteau de boucher plus sûr** : n'abat que la créature visée (ButcherKnife).
 - **Portails plus discrets** : particules et son seulement à 2 m au lieu de 5 (PortalRange).
 - **Occlusion ambiante réglable** : intensité des ombres de contact, 0,8 par défaut (AmbientOcclusion).

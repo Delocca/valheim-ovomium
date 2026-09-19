@@ -23,7 +23,7 @@ namespace Ovomium.Features.PasswordReveal
                     null, new SettingLabel("Activé")));
             ShowPassword = config.Bind("PasswordReveal", "ShowPassword", false,
                 new ConfigDescription("Mot de passe affiché en clair (mémorisé d'une connexion à l'autre ; le bouton bascule cette valeur).",
-                    null, new SettingLabel("Mot de passe en clair")));
+                    null)); // état du bouton œil, pas une option de la fenêtre (Edia, 2026-09-20)
             ShowLabel = config.Bind("PasswordReveal", "ShowLabel", "Afficher",
                 "Libellé du bouton quand le mot de passe est masqué.");
             HideLabel = config.Bind("PasswordReveal", "HideLabel", "Masquer",

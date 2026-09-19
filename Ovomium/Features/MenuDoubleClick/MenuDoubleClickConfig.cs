@@ -17,7 +17,7 @@ namespace Ovomium.Features.MenuDoubleClick
                     null, new SettingLabel("Activé")));
             DoubleClickSeconds = config.Bind("MenuDoubleClick", "DoubleClickSeconds", 0.4f,
                 new ConfigDescription("Délai maximal entre les deux clics d'un double-clic, en secondes.",
-                    new AcceptableValueRange<float>(0.1f, 1f), new SettingLabel("Délai du double-clic (s)")));
+                    new AcceptableValueRange<float>(0.1f, 1f))); // cfg seulement, pas dans la fenêtre (Edia, 2026-09-20)
         }
     }
 }
