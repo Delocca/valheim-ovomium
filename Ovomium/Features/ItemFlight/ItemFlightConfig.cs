@@ -30,7 +30,7 @@ namespace Ovomium.Features.ItemFlight
             MaxDuration = config.Bind("ItemFlight", "MaxDuration", 3f,
                 new ConfigDescription("Durée du vol, en secondes, pour un coffre à la limite de la portée de CraftFromChests.",
                     new AcceptableValueRange<float>(0.5f, 15f), new SettingLabel("Durée maximale (s)")));
-            MaxPerType = config.Bind("ItemFlight", "MaxPerType", 5,
+            MaxPerType = config.Bind("ItemFlight", "MaxPerType", 10,
                 new ConfigDescription("Nombre maximal d'exemplaires animés pour un même ingrédient : ils s'envolent en file "
                     + "sur la même trajectoire, et un seul porte la traînée.",
                     new AcceptableValueRange<int>(1, 20), new SettingLabel("Exemplaires par ingrédient")));
@@ -46,7 +46,7 @@ namespace Ovomium.Features.ItemFlight
             TrailSpread = config.Bind("ItemFlight", "TrailSpread", 0.04f,
                 new ConfigDescription("Rayon, en mètres, autour de la ligne de vol dans lequel les particules apparaissent.",
                     new AcceptableValueRange<float>(0f, 0.5f), new SettingLabel("Dispersion des particules (m)")));
-            MaxInFlight = config.Bind("ItemFlight", "MaxInFlight", 30,
+            MaxInFlight = config.Bind("ItemFlight", "MaxInFlight", 60,
                 new ConfigDescription("Nombre maximal d'objets en vol en même temps (les suivants ne sont pas animés).",
                     new AcceptableValueRange<int>(1, 200), new SettingLabel("Objets en vol au maximum")));
             TrailItem = config.Bind("ItemFlight", "TrailItem", "ArrowFire",
