@@ -14,7 +14,7 @@ namespace Ovomium.Features.SettingsMenu
         public static readonly Tab[] Tabs =
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
-            new Tab { Title = "Interface", Sections = new[] { "StackDrag", "MinimapSize", "MapZoomToCursor", "MapExplore", "MenuDoubleClick", "PasswordReveal" } },
+            new Tab { Title = "Interface", Sections = new[] { "StackDrag", "MinimapSize", "MapZoomToCursor", "MapExplore", "TooltipStyle", "SkillTooltip", "MenuDoubleClick", "PasswordReveal" } },
             new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
         };
 
@@ -27,6 +27,8 @@ namespace Ovomium.Features.SettingsMenu
             { "MinimapSize", "Taille de la minicarte" },
             { "MapZoomToCursor", "Zoom carte vers le curseur" },
             { "MapExplore", "Rayon de découverte de la carte" },
+            { "TooltipStyle", "Style des infobulles" },
+            { "SkillTooltip", "Effet chiffré des compétences" },
             { "PortalRange", "Rayon d'activation des portails" },
             { "ButcherKnife", "Couteau de boucher" },
             { "UpgradeDiff", "Diff de stats à l'amélioration" },

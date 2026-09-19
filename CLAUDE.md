@@ -103,6 +103,11 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   ligne (`m_elements[j]` ↔ `GetSkillList()[j]`, `Set("", m_description, …)` ; `UITooltip.m_text` public dans
   `assembly_guiutils`, non décompilé) ; niveau affiché = `Skills.GetSkillLevel` (bonus d'effets de statut, floor),
   facteur = niveau/100. Formules des compétences : en-tête de `SkillEffects.cs`.
+- Infobulles : `UITooltip.OnHoverStart(GameObject)` (publique, `assembly_guiutils` non publicisée) instancie l'unique
+  `UITooltip.m_tooltip` (privé statique, `AccessTools.Field`) depuis le prefab `InventoryTooltip` : enfant 0 `Bkg`
+  (Image sprite « Background » translucide, teinte noire a = 0,95, Sliced, `VerticalLayoutGroup` : un enfant ajouté
+  doit porter `LayoutElement.ignoreLayout`) puis textes `Topic` (orangé) et `Text` ; détruite par `HideTooltip()`.
+  TooltipStyle stylise l'instance (marqueur `Styled`), jamais le prefab.
 - Stations par `CraftingStation.m_name` : `$piece_cauldron`, `$piece_preptable` (ce dernier supposé, à confirmer).
 
 ## Règles de code

@@ -23,6 +23,7 @@ using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
 using Ovomium.Features.StackDrag;
+using Ovomium.Features.TooltipStyle;
 using Ovomium.Features.UpgradeDiff;
 
 namespace Ovomium
@@ -67,6 +68,7 @@ namespace Ovomium
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);
             SkillTooltipConfig.Bind(Config);
+            TooltipStyleConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
 
             m_harmony = new Harmony(Guid);
@@ -91,6 +93,7 @@ namespace Ovomium
             PasswordRevealPatch.Unload();
             MinimapSizePatch.Unload();
             PortalRangePatch.Unload();
+            TooltipStylePatch.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }

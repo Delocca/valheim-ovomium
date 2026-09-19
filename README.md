@@ -100,6 +100,10 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
 - **SkillTooltip** : fenêtre des compétences, l'infobulle de chaque compétence indique sous sa description l'effet
   chiffré au niveau actuel (bonus d'effets de statut compris) puis, en gris, au niveau 100 : endurance, vitesse,
   dégâts, blocage, chances de bonus, etc.
+- **TooltipStyle** : les infobulles cadrées (objets, craft, compétences) ont un fond marron sombre opaque (`BackgroundOpacity`,
+  1 par défaut ; le jeu est noir à 0,95 sur un sprite translucide), des coins arrondis (`CornerRadius`, 14 px ; 0 = forme
+  vanilla) et un liseré clair de 1 px (`BorderOpacity`, 0,35 ; 0 = sans). `LogHierarchy` (cfg seulement) écrit la
+  hiérarchie de chaque infobulle dans le journal.
 
 ## Prérequis
 
