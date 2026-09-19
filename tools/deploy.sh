@@ -3,22 +3,36 @@
 # loading/ (LoadingArt). À lancer hors bac à sable.
 # Sûr jeu lancé : la DLL est remplacée par renommage atomique, l'ancien fichier (mappé par Mono, qui lit les
 # méthodes à la demande) reste intact ; la nouvelle DLL sert au prochain lancement.
-# Usage : tools/deploy.sh [--relaunch] [Debug|Release]   (défaut : Release)
+# Usage : tools/deploy.sh [--dev] [--relaunch] [Debug|Release]   (défaut : Release)
+#   --dev      : rechargement à chaud (ScriptEngine, tools/install-scriptengine.sh) : la DLL va dans BepInEx/scripts/
+#                et celle de plugins/Ovomium/ est retirée (sinon double chargement) ; ScriptEngine la recharge
+#                automatiquement ~3 s après la copie (ou F6 en jeu). Sans --dev, retour au mode normal.
+#                Changer de mode exige une relance du jeu (la DLL déjà chargée reste active).
 #   --relaunch : après la copie, attend la fermeture du jeu s'il tourne (sondage toutes les 5 s), puis le relance
 #                via Steam avec l'argument -ovomium-autojoin (reconnexion automatique par le mod).
 set -euo pipefail
 
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
 GAME="${VALHEIM_DIR:-$HOME/.local/share/Steam/steamapps/common/Valheim}"
+DEV=0
 RELAUNCH=0
-[ "${1:-}" = "--relaunch" ] && { RELAUNCH=1; shift; }
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --dev) DEV=1; shift ;;
+        --relaunch) RELAUNCH=1; shift ;;
+        *) break ;;
+    esac
+done
 CONFIG="${1:-Release}"
 DLL="$PROJECT/Ovomium/bin/$CONFIG/net48/Ovomium.dll"
 DEST="$GAME/BepInEx/plugins/Ovomium"
+SCRIPTS="$GAME/BepInEx/scripts"
 GAME_PROC="$GAME/valheim.x86_64"
 
 [ -f "$DLL" ] || { echo "DLL absente, lance d'abord tools/build.sh : $DLL" >&2; exit 1; }
 [ -d "$GAME/BepInEx" ] || { echo "BepInEx absent dans $GAME, lance d'abord tools/install-bepinex.sh" >&2; exit 1; }
+[ "$DEV" = 0 ] || [ -f "$GAME/BepInEx/plugins/ScriptEngine.dll" ] \
+    || { echo "ScriptEngine absent, lance d'abord tools/install-scriptengine.sh" >&2; exit 1; }
 [ "$RELAUNCH" = 0 ] || command -v steam >/dev/null || { echo "steam introuvable dans le PATH" >&2; exit 1; }
 
 # Migration depuis l'ancien nom OvoMiam (0.6.0 et avant) : l'ancienne DLL ne doit pas être chargée en double,
@@ -37,10 +51,24 @@ for f in cfg passwords.txt; do
     fi
 done
 
-mkdir -p "$DEST"
-cp "$DLL" "$DEST/Ovomium.dll.new"
-mv -f "$DEST/Ovomium.dll.new" "$DEST/Ovomium.dll"
-echo "Déployé : $DEST/Ovomium.dll"
+# Copie par renommage atomique : jamais de DLL à moitié écrite, ni pour Mono ni pour le guetteur de ScriptEngine.
+if [ "$DEV" = 1 ]; then
+    TARGET="$SCRIPTS/Ovomium.dll"; OTHER="$DEST/Ovomium.dll"
+else
+    TARGET="$DEST/Ovomium.dll"; OTHER="$SCRIPTS/Ovomium.dll"
+fi
+if [ -f "$OTHER" ]; then
+    gio trash "$OTHER"
+    echo "Changement de mode : $OTHER mis à la corbeille (relance du jeu nécessaire)"
+fi
+mkdir -p "$DEST" "$(dirname "$TARGET")"
+if [ "$DEV" = 1 ]; then  # ScriptEngine lit la DLL avec Cecil et exige ses symboles (.pdb à côté), avant la DLL
+    cp "${DLL%.dll}.pdb" "${TARGET%.dll}.pdb.new"
+    mv -f "${TARGET%.dll}.pdb.new" "${TARGET%.dll}.pdb"
+fi
+cp "$DLL" "$TARGET.new"
+mv -f "$TARGET.new" "$TARGET"
+echo "Déployé : $TARGET"
 if [ -d "$PROJECT/valheim_art" ]; then
     rsync -a "$PROJECT/valheim_art/" "$DEST/loading/"
     echo "Artworks : $(ls "$DEST/loading" | wc -l) fichier(s) dans $DEST/loading/"

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using BepInEx;
 using UnityEngine;
 
 namespace Ovomium.Features.LoadingArt
@@ -38,13 +39,16 @@ namespace Ovomium.Features.LoadingArt
             }
         }
 
-        /// <summary>Dossier des images, absolu (option Folder relative au dossier de la DLL du mod).</summary>
+        /// <summary>
+        /// Dossier des images, absolu (option Folder relative à BepInEx/plugins/Ovomium/). Pas Assembly.Location :
+        /// vide quand ScriptEngine charge la DLL depuis ses octets (tools/deploy.sh --dev).
+        /// </summary>
         internal static string Folder
         {
             get
             {
                 string folder = LoadingArtConfig.Folder.Value;
-                return Path.IsPathRooted(folder) ? folder : Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location), folder);
+                return Path.IsPathRooted(folder) ? folder : Path.Combine(Paths.PluginPath, Plugin.Name, folder);
             }
         }
 

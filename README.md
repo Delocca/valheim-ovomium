@@ -90,9 +90,15 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
 ```
 podman build -t ovomiam-build -f tools/Containerfile tools   # une fois
 tools/build.sh            # → Ovomium/bin/Release/net48/Ovomium.dll
-tools/deploy.sh           # copie dans BepInEx/plugins/Ovomium/
+tools/deploy.sh           # copie dans BepInEx/plugins/Ovomium/ (--relaunch : attend la fermeture du jeu, le relance)
 tools/decompile.sh build/decompiled   # code du jeu décompilé, pour référence (non versionné)
 ```
+
+Rechargement à chaud (jeu lancé, quelques secondes par itération) : `tools/install-scriptengine.sh` une fois
+(ScriptEngine de BepInEx.Debug), puis `tools/deploy.sh --dev` place la DLL dans `BepInEx/scripts/`, rechargée
+automatiquement (ou F6). Le mod se retire proprement avant chaque rechargement (`Plugin.OnDestroy`). Limites : ce qui
+s'exécute avant le menu principal (StartupSkip, AutoJoin, écran de démarrage) exige une relance ; `tools/deploy.sh`
+sans `--dev` revient au mode normal, à garder pour le test final avant release.
 
 Le csproj référence les DLL du jeu (publicisées) et `BepInEx.Core` 5.4.21 depuis `nuget.bepinex.dev`.
 La version du mod se change uniquement dans `<Version>` du csproj (constante `PluginVersion.Value` générée au build).

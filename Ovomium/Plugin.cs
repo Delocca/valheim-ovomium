@@ -32,6 +32,8 @@ namespace Ovomium
         /// <summary>Fichier de config du mod, parcouru par la fenêtre Ovomium (SettingsMenu).</summary>
         internal static ConfigFile ConfigFile;
 
+        private Harmony m_harmony;
+
         private void Awake()
         {
             Log = Logger;
@@ -51,8 +53,20 @@ namespace Ovomium
             AutoJoinConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
 
-            new Harmony(Guid).PatchAll(typeof(Plugin).Assembly);
+            m_harmony = new Harmony(Guid);
+            m_harmony.PatchAll(typeof(Plugin).Assembly);
             Log.LogInfo($"{Name} {Version} chargé");
+        }
+
+        /// <summary>
+        /// Rechargement à chaud (ScriptEngine, tools/deploy.sh --dev) : retire les patches et les effets posés sur la
+        /// scène avant que la nouvelle version ne s'installe, sinon les deux versions tournent ensemble.
+        /// </summary>
+        private void OnDestroy()
+        {
+            FirstPersonMode.Reset();
+            m_harmony?.UnpatchSelf();
+            Log.LogInfo($"{Name} {Version} déchargé");
         }
     }
 }

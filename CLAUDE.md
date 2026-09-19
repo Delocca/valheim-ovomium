@@ -18,6 +18,13 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   il copie, attend la fermeture du jeu par Edia, puis le relance via Steam avec `-ovomium-autojoin`.
   Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal
   (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomium.cfg`, désactivée par défaut).
+- **Rechargement à chaud** (ScriptEngine installé, `tools/install-scriptengine.sh`) : `tools/deploy.sh --dev Release`
+  copie DLL + `.pdb` (exigé par ScriptEngine) dans `BepInEx/scripts/`, rechargées ~3 s après par le guetteur (F6 en
+  secours), journal `… déchargé` puis `… chargé`. `Plugin.OnDestroy` fait `UnpatchSelf` + `FirstPersonMode.Reset`.
+  Les effets de scène des autres features (bouton Ovomium, dialogue mot de passe, minicarte, écrans de chargement,
+  `m_minDistance` caméra) ne sont pas encore restaurés au rechargement : cf. mémoire `hot-reload-scriptengine`.
+  Ce qui tourne avant le menu principal exige une relance. `deploy.sh` sans `--dev` rebascule en mode normal
+  (changer de mode = relance).
 
 ## Code du jeu
 

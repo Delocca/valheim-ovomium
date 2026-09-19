@@ -24,7 +24,7 @@ namespace Ovomium.Features.LoadingArt
                     + "téléportation) par une image tirée au sort dans le dossier Folder.",
                     null, new SettingLabel("Activé")));
             Folder = config.Bind("LoadingArt", "Folder", "loading",
-                "Dossier des images (jpg, jpeg, png), relatif au dossier de la DLL du mod ou absolu.");
+                "Dossier des images (jpg, jpeg, png), relatif à BepInEx/plugins/Ovomium/ ou absolu.");
             DownloadUrl = config.Bind("LoadingArt", "DownloadUrl", DefaultDownloadUrl,
                 "Adresse du zip des artworks, téléchargé une seule fois si le dossier Folder n'existe pas ; vide pour désactiver.");
         }
