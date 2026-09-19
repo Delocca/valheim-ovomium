@@ -144,7 +144,7 @@ pendant les fenêtres de mise à jour : Edia l'ouvre, prévient les amies, refer
 tools/package.sh                       # → build/dist/Ovomium-<version>-windows.zip (BepInEx inclus, sans artworks)
 tools/package-art.sh [px max]          # → build/dist/Ovomium-loading.zip (artworks jpg 95 %, ~60 Mo)
 tools/release-art.sh                   # publie/remplace ce zip dans la release « artworks » (téléchargée par le mod)
-tools/release.sh --notes "…"           # build + package + tag v<version> + release avec le zip et l'installateur
+tools/release.sh                       # build + package + tag v<version> + release (notes : « Non publié » de CHANGELOG.md)
 tools/repo-visibility.sh public|private|status   # fenêtre de mise à jour (la release se fait dépôt privé)
 ```
 

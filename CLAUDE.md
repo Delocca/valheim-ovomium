@@ -26,6 +26,19 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   Ce qui tourne avant le menu principal exige une relance. `deploy.sh` sans `--dev` rebascule en mode normal
   (changer de mode = relance).
 
+## Suivi : TODO, changelog, journal
+
+Trois fichiers versionnés, seule source de vérité du suivi (la mémoire auto ne les duplique pas) :
+
+- `TODO.md` : chantiers restants par priorité, avec le contexte utile (décisions d'Edia, ancrages). Ajouter quand
+  Edia décide un chantier, enrichir dès qu'un repérage est fait, retirer quand c'est livré **et validé en jeu** (un
+  commit ne suffit pas).
+- `CHANGELOG.md` : une ligne sous « Non publié » dans le même commit que tout changement visible par le joueur
+  (feature, option, correctif), préfixée du nom de la feature et formulée côté joueur. Rien pour l'interne (outils,
+  docs, refactor). `tools/release.sh` sans argument date la section et la publie comme notes de release.
+- `docs/journal.md` : une entrée par jour de travail, complétée au fil de la session (pas seulement à la fin) : fait,
+  décisions avec leurs raisons, en suspens. Ce que git dit déjà n'y va pas.
+
 ## Code du jeu
 
 - Décompilé dans `build/decompiled/` (gitignoré) : `tools/decompile.sh build/decompiled`. À régénérer après
