@@ -10,6 +10,7 @@ namespace Ovomium.Features.FirstPerson
         public static ConfigEntry<float> NearClip { get; private set; }
         public static ConfigEntry<float> ForwardOffset { get; private set; }
         public static ConfigEntry<float> UpOffset { get; private set; }
+        public static ConfigEntry<float> CrouchEyeHeight { get; private set; }
 
         public static void Bind(ConfigFile config)
         {
@@ -29,6 +30,10 @@ namespace Ovomium.Features.FirstPerson
             UpOffset = config.Bind("FirstPerson", "UpOffset", 0f,
                 new ConfigDescription("Décalage vertical (m) de la caméra par rapport au point œil du personnage.",
                     new AcceptableValueRange<float>(-0.3f, 0.3f), new SettingLabel("Caméra en hauteur (m)")));
+            CrouchEyeHeight = config.Bind("FirstPerson", "CrouchEyeHeight", 1.23f,
+                new ConfigDescription("Accroupi en vue subjective : hauteur (m) de l'œil au-dessus des pieds du personnage. "
+                    + "Fixe, comme le point œil debout du jeu : la caméra ne suit pas le balancement de la marche furtive.",
+                    new AcceptableValueRange<float>(0.6f, 1.8f), new SettingLabel("Accroupi : hauteur de la caméra (m)")));
         }
     }
 }

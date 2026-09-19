@@ -54,8 +54,11 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   depuis `m_eye`), bloquée par `m_minDistance` du prefab (mis à 0 par FirstPerson, molette clampée dans
   `UpdateCamera`, placement dans `GetCameraPosition` : `m_smoothYTilt` éloigne à 1,5 m en regardant en bas,
   clamp au-dessus de l'eau `m_minWaterDistance`, `ApplyCameraTilt` roulis bateau max à distance min ;
-  `GetCameraBaseOffset` = `m_eye` − position joueur, lissé 0,5 s dans `UpdateBaseOffset` ; `m_eye` est un transform
-  jamais déplacé par le jeu, seul l'os tête `GetHeadPoint()` suit l'animation, d'où FirstPersonCrouch) ;
+  `GetCameraBaseOffset` = `m_eye` − position joueur, lissé 0,5 s dans `UpdateBaseOffset(Player, float)` via
+  `m_currentBaseOffset` / `m_offsetBaseVel` (privés, publicisés ; FirstPersonCrouch remplace la composante y par un
+  lissage 0,1 s en postfix) ; `m_eye` est un transform jamais déplacé par le jeu, d'où FirstPersonCrouch : accroupi,
+  `offset.y` = hauteur fixe `CrouchEyeHeight` ; l'os tête `GetHeadPoint()` balance avec la marche furtive, ne pas le
+  suivre) ;
   `Character.SetVisible` masque le joueur local à moins de 2 m via le point de référence du LODGroup ;
   `Player.AlwaysRotateCamera` fait suivre le regard au corps ; `VisEquipment.UpdateLodgroup` n'est appelé
   qu'à un changement d'équipement ; shaders végétation : propriété `_CamCull`.

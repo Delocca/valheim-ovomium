@@ -49,7 +49,8 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   cinématiques. `NearClip` (0,05 m) : distance minimale de dessin en vue subjective. `ForwardOffset` (0,1 m) et
   `UpOffset` (0) : position de la caméra par rapport au point œil du personnage, tournée avec le regard horizontal
   seulement (vanilla met la caméra 50 cm devant l'œil et la fait tourner avec le regard complet : elle décrit un
-  arc). Accroupi, la caméra descend avec la tête du personnage (le point œil vanilla ne bouge pas). Inspiré de
+  arc). Accroupi, la caméra descend à une hauteur fixe au-dessus des pieds, `CrouchEyeHeight` (1,23 m), avec une
+  transition rapide (le point œil vanilla ne bouge pas ; l'os tête, lui, balance avec la marche furtive). Inspiré de
   [Landoria.FirstPerson](https://github.com/landoria-gaming/Landoria.FirstPerson) (MIT).
 - **StartupSkip** : au lancement du jeu, saute les logos Coffee Stain et Iron Gate (`SkipLogos`). La vidéo
   d'introduction se désactive dans les options vanilla depuis le patch du 2026-09-17 (option `IntroVideo` retirée).
