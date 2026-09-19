@@ -6,7 +6,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>Ovomium</AssemblyName>
     <RootNamespace>Ovomium</RootNamespace>
-    <Version>0.8.0</Version>
+    <Version>0.9.0</Version>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU1900 : audit de vulnérabilités NuGet injoignable ne doit pas bloquer le build -->
     <WarningsNotAsErrors>NU1900</WarningsNotAsErrors>
@@ -28,6 +28,11 @@
     </Reference>
     <Reference Include="assembly_utils">
       <HintPath>$(ValheimManaged)/assembly_utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Localization, UITooltip (UpgradeDiff) -->
+    <Reference Include="assembly_guiutils">
+      <HintPath>$(ValheimManaged)/assembly_guiutils.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <!-- CanvasGroup (Hud.m_loadingScreen) et Rigidbody (Character.m_body) -->

@@ -34,6 +34,9 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 - Points d'ancrage utilisés : `InventoryGui.UpdateRecipeList` (tri natif : craftable → `Recipe.m_listSortWeight`
   → SortMethod ; positions posées à la main via `anchoredPosition` ; sélection mémorisée par valeur, donc
   réordonner est sûr ; nom d'une ligne = `TMP_Text` « name », rich text), `InventoryGui.Update` (clavier),
+  `InventoryGui.UpdateRecipe(Player, float)` (privée, chaque frame : `m_recipeDecription.text` = tooltip
+  `ItemDrop.ItemData.GetTooltip(item, qualité, crafting: true, …)` à `ItemData.m_quality + 1` en amélioration,
+  `m_selectedRecipe.ItemData` null en craft ; UpgradeDiff régénère à la qualité actuelle et annote),
   `CookingStation.m_conversion` (cru → cuit), `InventoryGui.OnSelectedItem` / `UpdateItemDrag` (piles :
   à la souris il n'y a pas de drag Unity, « prendre » et « poser » sont deux clics ; avec une pile en main le
   modificateur Shift/Ctrl est ignoré par le jeu et tout dépôt réussi détruit le drag), `Player.UpdateTeleport`

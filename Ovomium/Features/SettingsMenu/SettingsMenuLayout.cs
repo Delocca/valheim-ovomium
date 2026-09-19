@@ -14,8 +14,8 @@ namespace Ovomium.Features.SettingsMenu
         public static readonly Tab[] Tabs =
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
-            new Tab { Title = "Interface", Sections = new[] { "StackDrag", "MinimapSize", "MapZoomToCursor", "MenuDoubleClick", "PasswordReveal" } },
-            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
+            new Tab { Title = "Interface", Sections = new[] { "StackDrag", "MinimapSize", "MapZoomToCursor", "MapExplore", "MenuDoubleClick", "PasswordReveal" } },
+            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
         };
 
         private static readonly Dictionary<string, string> s_sectionLabels = new Dictionary<string, string>
@@ -26,6 +26,11 @@ namespace Ovomium.Features.SettingsMenu
             { "StackDrag", "Piles à la souris" },
             { "MinimapSize", "Taille de la minicarte" },
             { "MapZoomToCursor", "Zoom carte vers le curseur" },
+            { "MapExplore", "Rayon de découverte de la carte" },
+            { "PortalRange", "Rayon d'activation des portails" },
+            { "ButcherKnife", "Couteau de boucher" },
+            { "UpgradeDiff", "Diff de stats à l'amélioration" },
+            { "AmbientOcclusion", "Occlusion ambiante" },
             { "MenuDoubleClick", "Double-clic dans les menus" },
             { "PasswordReveal", "Mot de passe serveur" },
             { "FastPortal", "Portails rapides" },
