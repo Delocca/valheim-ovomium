@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using Ovomium.Features.AutoJoin;
 using Ovomium.Features.FastPortal;
 using Ovomium.Features.FirstPerson;
 using Ovomium.Features.FoodMarker;
@@ -47,6 +48,7 @@ namespace Ovomium
             FirstPersonConfig.Bind(Config);
             StartupSkipConfig.Bind(Config);
             LoadingArtConfig.Bind(Config);
+            AutoJoinConfig.Bind(Config);
             SettingsMenuConfig.Bind(Config);
 
             new Harmony(Guid).PatchAll(typeof(Plugin).Assembly);

@@ -15,7 +15,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
             new Tab { Title = "Interface", Sections = new[] { "StackDrag", "MinimapSize", "MapZoomToCursor", "MenuDoubleClick", "PasswordReveal" } },
-            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "FirstPerson", "StartupSkip", "LoadingArt" } },
+            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
         };
 
         private static readonly Dictionary<string, string> s_sectionLabels = new Dictionary<string, string>
@@ -32,6 +32,7 @@ namespace Ovomium.Features.SettingsMenu
             { "FirstPerson", "Vue subjective" },
             { "StartupSkip", "Démarrage rapide" },
             { "LoadingArt", "Artworks de chargement" },
+            { "AutoJoin", "Connexion automatique (dev)" },
         };
 
         public static string SectionLabel(string section) =>

@@ -49,7 +49,7 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   cinématiques. `NearClip` (0,05 m) : distance minimale de dessin en vue subjective. `ForwardOffset` (0,1 m) et
   `UpOffset` (0) : position de la caméra par rapport au point œil du personnage, tournée avec le regard horizontal
   seulement (vanilla met la caméra 50 cm devant l'œil et la fait tourner avec le regard complet : elle décrit un
-  arc). Inspiré de
+  arc). Accroupi, la caméra descend avec la tête du personnage (le point œil vanilla ne bouge pas). Inspiré de
   [Landoria.FirstPerson](https://github.com/landoria-gaming/Landoria.FirstPerson) (MIT).
 - **StartupSkip** : au lancement du jeu, saute les logos Coffee Stain et Iron Gate (`SkipLogos`). La vidéo
   d'introduction se désactive dans les options vanilla depuis le patch du 2026-09-17 (option `IntroVideo` retirée).
@@ -69,6 +69,14 @@ Options dans `BepInEx/config/ovo.ovomium.cfg`, une section par fonctionnalité.
   « (au redémarrage) » n'agissent qu'au prochain lancement. Navigation à la manette non câblée pour ce bouton (les
   listes de navigation `FejdStartup.m_menuButtons` et celle de `Menu` sont laissées vanilla). `DumpHierarchy` (non)
   journalise la hiérarchie du prefab Paramètres à l'ouverture, pour le débogage.
+- **AutoJoin** (outil de développement, `Enabled` : non) : au lancement du jeu, sélectionne le personnage et se
+  connecte au serveur sans passer par les menus, par le chemin natif de `+connect` (un seul essai par lancement ;
+  après une déconnexion, le menu revient vanilla). `Character` : nom ou fichier du personnage (vide : celui que le
+  jeu sélectionne par défaut, le dernier utilisé). `Server` : nom d'un serveur des listes Favoris / Récents ou
+  `hôte:port` (vide : dernier serveur rejoint ; aucun serveur connu → rien ne se passe, journal). Le mot de passe
+  mémorisé par PasswordReveal est soumis tout seul. L'argument de ligne de commande `-ovomium-autojoin` force
+  l'activation même si `Enabled` est non : c'est ce que passe `tools/deploy.sh --relaunch`
+  (`steam -applaunch 892970 -ovomium-autojoin`).
 
 ## Prérequis
 

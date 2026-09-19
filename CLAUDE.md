@@ -9,10 +9,11 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
 - Aucun outil .NET sur l'hôte : tout passe par l'image podman `ovomiam-build` (`tools/Containerfile`).
 - `tools/build.sh` et `tools/deploy.sh` sont **exclus du bac à sable** (`.claude/settings.json`) : les lancer
   directement. Toute autre commande podman ou accès à nuget/mcr/thunderstore échoue dans le bac à sable.
-- **Ne jamais déployer jeu lancé** (`deploy.sh` refuse) : Mono lit les méthodes à la demande dans le fichier, la DLL
-  remplacée casse les patches pas encore exécutés (`BadImageFormatException: Method has zero rva`, symptôme :
-  raccourcis qui « ne marchent plus »). Après un build, lancer `tools/deploy.sh --wait` en arrière-plan
-  (`run_in_background`) : il attend la fermeture du jeu et copie ; Edia relance ensuite le jeu sans prévenir.
+- **Déploiement possible jeu lancé** : `deploy.sh` remplace la DLL par renommage atomique (`Ovomium.dll.new` puis
+  `mv -f`), l'ancien fichier reste mappé par Mono (qui lit les méthodes à la demande : le réécrire en place casserait
+  les patches pas encore exécutés, `BadImageFormatException: Method has zero rva`) ; la nouvelle DLL sert au prochain
+  lancement. Après un build, lancer `tools/deploy.sh --relaunch Release` en arrière-plan (`run_in_background`) :
+  il copie, attend la fermeture du jeu par Edia, puis le relance via Steam avec `-ovomium-autojoin`.
   Les tests en jeu sont faits par Edia ; comparer son retour avec les traces `… trié :` du journal
   (option `LogSortOrder = true` dans `BepInEx/config/ovo.ovomium.cfg`, désactivée par défaut).
 
@@ -41,10 +42,20 @@ Voir `README.md` pour les fonctionnalités et options. Ce fichier : ce qu'un age
   passe est non vide ; le serveur est identifié par `ZNet.GetServerString(true)` ; mots de passe mémorisés dans
   `BepInEx/config/ovo.ovomium.passwords.txt`, AES à clé dérivée machine+utilisateur, cf. `PasswordStore`).
   Le champ `FejdStartup.m_serverPassword` (mot de passe d'un monde qu'on héberge) est un autre champ, non traité.
+  Connexion au lancement (AutoJoin) : arguments natifs `-joinserverwithcharacter <hôte:port> <fichier perso> <x>`
+  (dans `Awake`, 4 arguments exigés), `+connect <hôte:port>` (`HandleStartupJoin` → `CheckPendingJoinRequest` →
+  `ProceedJoinRequest` privée : privilège, arrêt de la cinématique, `m_queuedJoinServer`, écran personnage) et
+  `-password` (`FejdStartup.ServerPassword`, soumis par `RPC_ClientHandshake`). Le mod suit `+connect` après
+  `FejdStartup.Start` (profils dans `m_profiles` / `m_profileIndex`, dernier = `PlatformPrefs` « profile ») puis
+  `OnCharacterStart()` (= bouton Démarrer : `SelectCharacter` + `JoinServer`) ; `m_instantStart` saute le fondu.
+  Listes Favoris / Récents : `LocalServerList(null, ServerListGui.GetServerListLocations("recent"))` (fichiers,
+  `Dispose()` obligatoire ; `ServerListGui.s_instance` n'existe que panneau ouvert), le plus récent en tête.
   Caméra : `GameCamera.GetCameraOffset` a une branche première personne vanilla (`m_distance <= 0 → m_fpsOffset`
   depuis `m_eye`), bloquée par `m_minDistance` du prefab (mis à 0 par FirstPerson, molette clampée dans
   `UpdateCamera`, placement dans `GetCameraPosition` : `m_smoothYTilt` éloigne à 1,5 m en regardant en bas,
-  clamp au-dessus de l'eau `m_minWaterDistance`, `ApplyCameraTilt` roulis bateau max à distance min) ;
+  clamp au-dessus de l'eau `m_minWaterDistance`, `ApplyCameraTilt` roulis bateau max à distance min ;
+  `GetCameraBaseOffset` = `m_eye` − position joueur, lissé 0,5 s dans `UpdateBaseOffset` ; `m_eye` est un transform
+  jamais déplacé par le jeu, seul l'os tête `GetHeadPoint()` suit l'animation, d'où FirstPersonCrouch) ;
   `Character.SetVisible` masque le joueur local à moins de 2 m via le point de référence du LODGroup ;
   `Player.AlwaysRotateCamera` fait suivre le regard au corps ; `VisEquipment.UpdateLodgroup` n'est appelé
   qu'à un changement d'équipement ; shaders végétation : propriété `_CamCull`.
