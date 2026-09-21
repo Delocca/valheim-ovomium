@@ -12,6 +12,7 @@ using Ovomium.Features.FirstPerson;
 using Ovomium.Features.FocusClick;
 using Ovomium.Features.FoodMarker;
 using Ovomium.Features.FoodRecipeSort;
+using Ovomium.Features.GraphicsPreview;
 using Ovomium.Features.LoadingArt;
 using Ovomium.Features.MapExplore;
 using Ovomium.Features.StartupSkip;
@@ -106,6 +107,7 @@ namespace Ovomium
             ChestReservation.Unload();
             RequirementBackdrop.Unload();
             ItemFlightPatch.Unload();
+            GraphicsPreview.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");
         }

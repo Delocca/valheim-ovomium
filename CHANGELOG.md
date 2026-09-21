@@ -4,6 +4,9 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Graphismes du jeu en direct** : dans l'onglet Graphismes du menu Paramètres, chaque réglage s'applique aussitôt pour juger de l'effet, et Annuler remet tout comme avant ; la fenêtre s'efface pendant le glissement d'un curseur (GraphicsPreview, toujours actif).
+- **Fenêtre Ovomium** : la fenêtre ne s'efface plus pendant le glissement que pour les curseurs dont l'effet se voit à l'écran (SettingsMenu).
+
 ## 0.9.0 — 2026-09-20
 
 - **Craft et construction depuis les coffres** : les ingrédients sont pris dans les coffres, chariots et bateaux à portée, le plus proche d'abord, puis dans l'inventaire (ordre inversable) ; chaque ingrédient affiche le total disponible (CraftFromChests).

@@ -146,7 +146,8 @@ namespace Ovomium.Features.SettingsMenu
                 var slider = row.GetComponentInChildren<Slider>(true);
                 if (slider != null)
                 {
-                    slider.gameObject.AddComponent<SliderPeek>();
+                    if (label.LivePreview)
+                        slider.gameObject.AddComponent<SliderPeek>();
                     return new SliderRow(entry, slider, FindOrCreateValueText(row.transform, templates));
                 }
                 Plugin.Log.LogWarning($"SettingsMenu : pas de Slider dans le clone de « {templates.SliderRow.name} »");

@@ -22,7 +22,7 @@ namespace Ovomium.Features.MinimapSize
                     null, new SettingLabel("Activé")));
             Scale = config.Bind("MinimapSize", "Scale", 1f,
                 new ConfigDescription("Facteur d'échelle de la minicarte, modifié en jeu par Shift + touches de zoom de la carte.",
-                    new AcceptableValueRange<float>(MinScale, MaxScale), new SettingLabel("Échelle")));
+                    new AcceptableValueRange<float>(MinScale, MaxScale), new SettingLabel("Échelle", livePreview: true)));
             Step = config.Bind("MinimapSize", "Step", 0.1f,
                 new ConfigDescription("Variation du facteur d'échelle à chaque pas (appui, ou répétition en maintenant la touche).",
                     new AcceptableValueRange<float>(0.05f, 0.5f), new SettingLabel("Pas d'échelle")));

@@ -17,7 +17,7 @@ namespace Ovomium.Features.AmbientOcclusion
                     null, new SettingLabel("Activé")));
             Intensity = config.Bind("AmbientOcclusion", "Intensity", 0.8f,
                 new ConfigDescription("Multiplicateur de l'intensité vanilla (0 : pas d'occlusion, 1 : jeu inchangé, 0.8 par défaut).",
-                    new AcceptableValueRange<float>(0f, 1f), new SettingLabel("Intensité (× vanilla)")));
+                    new AcceptableValueRange<float>(0f, 1f), new SettingLabel("Intensité (× vanilla)", livePreview: true)));
         }
     }
 }
