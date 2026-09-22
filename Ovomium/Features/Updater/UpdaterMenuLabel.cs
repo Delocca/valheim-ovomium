@@ -5,8 +5,10 @@ using UnityEngine;
 namespace Ovomium.Features.Updater
 {
     /// <summary>
-    /// Ligne « Ovomium x → y disponible » au menu principal, clone du libellé de version vanilla
-    /// (<c>FejdStartup.m_versionLabel</c>) posé juste au-dessous.
+    /// Ligne « Ovomium x » y disponible » au menu principal, clone du libellé de version vanilla
+    /// (<c>FejdStartup.m_versionLabel</c>) posé juste au-dessus (le vanilla est au bord bas de l'écran, au-dessous
+    /// ça sort de la fenêtre). Rien tant qu'il n'y a pas de mise à jour : la version du mod est le titre de la
+    /// fenêtre Ovomium des Paramètres.
     /// </summary>
     internal static class UpdaterMenuLabel
     {
@@ -22,8 +24,8 @@ namespace Ovomium.Features.Updater
             if (UpdateState.Downloading)
                 return $"Ovomium <color={Highlight}>{UpdateState.Version}</color> : téléchargement…"
                     + (UpdateState.RelaunchRequested ? " le jeu va se relancer" : "");
-            if (UpdateState.Available)
-                return $"Ovomium {PluginVersion.Value} → <color={Highlight}>{UpdateState.Version}</color> disponible";
+            if (UpdateState.Available)  // « → » absent de la police du jeu (remplacé par une espace)
+                return $"Ovomium {PluginVersion.Value} » <color={Highlight}>{UpdateState.Version}</color> disponible";
             return "";
         }
 
@@ -65,8 +67,8 @@ namespace Ovomium.Features.Updater
             label.richText = true;
             var rect = label.GetComponent<RectTransform>();
             var templateRect = template.GetComponent<RectTransform>();
-            if (rect != null && templateRect != null)
-                rect.anchoredPosition = templateRect.anchoredPosition - new Vector2(0f, templateRect.rect.height);
+            if (rect != null && templateRect != null)  // même pivot et ancres que le modèle : + hauteur = juste au-dessus
+                rect.anchoredPosition = templateRect.anchoredPosition + new Vector2(0f, templateRect.rect.height);
             return label;
         }
     }

@@ -96,12 +96,31 @@ namespace Ovomium.Features.SettingsMenu
             if (templates == null)
                 return;
             ReplaceTabs(tabHandler, templates);
+            SetTitle(settings);
             if (SettingsMenuConfig.DumpHierarchy.Value)
             {
                 LogTabs("après remplacement", tabHandler);
                 HierarchyDump.Log(tabHandler.m_tabs[0].m_page, 8);
                 HierarchyDump.Log(templates.ToggleRow.transform, 8);
             }
+        }
+
+        /// <summary>
+        /// Titre « Paramètres » du cadre (<c>Panel/Title</c>, « $menu_settings ») remplacé par « Ovomium x.y.z » : seul
+        /// endroit où la version du mod s'affiche. L'instance est entièrement à nous et détruite à la fermeture, rien
+        /// à restaurer ; retiré du cache Localization pour qu'une relocalisation ne le remette pas.
+        /// </summary>
+        private static void SetTitle(Settings settings)
+        {
+            var title = settings.transform.Find("Panel/Title");
+            var text = title != null ? title.GetComponent<TMP_Text>() : null;
+            if (text == null)
+            {
+                Plugin.Log.LogWarning("SettingsMenu : titre « Panel/Title » introuvable, titre vanilla conservé");
+                return;
+            }
+            text.text = $"{Plugin.Name} {Plugin.Version}";
+            Localization.instance.RemoveTextFromCache(text);
         }
 
         /// <summary>Trace de diagnostic : état de chaque onglet du TabHandler et de ses boutons frères.</summary>

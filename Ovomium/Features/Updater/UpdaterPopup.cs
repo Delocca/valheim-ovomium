@@ -5,7 +5,8 @@ namespace Ovomium.Features.Updater
     /// <summary>
     /// Fenêtre vanilla oui/non « Ovomium x.y.z » avec le changelog : oui télécharge puis relance le jeu
     /// (<see cref="GameRelauncher"/>, en partie la sortie sauvegarde), non repousse à la prochaine session. Les callbacks de <c>YesNoPopup</c> ne ferment pas la fenêtre : <c>Pop()</c> explicite. Le corps est
-    /// centré par <c>ResetUI</c> à chaque affichage : on l'aligne à gauche après le Push, rien à restaurer.
+    /// centré par <c>ResetUI</c> à chaque affichage : on l'aligne à gauche après le Push, rien à restaurer ;
+    /// l'agrandissement (<see cref="UpdaterPopupLayout"/>), lui, est restauré avant le Pop.
     /// </summary>
     internal static class UpdaterPopup
     {
@@ -21,6 +22,7 @@ namespace Ovomium.Features.Updater
             string body = ChangelogFormatter.ToRichText(UpdateState.Changelog);
             string text = (body.Length > 0 ? body + "\n\n" : "") + "Télécharger et relancer le jeu maintenant ?";
             UnifiedPopup.Push(new YesNoPopup(header, text, OnYes, OnNo, localizeText: false));
+            UpdaterPopupLayout.Apply();
             AlignBodyLeft();
             Plugin.Log.LogInfo($"Updater : fenêtre de mise à jour {UpdateState.Version} affichée");
             return true;
@@ -29,8 +31,14 @@ namespace Ovomium.Features.Updater
         private static void OnYes()
         {
             UpdateState.PopupDone = true;
-            UpdateState.RelaunchRequested = true;
+            UpdaterPopupLayout.Restore();
             UnifiedPopup.Pop();
+            if (UpdateState.FakePopup)
+            {
+                Plugin.Log.LogInfo("Updater : fenêtre de test, « oui » sans téléchargement");
+                return;
+            }
+            UpdateState.RelaunchRequested = true;
             UpdateDownloader.Start();
             if (MessageHud.instance != null)
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
@@ -40,6 +48,7 @@ namespace Ovomium.Features.Updater
         private static void OnNo()
         {
             UpdateState.PopupDone = true;
+            UpdaterPopupLayout.Restore();
             UnifiedPopup.Pop();
             Plugin.Log.LogInfo("Updater : mise à jour refusée pour cette session");
         }

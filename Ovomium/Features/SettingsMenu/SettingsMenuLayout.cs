@@ -15,7 +15,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
             new Tab { Title = "Interface", Sections = new[] { "StackDrag", "HotbarSlots", "ChestFill", "QuickStash", "ManualChest", "MinimapSize", "MapZoomToCursor", "MapExplore", "TooltipStyle", "SkillTooltip", "MenuDoubleClick", "PasswordReveal" } },
-            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "CraftFromChests", "ItemFlight", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
+            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "CraftFromChests", "ItemFlight", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "Updater", "AutoJoin" } },
         };
 
         private static readonly Dictionary<string, string> s_sectionLabels = new Dictionary<string, string>
@@ -45,6 +45,7 @@ namespace Ovomium.Features.SettingsMenu
             { "FirstPerson", "Vue subjective" },
             { "StartupSkip", "Démarrage rapide" },
             { "LoadingArt", "Artworks de chargement" },
+            { "Updater", "Mises à jour" },
             { "AutoJoin", "Connexion automatique (dev)" },
         };
 

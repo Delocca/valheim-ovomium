@@ -4,6 +4,9 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Fenêtre de mise à jour lisible** : fenêtre agrandie et texte à taille fixe (Updater).
+- **Version du mod visible** : la fenêtre Ovomium des Paramètres a pour titre « Ovomium 1.0.0 » ; la ligne « mise à jour disponible » du menu principal est posée au-dessus de la version du jeu, elle sortait de l'écran (SettingsMenu, Updater).
+
 ## 1.0.0 — 2026-09-23
 
 - **Rangement rapide** : inventaire ouvert, Ctrl + clic sur un objet (sans coffre ouvert) l'envoie dans le coffre le plus proche qui en contient déjà, et il y vole depuis sa case ; sans coffre qui convienne, il est jeté comme d'habitude (QuickStash).

@@ -28,6 +28,8 @@ namespace Ovomium.Features.Updater
         public static bool HudMessageDone { get => Flag("HudMessageDone"); set => Set("HudMessageDone", value); }
         /// <summary>Message en jeu « téléchargée » déjà affiché.</summary>
         public static bool HudDownloadedDone { get => Flag("HudDownloadedDone"); set => Set("HudDownloadedDone", value); }
+        /// <summary>Fenêtre de test (commande console <c>ovomium_updatepopup</c>) : « oui » ne télécharge rien.</summary>
+        public static bool FakePopup { get => Flag("FakePopup"); set => Set("FakePopup", value); }
 
         public static string Version { get => Text("Version"); set => Set("Version", value); }
         public static string Changelog { get => Text("Changelog"); set => Set("Changelog", value); }

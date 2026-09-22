@@ -18,11 +18,14 @@ namespace Ovomium.Features.Updater
         {
             if (host.GetComponent<UpdateWatcher>() == null)
                 host.AddComponent<UpdateWatcher>();
+            UpdaterConsole.Install();
         }
 
         internal static void Unload()
         {
             UpdaterMenuLabel.Unload();
+            UpdaterPopupLayout.Restore();
+            UpdaterConsole.Unload();
         }
 
         [HarmonyPatch(typeof(FejdStartup), "Start", new System.Type[0])]
@@ -56,7 +59,10 @@ namespace Ovomium.Features.Updater
                     return;
                 // Fenêtre emportée par un changement de scène sans réponse (AutoJoin) : à reproposer au menu Échap.
                 if (UpdateState.PopupShown && !UpdateState.PopupDone && !UnifiedPopup.IsVisible())
+                {
                     UpdateState.PopupShown = false;
+                    UpdaterPopupLayout.Restore();
+                }
                 if (UpdateState.Downloaded && UpdateState.RelaunchRequested)
                     Relaunch();
                 if (Player.m_localPlayer == null && FejdStartup.instance != null)
