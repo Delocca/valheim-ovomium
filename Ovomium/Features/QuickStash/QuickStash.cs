@@ -1,0 +1,87 @@
+using Ovomium.Features.CraftFromChests;
+using UnityEngine;
+
+namespace Ovomium.Features.QuickStash
+{
+    /// <summary>
+    /// Rangement d'un objet de l'inventaire ouvert vers le coffre le plus proche qui en contient déjà : choix du
+    /// coffre parmi <see cref="NearbyChests"/>, transfert par <c>Inventory.AddItem(ItemData)</c> (la case est alors
+    /// choisie par ChestFill), vol inverse de la case d'inventaire vers le coffre (ItemFlight).
+    /// </summary>
+    internal static class QuickStash
+    {
+        public static bool Active() =>
+            QuickStashConfig.Enabled.Value && Player.m_localPlayer != null && !Player.m_localPlayer.IsTeleporting();
+
+        /// <summary>
+        /// Range <paramref name="amount"/> exemplaires de <paramref name="item"/> (pris dans <paramref name="source"/>)
+        /// dans le coffre choisi ; faux si aucun coffre ne convient ou si le transfert échoue (rien n'a bougé).
+        /// </summary>
+        public static bool TryStash(InventoryGui gui, Inventory source, ItemDrop.ItemData item, int amount)
+        {
+            Player player = Player.m_localPlayer;
+            if (source == null || item == null || amount <= 0 || !source.ContainsItem(item)) return false;
+            Container chest = FindTarget(player, source, item, amount);
+            if (chest == null) return false;
+            Vector3 from = CellWorldPoint(gui, source, item, player);
+            if (source == player.GetInventory())
+            {
+                player.RemoveEquipAction(item);
+                player.UnequipItem(item);
+            }
+            if (!chest.m_nview.IsOwner()) NearbyChests.TakeOwnership(chest);
+            if (!Transfer(chest.GetInventory(), source, item, amount)) return false;
+            float distance = Vector3.Distance(player.transform.position, chest.transform.position);
+            Plugin.Log.LogInfo($"QuickStash : {amount} × {Localization.instance.Localize(item.m_shared.m_name)} → "
+                + $"{chest.m_name} à {distance:0.0} m");
+            ItemDrop prefab = item.m_dropPrefab != null ? item.m_dropPrefab.GetComponent<ItemDrop>() : null;
+            if (prefab != null) ItemFlight.ItemFlight.LaunchToChest(prefab, amount, from, chest);
+            return true;
+        }
+
+        /// <summary>Coffre le plus proche contenant déjà l'objet et pouvant accueillir la quantité, hors inventaire source.</summary>
+        private static Container FindTarget(Player player, Inventory source, ItemDrop.ItemData item, int amount)
+        {
+            string name = item.m_shared.m_name;
+            foreach (Container chest in NearbyChests.Find(player.transform.position))
+            {
+                Inventory inventory = chest.GetInventory();
+                if (inventory == source) continue;
+                if (inventory.ContainsItemByName(name) && inventory.CanAddItem(item, amount)) return chest;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Pile entière : <c>MoveItemToThis</c> vanilla (l'objet change d'inventaire) ; partie d'une pile : clone
+        /// ajouté au coffre, puis seulement retrait de la source. Aucune perte : un ajout refusé laisse la source intacte.
+        /// </summary>
+        private static bool Transfer(Inventory chest, Inventory source, ItemDrop.ItemData item, int amount)
+        {
+            if (amount >= item.m_stack)
+            {
+                chest.MoveItemToThis(source, item);
+                return !source.ContainsItem(item);
+            }
+            ItemDrop.ItemData part = item.Clone();
+            part.m_stack = amount;
+            if (!chest.AddItem(part)) return false;
+            return source.RemoveItem(item, amount);
+        }
+
+        /// <summary>Point du monde à 1 m devant la caméra, sous la case d'inventaire de l'objet ; sinon le centre du joueur.</summary>
+        private static Vector3 CellWorldPoint(InventoryGui gui, Inventory source, ItemDrop.ItemData item, Player player)
+        {
+            InventoryGrid grid = source == player.GetInventory() ? gui.m_playerGrid : gui.m_containerGrid;
+            Camera camera = GameCamera.instance != null ? GameCamera.instance.m_camera : null;
+            if (grid == null || camera == null) return player.GetCenterPoint();
+            InventoryElement element = grid.GetElement(item.m_gridPos.x, item.m_gridPos.y, grid.m_width);
+            var rect = element != null ? element.transform as RectTransform : null;
+            if (rect == null) return player.GetCenterPoint();
+            Canvas canvas = rect.GetComponentInParent<Canvas>();
+            Camera uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            Vector2 screen = RectTransformUtility.WorldToScreenPoint(uiCamera, rect.TransformPoint(rect.rect.center));
+            return camera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, 1f));
+        }
+    }
+}

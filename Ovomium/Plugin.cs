@@ -23,6 +23,7 @@ using Ovomium.Features.MenuDoubleClick;
 using Ovomium.Features.MinimapSize;
 using Ovomium.Features.PasswordReveal;
 using Ovomium.Features.PortalRange;
+using Ovomium.Features.QuickStash;
 using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
@@ -72,6 +73,7 @@ namespace Ovomium
             AmbientOcclusionConfig.Bind(Config);
             HotbarSlotsConfig.Bind(Config);
             ChestFillConfig.Bind(Config);
+            QuickStashConfig.Bind(Config);
             PortalRangeConfig.Bind(Config);
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);

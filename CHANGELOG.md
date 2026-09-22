@@ -4,6 +4,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Rangement rapide** : inventaire ouvert, Ctrl + clic sur un objet (sans coffre ouvert) l'envoie dans le coffre le plus proche qui en contient déjà (il y vole depuis sa case) ; sans coffre qui convienne, il est jeté comme d'habitude (QuickStash).
 - **Ctrl pour l'ordre inverse** : Ctrl + clic sur Fabriquer ou pour poser une pièce, et Ctrl + E sur un feu, prennent les ingrédients dans l'ordre inverse du réglage (inventaire d'abord, ou coffres d'abord) ; le survol de Fabriquer et des feux le rappelle ; l'accroupissement (même touche) se fait au relâchement de Ctrl, et pas si Ctrl a servi (CraftFromChests).
 - **Recharge des feux et fours depuis les coffres** : torches, lampes, braséros, feux de camp, fours, fourneau à charbon, fumoir et marmite se rechargent (E) avec la résine, le charbon ou le bois des coffres à portée, coffres d'abord ou inventaire d'abord selon le réglage ; le survol montre ce qu'on a sur soi et le total, l'objet vole du coffre au feu (CraftFromChests).
 - **Emplacements rapides 9 et 0** : deux cases de l'inventaire s'utilisent par les touches 9 et 0 et apparaissent dans la barre d'objets ; inventaire ouvert, survoler une case et presser la touche la choisit comme cible (HotbarSlots).

@@ -43,12 +43,33 @@ namespace Ovomium.Features.ItemFlight
                 for (int i = 0; i < pulls.Count; i++)
                 {
                     if (counts[i] <= n) continue;
-                    s_flights.RemoveAll(f => f == null);
-                    if (s_flights.Count >= ItemFlightConfig.MaxInFlight.Value) return;
                     Vector3 from = Front(pulls[i].Chest.gameObject);
                     float delay = starts[i] + n * TrainSeconds;
-                    s_flights.Add(Create(pulls[i].Item, from, destination, delay, phases[i], n == 0, fromCraft));
+                    if (!TryAdd(pulls[i].Item, from, destination, delay, phases[i], n == 0, fromCraft)) return;
                 }
+        }
+
+        /// <summary>
+        /// Vol inverse (QuickStash) : jusqu'à <see cref="ItemFlightConfig.MaxPerType"/> exemplaires en file depuis
+        /// <paramref name="from"/> (la case d'inventaire) vers la face avant du coffre, le premier avec traînée.
+        /// </summary>
+        public static void LaunchToChest(ItemDrop item, int amount, Vector3 from, Container chest)
+        {
+            if (!ItemFlightConfig.Enabled.Value || item == null || chest == null) return;
+            int count = Mathf.Min(amount, ItemFlightConfig.MaxPerType.Value);
+            Vector3 to = Front(chest.gameObject);
+            float phase = Random.value * Mathf.PI * 2f;
+            for (int n = 0; n < count; n++)
+                if (!TryAdd(item, from, to, n * TrainSeconds, phase, n == 0, false)) return;
+        }
+
+        /// <summary>Crée et enregistre un vol ; faux quand <see cref="ItemFlightConfig.MaxInFlight"/> est atteint.</summary>
+        private static bool TryAdd(ItemDrop item, Vector3 from, Vector3 to, float delay, float phase, bool withTrail, bool fromCraft)
+        {
+            s_flights.RemoveAll(f => f == null);
+            if (s_flights.Count >= ItemFlightConfig.MaxInFlight.Value) return false;
+            s_flights.Add(Create(item, from, to, delay, phase, withTrail, fromCraft));
+            return true;
         }
 
         /// <summary>
