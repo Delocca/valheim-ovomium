@@ -14,6 +14,7 @@ using Ovomium.Features.FoodMarker;
 using Ovomium.Features.FoodRecipeSort;
 using Ovomium.Features.GraphicsPreview;
 using Ovomium.Features.HotbarSlots;
+using Ovomium.Features.ChestFill;
 using Ovomium.Features.LoadingArt;
 using Ovomium.Features.MapExplore;
 using Ovomium.Features.StartupSkip;
@@ -70,6 +71,7 @@ namespace Ovomium
             MapExploreConfig.Bind(Config);
             AmbientOcclusionConfig.Bind(Config);
             HotbarSlotsConfig.Bind(Config);
+            ChestFillConfig.Bind(Config);
             PortalRangeConfig.Bind(Config);
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);

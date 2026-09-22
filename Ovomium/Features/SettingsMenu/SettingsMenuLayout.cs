@@ -14,7 +14,7 @@ namespace Ovomium.Features.SettingsMenu
         public static readonly Tab[] Tabs =
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
-            new Tab { Title = "Interface", Sections = new[] { "StackDrag", "HotbarSlots", "MinimapSize", "MapZoomToCursor", "MapExplore", "TooltipStyle", "SkillTooltip", "MenuDoubleClick", "PasswordReveal" } },
+            new Tab { Title = "Interface", Sections = new[] { "StackDrag", "HotbarSlots", "ChestFill", "MinimapSize", "MapZoomToCursor", "MapExplore", "TooltipStyle", "SkillTooltip", "MenuDoubleClick", "PasswordReveal" } },
             new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "CraftFromChests", "ItemFlight", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "AutoJoin" } },
         };
 
@@ -25,6 +25,7 @@ namespace Ovomium.Features.SettingsMenu
             { "RecipeKeyboardNav", "Recettes au clavier" },
             { "StackDrag", "Piles à la souris" },
             { "HotbarSlots", "Emplacements rapides 9 et 0" },
+            { "ChestFill", "Rangement de haut en bas" },
             { "MinimapSize", "Taille de la minicarte" },
             { "MapZoomToCursor", "Zoom carte vers le curseur" },
             { "MapExplore", "Rayon de découverte de la carte" },

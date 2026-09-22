@@ -6,6 +6,9 @@ Une entrée par jour de travail, plus récent en haut : fait, décisions (avec l
 
 - **Fait** : retrait de la béquille « retour à 8 colonnes » (essai « inventaire à 10 colonnes » de la veille, sans objet après relance). Déployé en mode normal et relancé pour les deux points restants.
 - **Validé en jeu** : reciblage et menu radial. HotbarSlots livré.
+- **Fait (ChestFill)** : analyse puis feature. Tout placement automatique passe par `Inventory.FindEmptySlot(bool topFirst)` (privée, unique), `topFirst` = `Inventory.TopFirst(item)` qui ne dépend que du type (armes, outils, boucliers, utilitaires, Misc, bibelots en haut ; le reste en bas) : le « bas d'abord » des coffres est l'effet de bord de la règle qui protège la barre rapide. `Inventory` ne connaît pas son propriétaire : joueur reconnu par `== Player.m_localPlayer.GetInventory()`. E maintenu sur un coffre = `InventoryGui.UpdateContainer` (0,5 s → `Container.StackAll` par RPC, n'envoie que les objets dont le nom existe déjà dans le coffre ; 1 s → fermeture), même `Inventory.StackAll` que le bouton. Complétion des piles : `FindFreeStackItem` prend la première non pleine dans l'ordre d'insertion de la liste, pas de la grille ; remplacée par « la plus en haut à gauche ». Glisser-déposer et 1re passe de Tout prendre : positions explicites, non touchées.
+- **Décisions d'Edia** : aussi dans l'inventaire joueur (option `PlayerInventory`, oui par défaut) : objets « bas d'abord » en lignes 2-4 de haut en bas, puis barre rapide, puis cases HotbarSlots ; armes et outils vanilla. Pas de mémoire de la case d'origine (le remplissage compact suffit).
+- **Validé en jeu** : ChestFill (coffre, E maintenu, ramassage, option inventaire). Livré.
 
 ## 2026-09-21 — Graphismes vanilla en direct, transparence au drag ciblée
 

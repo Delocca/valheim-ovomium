@@ -1,0 +1,24 @@
+using BepInEx.Configuration;
+using Ovomium.Features.SettingsMenu;
+
+namespace Ovomium.Features.ChestFill
+{
+    /// <summary>Réglages du remplissage des coffres et de l'inventaire de haut en bas.</summary>
+    internal static class ChestFillConfig
+    {
+        public static ConfigEntry<bool> Enabled { get; private set; }
+        public static ConfigEntry<bool> PlayerInventory { get; private set; }
+
+        public static void Bind(ConfigFile config)
+        {
+            Enabled = config.Bind("ChestFill", "Enabled", true,
+                new ConfigDescription("Les objets déposés dans un coffre (Ctrl+clic, E maintenu, Tout empiler…) prennent la première case libre "
+                    + "en partant du haut à gauche, au lieu du bas ; une pile à compléter est celle la plus en haut à gauche.",
+                    null, new SettingLabel("Activé")));
+            PlayerInventory = config.Bind("ChestFill", "PlayerInventory", true,
+                new ConfigDescription("Même chose dans l'inventaire du joueur : les matériaux, nourriture, armures… remplissent les lignes 2 à 4 "
+                    + "de haut en bas, la barre rapide (et les cases 9 et 0) en dernier. Armes et outils vont toujours en haut, comme dans le jeu.",
+                    null, new SettingLabel("Aussi dans l'inventaire")));
+        }
+    }
+}
