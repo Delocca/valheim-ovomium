@@ -16,6 +16,7 @@ using Ovomium.Features.GraphicsPreview;
 using Ovomium.Features.HotbarSlots;
 using Ovomium.Features.ChestFill;
 using Ovomium.Features.LoadingArt;
+using Ovomium.Features.ManualChest;
 using Ovomium.Features.MapExplore;
 using Ovomium.Features.StartupSkip;
 using Ovomium.Features.MapZoomToCursor;
@@ -74,6 +75,7 @@ namespace Ovomium
             HotbarSlotsConfig.Bind(Config);
             ChestFillConfig.Bind(Config);
             QuickStashConfig.Bind(Config);
+            ManualChestConfig.Bind(Config);
             PortalRangeConfig.Bind(Config);
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);
@@ -92,6 +94,7 @@ namespace Ovomium
             UpdaterPatch.Install(gameObject);
             PortalRangePatch.Install();
             ItemFlightPatch.Install();
+            ManualChestButton.Install();
             Log.LogInfo($"{Name} {Version} chargé");
         }
 
@@ -113,6 +116,7 @@ namespace Ovomium
             ChestReservation.Unload();
             RequirementBackdrop.Unload();
             ItemFlightPatch.Unload();
+            ManualChestButton.Unload();
             GraphicsPreview.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");

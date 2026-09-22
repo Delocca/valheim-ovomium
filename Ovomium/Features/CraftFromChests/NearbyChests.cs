@@ -6,7 +6,7 @@ namespace Ovomium.Features.CraftFromChests
     /// <summary>
     /// Coffres utilisables autour d'un point : tout <c>Container</c> porté par une <c>Piece</c> (coffres, chariots,
     /// bateaux ; exclut tombes et coffres de donjon), accessible (privé, ward), pas en cours d'utilisation par une
-    /// autre joueuse. Leur inventaire est rafraîchi par le jeu chaque seconde même sans possession (lecture fiable) ;
+    /// autre joueuse, ni marqué manuel (<see cref="ManualChest.ManualChest"/>). Leur inventaire est rafraîchi par le jeu chaque seconde même sans possession (lecture fiable) ;
     /// l'écriture exige de posséder le ZDO : on reproduit la moitié « réponse » du protocole vanilla de « Tout prendre »
     /// (<c>Container.RPC_TakeAllResponse</c> : <c>ClaimOwnership</c> puis <c>ForceSendZDO</c> à l'ancien propriétaire).
     /// </summary>
@@ -55,6 +55,7 @@ namespace Ovomium.Features.CraftFromChests
                 return false;
             if (container.IsInUse() || nview.GetZDO().GetInt(ZDOVars.s_inUse) == 1) return false;
             if (container.m_wagon != null && container.m_wagon.InUse()) return false;
+            if (ManualChest.ManualChest.IsManual(container)) return false;
             return true;
         }
 
