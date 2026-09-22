@@ -90,7 +90,6 @@ namespace Ovomium
             UpdaterPatch.Install(gameObject);
             PortalRangePatch.Install();
             ItemFlightPatch.Install();
-            MiddleClickCraftPatch.Install();
             Log.LogInfo($"{Name} {Version} chargé");
         }
 
@@ -112,7 +111,6 @@ namespace Ovomium
             ChestReservation.Unload();
             RequirementBackdrop.Unload();
             ItemFlightPatch.Unload();
-            MiddleClickCraftPatch.Unload();
             GraphicsPreview.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");

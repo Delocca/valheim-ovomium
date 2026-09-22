@@ -9,9 +9,9 @@ namespace Ovomium.Features.CraftFromChests
     /// <c>Fireplace</c>, par <c>Interact</c>), fours, fourneau à charbon et fumoir (<c>Smelter.OnAddFuel</c>) et marmite
     /// (<c>CookingStation.OnAddFuelSwitch</c>), ces deux derniers branchés sur un <c>Switch</c>. Partout le jeu ajoute
     /// une unité de <c>m_fuelItem</c> par pression, identifiée par nom sans qualité, prise dans l'inventaire ; la
-    /// branche de recharge est refaite avec inventaire + coffres, dans l'ordre de <c>ChestsFirst</c>, inversé par un
-    /// clic du milieu (interaction lancée depuis <c>Player.Update</c>, drapeau <see cref="PullOrder.Inverted"/>). Le
-    /// survol affiche « Résine 3 (12) » comme le panneau de craft.
+    /// branche de recharge est refaite avec inventaire + coffres, dans l'ordre de <c>ChestsFirst</c>, inversé si Ctrl
+    /// est maintenu au moment de la pression (drapeau <see cref="PullOrder.Inverted"/> le temps du retrait). Le survol
+    /// affiche « Résine 3 (12) » comme le panneau de craft.
     /// </summary>
     internal static class FuelFromChests
     {
@@ -33,15 +33,24 @@ namespace Ovomium.Features.CraftFromChests
             return !chestsFirst && NearbyChests.Remove(center, item, 1, -1, taken) == 0;
         }
 
-        /// <summary>Prend une unité puis l'ajoute au feu (message, RPC vanilla, vol vers <paramref name="target"/>) ; faux si rien à prendre.</summary>
+        /// <summary>
+        /// Prend une unité (ordre inversé si Ctrl est maintenu) puis l'ajoute au feu (message, RPC vanilla, vol vers
+        /// <paramref name="target"/>) ; faux si rien à prendre.
+        /// </summary>
         internal static bool Refuel(Player player, ItemDrop fuel, ZNetView nview, Transform target, string message)
         {
             var taken = new List<Pull>();
-            if (!TakeOne(player, fuel, taken)) return false;
-            player.Message(MessageHud.MessageType.Center, message);
-            nview.InvokeRPC("RPC_AddFuel");
-            CraftFromChestsPatch.RaiseConsumed(player, taken, HoverPoint(player, target));
-            return true;
+            PullOrder.Inverted = PullOrder.CtrlHeld;
+            if (PullOrder.Inverted) PullOrder.CtrlUsed = true;
+            try
+            {
+                if (!TakeOne(player, fuel, taken)) return false;
+                player.Message(MessageHud.MessageType.Center, message);
+                nview.InvokeRPC("RPC_AddFuel");
+                CraftFromChestsPatch.RaiseConsumed(player, taken, HoverPoint(player, target));
+                return true;
+            }
+            finally { PullOrder.Inverted = false; }
         }
 
         private static readonly RaycastHit[] s_hits = new RaycastHit[32];
@@ -69,8 +78,8 @@ namespace Ovomium.Features.CraftFromChests
         }
 
         /// <summary>
-        /// Complète le nom localisé du combustible dans un texte de survol : « Résine 3 (12) » puis la ligne du clic du
-        /// milieu. <paramref name="last"/> : dernière occurrence du nom (fours : le nom figure aussi dans la jauge).
+        /// Complète le nom localisé du combustible dans un texte de survol : « Résine 3 (12) » puis la ligne de
+        /// Ctrl + E. <paramref name="last"/> : dernière occurrence du nom (fours : le nom figure aussi dans la jauge).
         /// </summary>
         internal static string Annotate(string text, Player player, ItemDrop fuel, bool last)
         {
@@ -81,7 +90,7 @@ namespace Ovomium.Features.CraftFromChests
             int inInventory = player.m_inventory.CountItems(name);
             int total = CraftFromChestsPatch.Total(player, name, -1);
             string label = $"{localized} {inInventory} <size=70%><color=#80E080>({total})</color></size>";
-            return text.Substring(0, at) + label + text.Substring(at + localized.Length) + "\n" + PullOrder.MiddleClickHint;
+            return text.Substring(0, at) + label + text.Substring(at + localized.Length) + "\n" + PullOrder.FuelHint;
         }
     }
 
@@ -181,67 +190,6 @@ namespace Ovomium.Features.CraftFromChests
             Player player = Player.m_localPlayer;
             if (!FuelFromChests.Active(player, __instance.m_fuelItem, __instance.m_nview)) return;
             __result = FuelFromChests.Annotate(__result, player, __instance.m_fuelItem, true);
-        }
-    }
-
-    /// <summary>
-    /// Clic du milieu sur un feu ou sur le switch combustible d'un four ou d'une marmite : même interaction qu'E, ordre
-    /// coffres/inventaire inversé. Hors mode construction (le clic du milieu y retire une pièce). Le clic du milieu est
-    /// aussi l'attaque secondaire (lue par <c>PlayerController.FixedUpdate</c>, avant ou après <c>Player.Update</c>
-    /// selon la frame) : avalée dans <c>SetControls</c> jusqu'au relâchement du bouton.
-    /// </summary>
-    [HarmonyPatch(typeof(Player), "Update", new System.Type[0])]
-    internal static class FuelFromChestsMiddleClickPatch
-    {
-        /// <summary>Clic du milieu pris pour une recharge : attaque secondaire bloquée tant que le bouton est tenu.</summary>
-        private static bool s_suppressAttack;
-
-        private static void Postfix(Player __instance)
-        {
-            Interactable target = FuelTarget(__instance);
-            if (target == null) return;
-            s_suppressAttack = true;
-            PullOrder.Inverted = true;
-            try { target.Interact(__instance, false, false); }
-            finally { PullOrder.Inverted = false; }
-        }
-
-        [HarmonyPatch(typeof(Player), "SetControls", new System.Type[] { typeof(Vector3), typeof(bool), typeof(bool),
-            typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool) })]
-        private static class SetControlsPatch
-        {
-            private static void Prefix(Player __instance, ref bool secondaryAttack, ref bool secondaryAttackHold)
-            {
-                if (__instance != Player.m_localPlayer) return;
-                if (!ZInput.GetMouseButton(2)) { s_suppressAttack = false; return; }
-                if (!s_suppressAttack && FuelTarget(__instance) != null) s_suppressAttack = true;
-                if (!s_suppressAttack) return;
-                secondaryAttack = false;
-                secondaryAttackHold = false;
-            }
-        }
-
-        /// <summary>Feu, four ou marmite en visée pendant la frame d'un clic du milieu ; sinon null.</summary>
-        private static Interactable FuelTarget(Player player)
-        {
-            if (!CraftFromChestsConfig.Enabled.Value || player != Player.m_localPlayer) return null;
-            if (!ZInput.GetMouseButtonDown(2) || Hud.InRadial() || !player.TakeInput() || player.InPlaceMode()) return null;
-            GameObject hovering = player.GetHoverObject();
-            Interactable target = hovering == null ? null : hovering.GetComponentInParent<Interactable>();
-            return IsFuelTarget(target) ? target : null;
-        }
-
-        private static bool IsFuelTarget(Interactable target)
-        {
-            if (target is Fireplace) return true;
-            if (!(target is Switch sw) || sw.m_onUse == null) return false;
-            foreach (var handler in sw.m_onUse.GetInvocationList())
-            {
-                object owner = handler.Target;
-                if (owner is Smelter smelter && sw == smelter.m_addWoodSwitch) return true;
-                if (owner is CookingStation station && sw == station.m_addFuelSwitch) return true;
-            }
-            return false;
         }
     }
 }

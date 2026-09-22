@@ -9,7 +9,7 @@ namespace Ovomium.Features.CraftFromChests
     /// Comptage des ingrédients : <c>Player.HaveRequirementItems</c> (recettes) et <c>HaveRequirements(Piece, mode)</c>
     /// (marteau) lisent le champ <c>m_inventory</c> en direct ; quand le vanilla dit non, on refait son calcul avec
     /// inventaire + coffres. Consommation : <c>Player.ConsumeResources</c>, point unique du craft, de l'amélioration et
-    /// de la pose de pièce, remplacé (coffres puis inventaire, ou l'inverse selon <c>ChestsFirst</c> et le clic du milieu,
+    /// de la pose de pièce, remplacé (coffres puis inventaire, ou l'inverse selon <c>ChestsFirst</c> et Ctrl,
     /// cf. <c>PullOrder</c>). Affichage : <c>InventoryGui.SetupRequirement</c>
     /// (statique, partagée par le panneau de craft et le HUD du marteau). Aucun effet de scène ici ; l'état de réservation est dans <c>ChestReservation.Unload()</c>.
     /// Recharge des feux : <c>FuelFromChestsPatch</c>.
