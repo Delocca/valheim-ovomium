@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 
 namespace Ovomium.Features.ChestFill
@@ -96,16 +97,23 @@ namespace Ovomium.Features.ChestFill
             return true;
         }
 
-        private static CellState[,] BuildGrid(Inventory inventory, string name, bool player)
+        /// <summary>Grille d'identifiants d'objet (par nom), l'objet ajouté étant <see cref="StackGrouping.Self"/>.</summary>
+        private static int[,] BuildGrid(Inventory inventory, string name, bool player)
         {
-            var grid = new CellState[inventory.m_width, inventory.m_height];
+            var grid = new int[inventory.m_width, inventory.m_height];
+            var ids = new Dictionary<string, int> { { name, StackGrouping.Self } };
             for (int y = 0; y < inventory.m_height; y++)
                 for (int x = 0; x < inventory.m_width; x++)
                 {
                     var at = inventory.GetItemAt(x, y);
-                    grid[x, y] = player && (y == 0 || IsHotbarCell(new Vector2i(x, y))) ? CellState.Excluded
-                        : at == null ? CellState.Free
-                        : at.m_shared.m_name == name ? CellState.Same : CellState.Other;
+                    if (player && (y == 0 || IsHotbarCell(new Vector2i(x, y))))
+                        grid[x, y] = StackGrouping.Excluded;
+                    else if (at == null)
+                        grid[x, y] = StackGrouping.Free;
+                    else if (ids.TryGetValue(at.m_shared.m_name, out int id))
+                        grid[x, y] = id;
+                    else
+                        grid[x, y] = ids[at.m_shared.m_name] = ids.Count + 1;
                 }
             return grid;
         }

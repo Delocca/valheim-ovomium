@@ -22,8 +22,10 @@ namespace Ovomium.Features.ChestFill
                     null, new SettingLabel("Aussi dans l'inventaire")));
             GroupStacks = config.Bind("ChestFill", "GroupStacks", true,
                 new ConfigDescription("Une nouvelle pile d'un objet déjà présent (piles pleines) se pose à côté des piles existantes : "
-                    + "au bout du plus long alignement horizontal (sinon vertical), sinon la case libre la plus proche. Indépendant du "
-                    + "remplissage de haut en bas. Dans l'inventaire, la barre rapide et les cases 9 et 0 sont ignorées.",
+                    + "au bout du plus long alignement horizontal (sinon vertical) ; ligne pleine → ligne du dessous, puis du dessus. "
+                    + "Un coffre rangé en colonnes (plus de voisins verticaux qu'horizontaux) est traité en colonnes : au bout de la "
+                    + "colonne, sinon colonne de droite. Indépendant du remplissage de haut en bas. Dans l'inventaire, la barre rapide "
+                    + "et les cases 9 et 0 sont ignorées.",
                     null, new SettingLabel("Regrouper les piles")));
         }
     }
