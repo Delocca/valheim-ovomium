@@ -10,16 +10,11 @@ namespace Ovomium.Features.CraftFromChests
     /// (<c>CookingStation.OnAddFuelSwitch</c>), ces deux derniers branchés sur un <c>Switch</c>. Partout le jeu ajoute
     /// une unité de <c>m_fuelItem</c> par pression, identifiée par nom sans qualité, prise dans l'inventaire ; la
     /// branche de recharge est refaite avec inventaire + coffres, dans l'ordre de <c>ChestsFirst</c>, inversé par un
-    /// clic du milieu (interaction lancée depuis <c>Player.Update</c>). Le survol affiche « Résine 3 (12) » comme le
-    /// panneau de craft.
+    /// clic du milieu (interaction lancée depuis <c>Player.Update</c>, drapeau <see cref="PullOrder.Inverted"/>). Le
+    /// survol affiche « Résine 3 (12) » comme le panneau de craft.
     /// </summary>
     internal static class FuelFromChests
     {
-        /// <summary>Vrai le temps d'une interaction au clic du milieu : ordre coffres/inventaire inversé.</summary>
-        internal static bool Inverted;
-
-        internal static bool ChestsFirst => CraftFromChestsConfig.ChestsFirst.Value != Inverted;
-
         internal static bool Active(Player player, ItemDrop fuel, ZNetView nview) =>
             CraftFromChestsPatch.Active(player) && fuel != null && nview != null && nview.IsValid();
 
@@ -28,7 +23,7 @@ namespace Ovomium.Features.CraftFromChests
         {
             string name = item.m_itemData.m_shared.m_name;
             Vector3 center = player.transform.position;
-            bool chestsFirst = ChestsFirst;
+            bool chestsFirst = PullOrder.ChestsFirst;
             if (chestsFirst && NearbyChests.Remove(center, item, 1, -1, taken) == 0) return true;
             if (player.m_inventory.CountItems(name) > 0)
             {
@@ -86,9 +81,7 @@ namespace Ovomium.Features.CraftFromChests
             int inInventory = player.m_inventory.CountItems(name);
             int total = CraftFromChestsPatch.Total(player, name, -1);
             string label = $"{localized} {inInventory} <size=70%><color=#80E080>({total})</color></size>";
-            string other = CraftFromChestsConfig.ChestsFirst.Value ? "inventaire d'abord" : "coffres d'abord";
-            return text.Substring(0, at) + label + text.Substring(at + localized.Length)
-                + $"\n[<color=yellow><b>Clic milieu</b></color>] {other}";
+            return text.Substring(0, at) + label + text.Substring(at + localized.Length) + "\n" + PullOrder.MiddleClickHint;
         }
     }
 
@@ -208,9 +201,9 @@ namespace Ovomium.Features.CraftFromChests
             Interactable target = FuelTarget(__instance);
             if (target == null) return;
             s_suppressAttack = true;
-            FuelFromChests.Inverted = true;
+            PullOrder.Inverted = true;
             try { target.Interact(__instance, false, false); }
-            finally { FuelFromChests.Inverted = false; }
+            finally { PullOrder.Inverted = false; }
         }
 
         [HarmonyPatch(typeof(Player), "SetControls", new System.Type[] { typeof(Vector3), typeof(bool), typeof(bool),

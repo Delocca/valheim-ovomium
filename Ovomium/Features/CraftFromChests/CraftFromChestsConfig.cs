@@ -24,7 +24,7 @@ namespace Ovomium.Features.CraftFromChests
                     new AcceptableValueRange<float>(2f, 150f), new SettingLabel("Portée des coffres (m)")));
             ChestsFirst = config.Bind("CraftFromChests", "ChestsFirst", true,
                 new ConfigDescription("Puiser dans les coffres avant l'inventaire (sinon l'inventaire d'abord, puis les coffres). "
-                    + "Sur un feu, le clic du milieu recharge dans l'ordre inverse.",
+                    + "Le clic du milieu (bouton Fabriquer, pose d'une pièce, recharge d'un feu) fait l'ordre inverse.",
                     null, new SettingLabel("Coffres avant l'inventaire")));
             LogPulls = config.Bind("CraftFromChests", "LogPulls", false,
                 new ConfigDescription("Écrit dans le journal chaque retrait d'un coffre : objet, quantité, coffre, distance.",

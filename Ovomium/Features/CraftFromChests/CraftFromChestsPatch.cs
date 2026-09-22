@@ -9,7 +9,8 @@ namespace Ovomium.Features.CraftFromChests
     /// Comptage des ingrédients : <c>Player.HaveRequirementItems</c> (recettes) et <c>HaveRequirements(Piece, mode)</c>
     /// (marteau) lisent le champ <c>m_inventory</c> en direct ; quand le vanilla dit non, on refait son calcul avec
     /// inventaire + coffres. Consommation : <c>Player.ConsumeResources</c>, point unique du craft, de l'amélioration et
-    /// de la pose de pièce, remplacé (coffres puis inventaire, ou l'inverse selon <c>ChestsFirst</c>). Affichage : <c>InventoryGui.SetupRequirement</c>
+    /// de la pose de pièce, remplacé (coffres puis inventaire, ou l'inverse selon <c>ChestsFirst</c> et le clic du milieu,
+    /// cf. <c>PullOrder</c>). Affichage : <c>InventoryGui.SetupRequirement</c>
     /// (statique, partagée par le panneau de craft et le HUD du marteau). Aucun effet de scène ici ; l'état de réservation est dans <c>ChestReservation.Unload()</c>.
     /// Recharge des feux : <c>FuelFromChestsPatch</c>.
     /// Non couvert : la branche « un seul ingrédient au choix » de <c>DoCrafting</c> quand l'inventaire n'en porte aucun.
@@ -126,7 +127,7 @@ namespace Ovomium.Features.CraftFromChests
                 ItemDrop item = req.m_resItem;
                 string name = item.m_itemData.m_shared.m_name;
                 Vector3 center = __instance.transform.position;
-                int missing = CraftFromChestsConfig.ChestsFirst.Value
+                int missing = PullOrder.ChestsFirst
                     ? TakeFromInventory(__instance, name, NearbyChests.Remove(center, item, need, itemQuality, taken), itemQuality)
                     : NearbyChests.Remove(center, item, TakeFromInventory(__instance, name, need, itemQuality), itemQuality, taken);
                 if (missing > 0)
