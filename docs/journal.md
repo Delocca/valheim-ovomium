@@ -2,7 +2,9 @@
 
 Une entrée par jour de travail, plus récent en haut : fait, décisions (avec leurs raisons), en suspens. Ce que git dit déjà n'y va pas. Règles : `CLAUDE.md`, section « Suivi ».
 
-## 2026-09-23 — QuickStash : essais de déclencheur abandonnés, ManualChest validé
+## 2026-09-23 — QuickStash : essais de déclencheur abandonnés, ManualChest validé, release 1.0.0
+
+- **Release 1.0.0** (décision d'Edia : « v1.0 » plutôt que 0.10.0) : `tools/release.sh` lancé par Edia hors bac à sable, notes = section « Non publié ».
 
 - **QuickStash, deux essais abandonnés, code revenu au commit `25a384e`** : (1) ligne de vue du joueur vers le coffre *cible* (malentendu) ; (2) Ctrl + clic conditionné à un coffre du décor sous le curseur souris, panneaux transparents. Le (2) n'a jamais reconnu le coffre pointé : le rayon `ScreenPointToRay(ZInput.pointerPosition)` sur `GameCamera.instance.m_camera` touchait des poutres et murs à côté ; passer par `ViewportPointToRay` (pointer / `Screen.width|height`) n'a rien changé. Cause non trouvée (piste non vérifiée : rect de la caméra ou échelle de rendu). Décision d'Edia : Ctrl + clic sans condition de curseur, comme livré la veille.
 - **ManualChest validé en jeu** ; correctif : `UIInputHint` relance `ReLocalizeVisible` sur l'inventaire à chaque ouverture, ce qui remettait « Objets similaires » sur le bouton : notre libellé est retiré du cache de `Localization` (`RemoveTextFromCache`) et le libellé vanilla y est réinscrit à la restauration.
