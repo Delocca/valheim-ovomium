@@ -4,6 +4,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Emplacements rapides 9 et 0** : deux cases de l'inventaire s'utilisent par les touches 9 et 0 et apparaissent dans la barre d'objets ; inventaire ouvert, survoler une case et presser la touche la choisit comme cible (HotbarSlots).
 - **Graphismes du jeu en direct** : dans l'onglet Graphismes du menu Paramètres, chaque réglage s'applique aussitôt pour juger de l'effet, et Annuler remet tout comme avant ; la fenêtre s'efface pendant le glissement d'un curseur (GraphicsPreview, toujours actif).
 - **Fenêtre Ovomium** : la fenêtre ne s'efface plus pendant le glissement que pour les curseurs dont l'effet se voit à l'écran (SettingsMenu).
 

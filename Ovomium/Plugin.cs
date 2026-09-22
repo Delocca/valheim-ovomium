@@ -13,6 +13,7 @@ using Ovomium.Features.FocusClick;
 using Ovomium.Features.FoodMarker;
 using Ovomium.Features.FoodRecipeSort;
 using Ovomium.Features.GraphicsPreview;
+using Ovomium.Features.HotbarSlots;
 using Ovomium.Features.LoadingArt;
 using Ovomium.Features.MapExplore;
 using Ovomium.Features.StartupSkip;
@@ -68,6 +69,7 @@ namespace Ovomium
             FocusClickConfig.Bind(Config);
             MapExploreConfig.Bind(Config);
             AmbientOcclusionConfig.Bind(Config);
+            HotbarSlotsConfig.Bind(Config);
             PortalRangeConfig.Bind(Config);
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);

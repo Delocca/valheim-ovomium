@@ -2,12 +2,17 @@
 
 Une entrée par jour de travail, plus récent en haut : fait, décisions (avec leurs raisons), en suspens. Ce que git dit déjà n'y va pas. Règles : `CLAUDE.md`, section « Suivi ».
 
+## 2026-09-22 — HotbarSlots : fin de validation
+
+- **Fait** : retrait de la béquille « retour à 8 colonnes » (essai « inventaire à 10 colonnes » de la veille, sans objet après relance). Déployé en mode normal et relancé pour les deux points restants.
+- **Validé en jeu** : reciblage et menu radial. HotbarSlots livré.
+
 ## 2026-09-21 — Graphismes vanilla en direct, transparence au drag ciblée
 
 - **Fait** : TODO 4 (transparence `SliderPeek` seulement pour les curseurs marqués `livePreview: true` dans leur `SettingLabel`, par option plutôt que par section : `MinimapSize.Step` ou `TooltipStyle.*` n'ont rien à montrer pendant le glissement). TODO 2 (GraphicsPreview) : postfix des deux `ModifySetting` et de `ChangePreset` marquent « sale », postfix de `GraphicsSettings.Update` applique une fois par frame ; l'application écrit directement `GraphicsSettingsManager.m_currentPlayerSettings` / `m_currentPresetID` puis `ApplyGraphicsSettingsToCurrentSession()` (ce que fait OK, sans `PlatformPrefs.Set*` : rien à nettoyer côté préférences, et `Settings.OnBack` ne fait pas de `PlatformPrefs.Save()`). Instantané pris dans `Initialize`, restauré dans `Terminate` sauf si `OnOkAsync` est passé (couvre Annuler, Échap et toute destruction de la fenêtre). `UpdateUI` sautée pendant notre application : abonnée à `GraphicsSettingsChanged`, elle écraserait `m_currentSettingsRaw` et rallonge `m_qualityDropdowns` à chaque appel (bug vanilla de `PopulateRenderScales`).
 - **Décisions** : résolution et plein écran laissés au mécanisme vanilla d'essai avec compte à rebours (`OnTestResolution` / `RevertMode`), hors `GraphicsSettingsState` de toute façon. `SimulationDistance` et végétation inclus dans l'aperçu : `ZNet.SimulationDistanceServerHandshake` et `ClutterSystem.ApplySettings` ne font quelque chose qu'à un vrai changement de valeur.
 - **Validé en jeu** (TODO 2 et 4). Edia a ensuite retiré l'option `GraphicsPreview.Enabled` (toujours actif, plus de section cfg ni de ligne dans la fenêtre) et demandé la transparence `SliderPeek` sur les curseurs vanilla de l'onglet Graphismes : posée dans le postfix d'`Initialize` sur `m_dynamicQualitySliders` (les curseurs de qualité instanciés depuis `m_qualitySliderPrefab`), pas sur `m_fpsLimitSlider` (rien à voir).
-- **En suspens** : TODO 5 (touches 9 et 0) si la session le permet.
+- **Fait (soir)** : HotbarSlots. Premier essai « inventaire à 10 colonnes » (`m_width`) abandonné : les objets des colonnes 9-10 seraient perdus sans le mod ou au chargement. Solution retenue : deux cases choisies de la grille (hors 1re ligne), projetées en (8,0) et (9,0) le temps de `HotkeyBar.UpdateIcons` (Finalizer rend les positions), touches lues par `ZInput` (Input System, `KeyboardShortcut.IsDown` ne marche plus), `UseHotbarItem` détourné pour les index 9-10, `Inventory.GetHotbar` étendu pour le menu radial. Barre, touches et étiquettes validées en jeu ; reciblage et menu radial restaient à tester.
 
 ## 2026-09-20 — ItemFlight : plusieurs exemplaires par ingrédient, SettingsMenu défilable
 
