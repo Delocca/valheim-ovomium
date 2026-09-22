@@ -32,7 +32,7 @@ namespace Ovomium.Features.CraftFromChests
             {
                 if (!CraftFromChestsPatch.Applies(req, station)) continue;
                 int need = req.GetAmount(qualityLevel) * multiplier;
-                if (!CraftFromChestsConfig.ChestsFirst.Value)
+                if (!PullOrder.ChestsFirst)
                     need -= player.m_inventory.CountItems(req.m_resItem.m_itemData.m_shared.m_name, itemQuality);
                 if (need > 0)
                     NearbyChests.Plan(player.transform.position, req.m_resItem, need, itemQuality, pulls);
