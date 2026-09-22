@@ -31,10 +31,18 @@ namespace Ovomium.Features.CraftFromChests
             ExpirePending();
             if (Time.time < s_nextRequest) return;
             s_nextRequest = Time.time + RequestInterval;
-            if (!InventoryGui.IsVisible() && !player.InPlaceMode()) return;
+            if (!InventoryGui.IsVisible() && !player.InPlaceMode() && !HoveringFireplace(player)) return;
             long playerId = Game.instance.GetPlayerProfile().GetPlayerID();
             foreach (var container in NearbyChests.Find(player.transform.position))
                 Request(container, playerId);
+        }
+
+        /// <summary>Un feu, four ou marmite en visée : sa recharge (FuelFromChests) puisera dans les coffres à la pression suivante.</summary>
+        private static bool HoveringFireplace(Player player)
+        {
+            var hovering = player.GetHoverObject();
+            return hovering != null && (hovering.GetComponentInParent<Fireplace>() != null
+                || hovering.GetComponentInParent<Smelter>() != null || hovering.GetComponentInParent<CookingStation>() != null);
         }
 
         private static void Request(Container container, long playerId)

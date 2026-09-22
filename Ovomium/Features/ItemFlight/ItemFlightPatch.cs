@@ -7,9 +7,10 @@ namespace Ovomium.Features.ItemFlight
     /// <summary>
     /// Départ des vols. Craft et amélioration : dès <c>InventoryGui.OnCraftPressed</c> (barre de craft démarrée, soit
     /// <c>m_craftTimer</c> à 0), sur une prévision des retraits ; la consommation réelle en fin de barre les confirme
-    /// (<c>CraftFromChestsConsumePatch.Consumed</c>), et <c>m_craftTimer</c> repassé à -1 sans consommation (Annuler,
+    /// (<c>CraftFromChestsPatch.Consumed</c>), et <c>m_craftTimer</c> repassé à -1 sans consommation (Annuler,
     /// panneau fermé, station quittée, inventaire plein) les annule. Marteau : pose puis consommation dans la même
     /// frame, vols sur les retraits effectifs vers le fantôme de construction relevé dans <c>Player.PlacePiece</c>.
+    /// Feux : destination fournie par l'événement.
     /// </summary>
     internal static class ItemFlightPatch
     {
@@ -19,21 +20,26 @@ namespace Ovomium.Features.ItemFlight
 
         public static void Install()
         {
-            CraftFromChestsConsumePatch.Consumed -= OnConsumed;
-            CraftFromChestsConsumePatch.Consumed += OnConsumed;
+            CraftFromChestsPatch.Consumed -= OnConsumed;
+            CraftFromChestsPatch.Consumed += OnConsumed;
         }
 
         public static void Unload()
         {
-            CraftFromChestsConsumePatch.Consumed -= OnConsumed;
+            CraftFromChestsPatch.Consumed -= OnConsumed;
             ItemFlight.Unload();
         }
 
         private static bool Active(Player player) =>
             ItemFlightConfig.Enabled.Value && CraftFromChestsPatch.Active(player);
 
-        private static void OnConsumed(Player player, System.Collections.Generic.List<Pull> taken)
+        private static void OnConsumed(Player player, System.Collections.Generic.List<Pull> taken, Vector3? destination)
         {
+            if (destination.HasValue)
+            {
+                if (Active(player) && taken.Count > 0) ItemFlight.Launch(taken, destination.Value, false);
+                return;
+            }
             if (s_craftPending)
             {
                 s_craftPending = false;
@@ -41,8 +47,8 @@ namespace Ovomium.Features.ItemFlight
                 return;
             }
             if (!Active(player) || taken.Count == 0) return;
-            Vector3 destination = Time.frameCount == s_placeFrame ? s_placeTarget : player.GetCenterPoint();
-            ItemFlight.Launch(taken, destination, false);
+            Vector3 target = Time.frameCount == s_placeFrame ? s_placeTarget : player.GetCenterPoint();
+            ItemFlight.Launch(taken, target, false);
         }
 
         [HarmonyPatch(typeof(InventoryGui), "OnCraftPressed", new System.Type[0])]

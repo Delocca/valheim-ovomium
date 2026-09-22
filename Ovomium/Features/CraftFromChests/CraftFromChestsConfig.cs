@@ -14,15 +14,17 @@ namespace Ovomium.Features.CraftFromChests
         public static void Bind(ConfigFile config)
         {
             Enabled = config.Bind("CraftFromChests", "Enabled", true,
-                new ConfigDescription("Le craft, l'amélioration et la construction au marteau prennent les ingrédients "
-                    + "dans les coffres, chariots et bateaux à portée (le plus proche d'abord) et dans l'inventaire.",
+                new ConfigDescription("Le craft, l'amélioration, la construction au marteau et la recharge des feux "
+                    + "(torches, lampes, braséros) prennent les ingrédients dans les coffres, chariots et bateaux "
+                    + "à portée (le plus proche d'abord) et dans l'inventaire.",
                     null, new SettingLabel("Activé")));
             Range = config.Bind("CraftFromChests", "Range", 50f,
                 new ConfigDescription("Distance, en mètres autour du joueur, jusqu'à laquelle un coffre est utilisable. "
                     + "Au-delà de 150 m environ, les coffres ne sont plus chargés par le jeu (zones de 64 m).",
                     new AcceptableValueRange<float>(2f, 150f), new SettingLabel("Portée des coffres (m)")));
             ChestsFirst = config.Bind("CraftFromChests", "ChestsFirst", true,
-                new ConfigDescription("Puiser dans les coffres avant l'inventaire (sinon l'inventaire d'abord, puis les coffres).",
+                new ConfigDescription("Puiser dans les coffres avant l'inventaire (sinon l'inventaire d'abord, puis les coffres). "
+                    + "Sur un feu, le clic du milieu recharge dans l'ordre inverse.",
                     null, new SettingLabel("Coffres avant l'inventaire")));
             LogPulls = config.Bind("CraftFromChests", "LogPulls", false,
                 new ConfigDescription("Écrit dans le journal chaque retrait d'un coffre : objet, quantité, coffre, distance.",

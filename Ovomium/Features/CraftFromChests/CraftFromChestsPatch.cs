@@ -11,6 +11,7 @@ namespace Ovomium.Features.CraftFromChests
     /// inventaire + coffres. Consommation : <c>Player.ConsumeResources</c>, point unique du craft, de l'amélioration et
     /// de la pose de pièce, remplacé (coffres puis inventaire, ou l'inverse selon <c>ChestsFirst</c>). Affichage : <c>InventoryGui.SetupRequirement</c>
     /// (statique, partagée par le panneau de craft et le HUD du marteau). Aucun effet de scène ici ; l'état de réservation est dans <c>ChestReservation.Unload()</c>.
+    /// Recharge des feux : <c>FuelFromChestsPatch</c>.
     /// Non couvert : la branche « un seul ingrédient au choix » de <c>DoCrafting</c> quand l'inventaire n'en porte aucun.
     /// </summary>
     internal static class CraftFromChestsPatch
@@ -28,6 +29,15 @@ namespace Ovomium.Features.CraftFromChests
 
         internal static int Total(Player player, string name, int quality) =>
             player.m_inventory.CountItems(name, quality) + NearbyChests.Count(player.transform.position, name, quality);
+
+        /// <summary>
+        /// Retraits effectués en coffres (craft, amélioration, pose de pièce, recharge d'un feu) ; destination connue
+        /// (le feu) ou null (l'abonné la déduit : fantôme de construction, joueuse).
+        /// </summary>
+        public static event System.Action<Player, List<Pull>, Vector3?> Consumed;
+
+        internal static void RaiseConsumed(Player player, List<Pull> taken, Vector3? destination) =>
+            Consumed?.Invoke(player, taken, destination);
     }
 
     [HarmonyPatch(typeof(Player), "HaveRequirementItems",
@@ -103,9 +113,6 @@ namespace Ovomium.Features.CraftFromChests
         new System.Type[] { typeof(Piece.Requirement[]), typeof(int), typeof(int), typeof(int) })]
     internal static class CraftFromChestsConsumePatch
     {
-        /// <summary>Retraits effectués en coffres lors d'une consommation (craft, amélioration, pose de pièce).</summary>
-        public static event System.Action<Player, List<Pull>> Consumed;
-
         private static bool Prefix(Player __instance, Piece.Requirement[] requirements, int qualityLevel, int itemQuality, int multiplier)
         {
             if (!CraftFromChestsPatch.Active(__instance)) return true;
@@ -125,7 +132,7 @@ namespace Ovomium.Features.CraftFromChests
                 if (missing > 0)
                     Plugin.Log.LogWarning($"CraftFromChests : {missing} × {Localization.instance.Localize(name)} introuvable(s) à la consommation");
             }
-            Consumed?.Invoke(__instance, taken);
+            CraftFromChestsPatch.RaiseConsumed(__instance, taken, null);
             return false;
         }
 
