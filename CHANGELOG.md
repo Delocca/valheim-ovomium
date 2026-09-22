@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+## 1.0.1 — 2026-09-23
+
 - **Fenêtre de mise à jour lisible** : fenêtre agrandie et texte à taille fixe (Updater).
 - **Version du mod visible** : la fenêtre Ovomium des Paramètres a pour titre « Ovomium 1.0.0 » ; la ligne « mise à jour disponible » du menu principal est posée au-dessus de la version du jeu, elle sortait de l'écran (SettingsMenu, Updater).
 
