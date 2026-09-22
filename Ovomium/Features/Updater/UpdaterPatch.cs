@@ -6,7 +6,8 @@ namespace Ovomium.Features.Updater
     /// <summary>
     /// Mise à jour du mod depuis le jeu : vérification au menu principal, ligne sous la version vanilla, fenêtre
     /// oui/non avec le changelog (au menu principal, ou au premier menu Échap si le menu a été sauté par AutoJoin),
-    /// téléchargement dans <c>update/</c>, installation par le patcher Ovomium.Updater au lancement suivant.
+    /// téléchargement dans <c>update/</c>, relance du jeu (<see cref="GameRelauncher"/>), installation par le
+    /// patcher Ovomium.Updater à ce lancement.
     /// Les threads de fond n'écrivent que <see cref="UpdateState"/> ; le guetteur applique l'état à l'UI sur le
     /// thread principal.
     /// </summary>
@@ -56,10 +57,22 @@ namespace Ovomium.Features.Updater
                 // Fenêtre emportée par un changement de scène sans réponse (AutoJoin) : à reproposer au menu Échap.
                 if (UpdateState.PopupShown && !UpdateState.PopupDone && !UnifiedPopup.IsVisible())
                     UpdateState.PopupShown = false;
+                if (UpdateState.Downloaded && UpdateState.RelaunchRequested)
+                    Relaunch();
                 if (Player.m_localPlayer == null && FejdStartup.instance != null)
                     UpdateMainMenu(FejdStartup.instance);
                 else if (Player.m_localPlayer != null && MessageHud.instance != null)
                     UpdateInGame();
+            }
+
+            /// <summary>Une seule tentative ; si le script ne part pas, l'installation attend le prochain lancement
+            /// (messages habituels).</summary>
+            private static void Relaunch()
+            {
+                UpdateState.RelaunchRequested = false;
+                Plugin.Log.LogInfo($"Updater : version {UpdateState.Version} téléchargée, relance du jeu");
+                if (GameRelauncher.Start())
+                    Application.Quit();
             }
 
             private void UpdateMainMenu(FejdStartup startup)

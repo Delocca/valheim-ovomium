@@ -18,6 +18,8 @@ namespace Ovomium.Features.Updater
         public static bool Downloading { get => Flag("Downloading"); set => Set("Downloading", value); }
         /// <summary>Mise à jour déposée dans update/ : installée par le patcher au prochain lancement.</summary>
         public static bool Downloaded { get => Flag("Downloaded"); set => Set("Downloaded", value); }
+        /// <summary>Le joueur a demandé la relance du jeu dès le téléchargement fini ; remis à faux une fois tentée.</summary>
+        public static bool RelaunchRequested { get => Flag("RelaunchRequested"); set => Set("RelaunchRequested", value); }
         /// <summary>Fenêtre affichée, réponse en attente ; remis à faux si la fenêtre a disparu sans réponse (changement de scène).</summary>
         public static bool PopupShown { get => Flag("PopupShown"); set => Set("PopupShown", value); }
         /// <summary>Le joueur a répondu à la fenêtre (oui ou non) : ne plus la proposer cette session.</summary>

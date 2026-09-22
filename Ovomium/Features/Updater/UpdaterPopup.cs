@@ -3,8 +3,8 @@ using TMPro;
 namespace Ovomium.Features.Updater
 {
     /// <summary>
-    /// Fenêtre vanilla oui/non « Ovomium x.y.z » avec le changelog : oui télécharge, non repousse à la prochaine
-    /// session. Les callbacks de <c>YesNoPopup</c> ne ferment pas la fenêtre : <c>Pop()</c> explicite. Le corps est
+    /// Fenêtre vanilla oui/non « Ovomium x.y.z » avec le changelog : oui télécharge puis relance le jeu
+    /// (<see cref="GameRelauncher"/>, en partie la sortie sauvegarde), non repousse à la prochaine session. Les callbacks de <c>YesNoPopup</c> ne ferment pas la fenêtre : <c>Pop()</c> explicite. Le corps est
     /// centré par <c>ResetUI</c> à chaque affichage : on l'aligne à gauche après le Push, rien à restaurer.
     /// </summary>
     internal static class UpdaterPopup
@@ -19,7 +19,7 @@ namespace Ovomium.Features.Updater
             UpdateState.PopupShown = true;
             string header = $"Ovomium {UpdateState.Version}";
             string body = ChangelogFormatter.ToRichText(UpdateState.Changelog);
-            string text = (body.Length > 0 ? body + "\n\n" : "") + "Télécharger maintenant ? La mise à jour s'installera au prochain lancement du jeu.";
+            string text = (body.Length > 0 ? body + "\n\n" : "") + "Télécharger et relancer le jeu maintenant ?";
             UnifiedPopup.Push(new YesNoPopup(header, text, OnYes, OnNo, localizeText: false));
             AlignBodyLeft();
             Plugin.Log.LogInfo($"Updater : fenêtre de mise à jour {UpdateState.Version} affichée");
@@ -29,8 +29,12 @@ namespace Ovomium.Features.Updater
         private static void OnYes()
         {
             UpdateState.PopupDone = true;
+            UpdateState.RelaunchRequested = true;
             UnifiedPopup.Pop();
             UpdateDownloader.Start();
+            if (MessageHud.instance != null)
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
+                    $"Ovomium {UpdateState.Version} : téléchargement… le jeu va se relancer");
         }
 
         private static void OnNo()

@@ -20,7 +20,8 @@ namespace Ovomium.Features.Updater
             if (UpdateState.Downloaded)
                 return $"Ovomium <color={Highlight}>{UpdateState.Version}</color> téléchargée : installée au prochain lancement";
             if (UpdateState.Downloading)
-                return $"Ovomium <color={Highlight}>{UpdateState.Version}</color> : téléchargement…";
+                return $"Ovomium <color={Highlight}>{UpdateState.Version}</color> : téléchargement…"
+                    + (UpdateState.RelaunchRequested ? " le jeu va se relancer" : "");
             if (UpdateState.Available)
                 return $"Ovomium {PluginVersion.Value} → <color={Highlight}>{UpdateState.Version}</color> disponible";
             return "";
