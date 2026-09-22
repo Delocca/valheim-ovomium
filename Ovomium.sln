@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ovomium", "Ovomium\Ovomium.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ovomium.Updater", "Ovomium.Updater\Ovomium.Updater.csproj", "{2C9D7B4A-5E1F-4A83-B6D2-7F0C3E9A1D58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ovomium.Tests", "Ovomium.Tests\Ovomium.Tests.csproj", "{7E3A1F9C-8B2D-4C6E-A1F5-3D9B0C4E7A26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +20,10 @@ Global
 		{2C9D7B4A-5E1F-4A83-B6D2-7F0C3E9A1D58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C9D7B4A-5E1F-4A83-B6D2-7F0C3E9A1D58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C9D7B4A-5E1F-4A83-B6D2-7F0C3E9A1D58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E3A1F9C-8B2D-4C6E-A1F5-3D9B0C4E7A26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E3A1F9C-8B2D-4C6E-A1F5-3D9B0C4E7A26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E3A1F9C-8B2D-4C6E-A1F5-3D9B0C4E7A26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E3A1F9C-8B2D-4C6E-A1F5-3D9B0C4E7A26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

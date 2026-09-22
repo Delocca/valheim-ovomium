@@ -15,6 +15,11 @@ namespace Ovomium.Features.ChestFill
     {
         private static bool Prefix(Inventory __instance, ref bool topFirst, ref Vector2i __result)
         {
+            if (ChestFillConfig.GroupStacks.Value && ChestFill.TryGroup(__instance, topFirst, out var grouped))
+            {
+                __result = grouped;
+                return false;
+            }
             if (!ChestFillConfig.Enabled.Value)
                 return true;
             if (!ChestFill.IsLocalPlayer(__instance))
@@ -48,10 +53,62 @@ namespace Ovomium.Features.ChestFill
         }
     }
 
+    /// <summary>
+    /// <c>FindEmptySlot</c> ne reçoit pas l'objet : on le capture le temps d'<c>Inventory.AddItem(item)</c>, seule
+    /// surcharge sans position (ramassage, E maintenu, Tout empiler, 2e passe de Tout prendre, dépôt par clic).
+    /// Quand elle en arrive à chercher une case vide, toutes les piles du même objet sont pleines.
+    /// </summary>
+    [HarmonyPatch(typeof(Inventory), "AddItem", new System.Type[] { typeof(ItemDrop.ItemData) })]
+    internal static class ChestFillAddItemPatch
+    {
+        private static void Prefix(ItemDrop.ItemData item) => ChestFill.Adding = item;
+        private static void Finalizer() => ChestFill.Adding = null;
+    }
+
     internal static class ChestFill
     {
+        /// <summary>Objet en cours d'ajout automatique (voir <see cref="ChestFillAddItemPatch"/>), sinon null.</summary>
+        public static ItemDrop.ItemData Adding;
+
         public static bool IsLocalPlayer(Inventory inventory) =>
             Player.m_localPlayer != null && inventory == Player.m_localPlayer.GetInventory();
+
+        /// <summary>
+        /// Regroupement : case à côté des piles existantes du même objet (<see cref="StackGrouping"/>). Inventaire du
+        /// joueur : barre rapide et cases HotbarSlots exclues, objets « haut d'abord » (armes, outils…) non regroupés.
+        /// Égalités dans l'ordre de lecture de ChestFill si actif ici, sinon dans l'ordre vanilla.
+        /// </summary>
+        public static bool TryGroup(Inventory inventory, bool topFirst, out Vector2i cell)
+        {
+            cell = new Vector2i(-1, -1);
+            var item = Adding;
+            if (item == null)
+                return false;
+            bool player = IsLocalPlayer(inventory);
+            if (player && topFirst)
+                return false;
+            bool fillActive = ChestFillConfig.Enabled.Value && (!player || ChestFillConfig.PlayerInventory.Value);
+            var chosen = StackGrouping.Choose(BuildGrid(inventory, item.m_shared.m_name, player), fillActive || topFirst, out string trace);
+            Plugin.Log.LogDebug($"Regroupement {item.m_shared.m_name} : {trace}");
+            if (chosen.IsNone)
+                return false;
+            cell = new Vector2i(chosen.X, chosen.Y);
+            return true;
+        }
+
+        private static CellState[,] BuildGrid(Inventory inventory, string name, bool player)
+        {
+            var grid = new CellState[inventory.m_width, inventory.m_height];
+            for (int y = 0; y < inventory.m_height; y++)
+                for (int x = 0; x < inventory.m_width; x++)
+                {
+                    var at = inventory.GetItemAt(x, y);
+                    grid[x, y] = player && (y == 0 || IsHotbarCell(new Vector2i(x, y))) ? CellState.Excluded
+                        : at == null ? CellState.Free
+                        : at.m_shared.m_name == name ? CellState.Same : CellState.Other;
+                }
+            return grid;
+        }
 
         /// <summary>Lignes 2+ de haut en bas (cases HotbarSlots exclues), puis la barre rapide, puis les cases HotbarSlots.</summary>
         public static Vector2i FindPlayerSlot(Inventory inventory)

@@ -8,6 +8,7 @@ namespace Ovomium.Features.ChestFill
     {
         public static ConfigEntry<bool> Enabled { get; private set; }
         public static ConfigEntry<bool> PlayerInventory { get; private set; }
+        public static ConfigEntry<bool> GroupStacks { get; private set; }
 
         public static void Bind(ConfigFile config)
         {
@@ -19,6 +20,11 @@ namespace Ovomium.Features.ChestFill
                 new ConfigDescription("Même chose dans l'inventaire du joueur : les matériaux, nourriture, armures… remplissent les lignes 2 à 4 "
                     + "de haut en bas, la barre rapide (et les cases 9 et 0) en dernier. Armes et outils vont toujours en haut, comme dans le jeu.",
                     null, new SettingLabel("Aussi dans l'inventaire")));
+            GroupStacks = config.Bind("ChestFill", "GroupStacks", true,
+                new ConfigDescription("Une nouvelle pile d'un objet déjà présent (piles pleines) se pose à côté des piles existantes : "
+                    + "au bout du plus long alignement horizontal (sinon vertical), sinon la case libre la plus proche. Indépendant du "
+                    + "remplissage de haut en bas. Dans l'inventaire, la barre rapide et les cases 9 et 0 sont ignorées.",
+                    null, new SettingLabel("Regrouper les piles")));
         }
     }
 }

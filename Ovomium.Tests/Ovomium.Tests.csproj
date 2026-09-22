@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Tests de la logique pure du mod (sans Unity ni Valheim), exécutés par le build de la solution : le build
+       échoue si un test échoue. Cible net8.0 (le SDK du conteneur) et non net48, qui ne s'exécute pas sous Linux.
+       Propriétés communes : ../Directory.Build.props -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Ovomium.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Ovomium/Features/ChestFill/StackGrouping.cs" Link="ChestFill/StackGrouping.cs" />
+  </ItemGroup>
+
+  <Target Name="RunTests" AfterTargets="Build">
+    <Exec Command="dotnet &quot;$(TargetPath)&quot;" />
+  </Target>
+
+</Project>
