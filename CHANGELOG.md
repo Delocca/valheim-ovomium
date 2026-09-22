@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+## 1.0.0 — 2026-09-23
+
 - **Rangement rapide** : inventaire ouvert, Ctrl + clic sur un objet (sans coffre ouvert) l'envoie dans le coffre le plus proche qui en contient déjà, et il y vole depuis sa case ; sans coffre qui convienne, il est jeté comme d'habitude (QuickStash).
 - **Coffres manuels** : dans un coffre ouvert, le bouton « Objets similaires » devient « Coffre auto : oui / non » ; un coffre manuel est ignoré par le rangement rapide, la fabrication et le combustible depuis les coffres (réglage mémorisé sur le coffre) ; ranger les objets similaires se fait en maintenant E, sans fermer le coffre, un appui bref le ferme comme avant (ManualChest).
 - **Ctrl pour l'ordre inverse** : Ctrl + clic sur Fabriquer ou pour poser une pièce, et Ctrl + E sur un feu, prennent les ingrédients dans l'ordre inverse du réglage (inventaire d'abord, ou coffres d'abord) ; le survol de Fabriquer et des feux le rappelle ; l'accroupissement (même touche) se fait au relâchement de Ctrl, et pas si Ctrl a servi (CraftFromChests).
