@@ -7,6 +7,7 @@ namespace Ovomium.Features.ItemFlight
     internal static class ItemFlightConfig
     {
         public static ConfigEntry<bool> Enabled { get; private set; }
+        public static ConfigEntry<bool> ShowOthers { get; private set; }
         public static ConfigEntry<float> MinDuration { get; private set; }
         public static ConfigEntry<float> MaxDuration { get; private set; }
         public static ConfigEntry<int> MaxPerType { get; private set; }
@@ -22,8 +23,12 @@ namespace Ovomium.Features.ItemFlight
         {
             Enabled = config.Bind("ItemFlight", "Enabled", true,
                 new ConfigDescription("Les ingrédients pris dans les coffres volent jusqu'à la station, la pièce construite "
-                    + "ou le joueur, avec une traînée de particules (visible seulement par soi).",
+                    + "ou le joueur, avec une traînée de particules.",
                     null, new SettingLabel("Activé")));
+            ShowOthers = config.Bind("ItemFlight", "ShowOthers", true,
+                new ConfigDescription("Montre aussi les objets des autres joueuses qui ont Ovomium (craft, construction, feux, "
+                    + "rangement rapide), quand leurs coffres sont chargés chez soi.",
+                    null, new SettingLabel("Vols des autres joueuses")));
             MinDuration = config.Bind("ItemFlight", "MinDuration", 1.5f,
                 new ConfigDescription("Durée du vol, en secondes, pour un coffre tout proche.",
                     new AcceptableValueRange<float>(0.5f, 10f), new SettingLabel("Durée minimale (s)")));

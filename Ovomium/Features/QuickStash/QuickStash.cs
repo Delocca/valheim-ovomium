@@ -47,7 +47,9 @@ namespace Ovomium.Features.QuickStash
                 + $"{chest.m_name} à {distance:0.0} m");
             gui.m_moveItemEffects.Create(gui.transform.position, Quaternion.identity);
             ItemDrop prefab = item.m_dropPrefab != null ? item.m_dropPrefab.GetComponent<ItemDrop>() : null;
-            if (prefab != null) ItemFlight.ItemFlight.LaunchToChest(prefab, amount, from, chest);
+            if (prefab == null) return true;
+            ItemFlight.ItemFlight.LaunchToChest(prefab, amount, from, chest);
+            ItemFlight.FlightBroadcast.SendToChest(player, prefab, amount, chest);
             return true;
         }
 
