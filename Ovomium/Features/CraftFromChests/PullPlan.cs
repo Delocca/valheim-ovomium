@@ -20,10 +20,26 @@ namespace Ovomium.Features.CraftFromChests
     /// <summary>
     /// Prévision des retraits en coffres pour une liste d'exigences, avec le même ordre coffres / inventaire que la
     /// consommation (<c>CraftFromChestsConsumePatch</c>) ; ne retire rien. Sert à animer le départ des objets dès le
-    /// début du craft (ItemFlight), avant la consommation réelle.
+    /// début du craft (ItemFlight), avant la consommation réelle, et à vérifier la propriété des coffres avant de
+    /// consommer (<c>ChestOwnershipPatch</c>).
     /// </summary>
     internal static class PullPlan
     {
+        /// <summary>
+        /// Retraits du craft en cours du panneau, avec les paramètres de <c>InventoryGui.DoCrafting</c> ; null quand il
+        /// ne passera pas par <c>ConsumeResources</c> (« un seul ingrédient au choix », coût désactivé).
+        /// </summary>
+        public static List<Pull> PredictCraft(InventoryGui gui, Player player)
+        {
+            Recipe recipe = gui.m_craftRecipe;
+            if (recipe == null || player.NoCostCheat() || ZoneSystem.instance.GetGlobalKey(GlobalKeys.NoCraftCost)) return null;
+            ItemDrop.ItemData upgrade = gui.m_craftUpgradeItem;
+            int quality = upgrade == null ? 1 : upgrade.m_quality + 1;
+            int multiplier = gui.m_multiCrafting ? gui.m_multiCraftAmount : 1;
+            recipe.GetAmount(quality, out _, out ItemDrop.ItemData single, multiplier);
+            return single != null ? null : Predict(player, recipe.m_resources, quality, -1, multiplier);
+        }
+
         public static List<Pull> Predict(Player player, Piece.Requirement[] requirements, int qualityLevel, int itemQuality, int multiplier)
         {
             var pulls = new List<Pull>();

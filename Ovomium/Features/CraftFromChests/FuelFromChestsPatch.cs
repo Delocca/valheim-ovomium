@@ -33,9 +33,21 @@ namespace Ovomium.Features.CraftFromChests
             return !chestsFirst && NearbyChests.Remove(center, item, 1, -1, taken) == 0;
         }
 
+        /// <summary>Prévision de <see cref="TakeOne"/> sans rien retirer : coffre prévu dans <paramref name="pulls"/> (vide si inventaire) ; faux si rien à prendre.</summary>
+        private static bool PlanOne(Player player, ItemDrop item, List<Pull> pulls)
+        {
+            Vector3 center = player.transform.position;
+            bool chestsFirst = PullOrder.ChestsFirst;
+            if (chestsFirst && NearbyChests.Plan(center, item, 1, -1, pulls) == 0) return true;
+            pulls.Clear();
+            if (player.m_inventory.CountItems(item.m_itemData.m_shared.m_name) > 0) return true;
+            return !chestsFirst && NearbyChests.Plan(center, item, 1, -1, pulls) == 0;
+        }
+
         /// <summary>
         /// Prend une unité (ordre inversé si Ctrl est maintenu) puis l'ajoute au feu (message, RPC vanilla, vol vers
-        /// <paramref name="target"/>) ; faux si rien à prendre.
+        /// <paramref name="target"/>) ; faux si rien à prendre. Coffre prévu pas encore à nous : rien n'est pris, message
+        /// « Utilisé par quelqu'un d'autre », vrai (la pression est consommée).
         /// </summary>
         internal static bool Refuel(Player player, ItemDrop fuel, ZNetView nview, Transform target, string message)
         {
@@ -44,6 +56,9 @@ namespace Ovomium.Features.CraftFromChests
             if (PullOrder.Inverted) PullOrder.CtrlUsed = true;
             try
             {
+                var plan = new List<Pull>();
+                if (!PlanOne(player, fuel, plan)) return false;
+                if (!ChestReservation.EnsureOwned(player, plan, "recharge")) return true;
                 if (!TakeOne(player, fuel, taken)) return false;
                 player.Message(MessageHud.MessageType.Center, message);
                 nview.InvokeRPC("RPC_AddFuel");

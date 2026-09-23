@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Plus d'objets perdus à deux sur un même coffre** : ranger, fabriquer, construire ou recharger un feu en même temps qu'une autre joueuse depuis le même coffre ne perd plus rien, et si le coffre est occupé chez elle rien ne bouge et « Utilisé par quelqu'un d'autre » s'affiche (mise à jour à installer chez tout le monde) (QuickStash, CraftFromChests).
+
 ## 1.0.1 — 2026-09-23
 
 - **Fenêtre de mise à jour lisible** : fenêtre agrandie et texte à taille fixe (Updater).

@@ -6,7 +6,8 @@ namespace Ovomium.Features.QuickStash
     /// <summary>
     /// Rangement d'un objet de l'inventaire ouvert vers le coffre le plus proche qui en contient déjà : choix du
     /// coffre parmi <see cref="NearbyChests"/>, transfert par <c>Inventory.AddItem(ItemData)</c> (la case est alors
-    /// choisie par ChestFill), vol inverse de la case d'inventaire vers le coffre (ItemFlight).
+    /// choisie par ChestFill), vol inverse de la case d'inventaire vers le coffre (ItemFlight). On n'écrit que dans un
+    /// coffre à nous : sinon sa propriété est demandée et le rangement attend (<see cref="QuickStashQueue"/>).
     /// </summary>
     internal static class QuickStash
     {
@@ -15,25 +16,36 @@ namespace Ovomium.Features.QuickStash
 
         /// <summary>
         /// Range <paramref name="amount"/> exemplaires de <paramref name="item"/> (pris dans <paramref name="source"/>)
-        /// dans le coffre choisi ; faux si aucun coffre ne convient ou si le transfert échoue (rien n'a bougé).
+        /// dans le coffre choisi, tout de suite s'il est à nous, sinon après réception de sa propriété ; vrai si le clic
+        /// est pris en charge, faux si aucun coffre ne convient ou si le transfert échoue (rien n'a bougé).
         /// </summary>
         public static bool TryStash(InventoryGui gui, Inventory source, ItemDrop.ItemData item, int amount)
         {
             Player player = Player.m_localPlayer;
             if (source == null || item == null || amount <= 0 || !source.ContainsItem(item)) return false;
+            if (QuickStashQueue.Contains(item)) return true;
             Container chest = FindTarget(player, source, item, amount);
             if (chest == null) return false;
-            Vector3 from = CellWorldPoint(gui, source, item, player);
+            if (chest.m_nview.IsOwner()) return Stash(gui, source, item, amount, chest);
+            QuickStashQueue.Enqueue(source, item, amount, chest);
+            return true;
+        }
+
+        /// <summary>Transfert vers un coffre à nous, effet vanilla et vol ; faux si le transfert échoue (rien n'a bougé).</summary>
+        internal static bool Stash(InventoryGui gui, Inventory source, ItemDrop.ItemData item, int amount, Container chest)
+        {
+            Player player = Player.m_localPlayer;
+            Vector3 from = InventoryGui.IsVisible() ? CellWorldPoint(gui, source, item, player) : player.GetCenterPoint();
             if (source == player.GetInventory())
             {
                 player.RemoveEquipAction(item);
                 player.UnequipItem(item);
             }
-            if (!chest.m_nview.IsOwner()) NearbyChests.TakeOwnership(chest);
             if (!Transfer(chest.GetInventory(), source, item, amount)) return false;
             float distance = Vector3.Distance(player.transform.position, chest.transform.position);
             Plugin.Log.LogInfo($"QuickStash : {amount} × {Localization.instance.Localize(item.m_shared.m_name)} → "
                 + $"{chest.m_name} à {distance:0.0} m");
+            gui.m_moveItemEffects.Create(gui.transform.position, Quaternion.identity);
             ItemDrop prefab = item.m_dropPrefab != null ? item.m_dropPrefab.GetComponent<ItemDrop>() : null;
             if (prefab != null) ItemFlight.ItemFlight.LaunchToChest(prefab, amount, from, chest);
             return true;

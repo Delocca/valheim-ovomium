@@ -7,8 +7,7 @@ namespace Ovomium.Features.CraftFromChests
     /// Coffres utilisables autour d'un point : tout <c>Container</c> porté par une <c>Piece</c> (coffres, chariots,
     /// bateaux ; exclut tombes et coffres de donjon), accessible (privé, ward), pas en cours d'utilisation par une
     /// autre joueuse, ni marqué manuel (<see cref="ManualChest.ManualChest"/>). Leur inventaire est rafraîchi par le jeu chaque seconde même sans possession (lecture fiable) ;
-    /// l'écriture exige de posséder le ZDO : on reproduit la moitié « réponse » du protocole vanilla de « Tout prendre »
-    /// (<c>Container.RPC_TakeAllResponse</c> : <c>ClaimOwnership</c> puis <c>ForceSendZDO</c> à l'ancien propriétaire).
+    /// l'écriture exige d'en être propriétaire, obtenu uniquement par <see cref="ChestReservation"/> (jamais de prise de force).
     /// </summary>
     internal static class NearbyChests
     {
@@ -88,7 +87,8 @@ namespace Ovomium.Features.CraftFromChests
 
         /// <summary>
         /// Retire jusqu'à <paramref name="amount"/> exemplaires selon <see cref="Plan"/> ; retourne le reliquat et
-        /// ajoute les retraits effectifs à <paramref name="taken"/> (facultatif).
+        /// ajoute les retraits effectifs à <paramref name="taken"/> (facultatif). Un coffre pas à nous est sauté (compté
+        /// dans le reliquat) : les appelants vérifient la propriété avant (<see cref="ChestReservation.EnsureOwned"/>).
         /// </summary>
         public static int Remove(Vector3 center, ItemDrop item, int amount, int itemQuality, List<Pull> taken = null)
         {
@@ -100,8 +100,9 @@ namespace Ovomium.Features.CraftFromChests
                 var container = pull.Chest;
                 if (!container.m_nview.IsOwner())
                 {
-                    Plugin.Log.LogInfo($"CraftFromChests : repli, prise directe de {container.m_name} (non réservé)");
-                    TakeOwnership(container);
+                    Plugin.Log.LogWarning($"CraftFromChests : {container.m_name} pas à nous au retrait, sauté");
+                    missing += pull.Amount;
+                    continue;
                 }
                 int n = RemoveFrom(container.GetInventory(), name, pull.Amount, itemQuality);
                 missing += pull.Amount - n;
@@ -111,17 +112,6 @@ namespace Ovomium.Features.CraftFromChests
                         + $"{container.m_name} à {Vector3.Distance(center, container.transform.position):0.0} m");
             }
             return missing;
-        }
-
-        /// <summary>Prise directe (moitié « réponse » de « Tout prendre ») : repli quand la réservation n'a pas abouti.</summary>
-        internal static void TakeOwnership(Container container)
-        {
-            var nview = container.m_nview;
-            if (nview.IsOwner()) return;
-            long previous = nview.GetZDO().GetOwner();
-            nview.ClaimOwnership();
-            if (previous != 0L)
-                ZDOMan.instance.ForceSendZDO(previous, nview.GetZDO().m_uid);
         }
 
         /// <summary>

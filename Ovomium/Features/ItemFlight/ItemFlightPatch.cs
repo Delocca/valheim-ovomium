@@ -58,14 +58,8 @@ namespace Ovomium.Features.ItemFlight
             {
                 Player player = Player.m_localPlayer;
                 if (!Active(player) || __instance.m_craftTimer != 0f) return;
-                Recipe recipe = __instance.m_craftRecipe;
-                ItemDrop.ItemData upgrade = __instance.m_craftUpgradeItem;
-                int quality = upgrade == null ? 1 : upgrade.m_quality + 1;
-                int multiplier = __instance.m_multiCrafting ? __instance.m_multiCraftAmount : 1;
-                recipe.GetAmount(quality, out _, out ItemDrop.ItemData single, multiplier);
-                if (single != null) return;  // « un seul ingrédient au choix » : consommé hors ConsumeResources
-                var pulls = PullPlan.Predict(player, recipe.m_resources, quality, -1, multiplier);
-                if (pulls.Count == 0) return;
+                var pulls = PullPlan.PredictCraft(__instance, player);
+                if (pulls == null || pulls.Count == 0) return;
                 CraftingStation station = player.GetCurrentCraftingStation();
                 Vector3 destination = station != null ? ItemFlight.Center(station.gameObject) : player.GetCenterPoint();
                 ItemFlight.Launch(pulls, destination, true);

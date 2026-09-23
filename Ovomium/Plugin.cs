@@ -114,6 +114,7 @@ namespace Ovomium
             TooltipStylePatch.Unload();
             UpdaterPatch.Unload();
             ChestReservation.Unload();
+            QuickStashQueue.Unload();
             RequirementBackdrop.Unload();
             ItemFlightPatch.Unload();
             ManualChestButton.Unload();
