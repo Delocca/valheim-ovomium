@@ -6,8 +6,8 @@ namespace Ovomium.Features.QuickStash
 {
     /// <summary>
     /// Rangements en attente de la propriété du coffre cible, demandée au clic (<c>ChestReservation.RequestNow</c>) ;
-    /// l'objet reste dans l'inventaire. Chaque frame, dans l'ordre des clics : coffre reçu → revalidation (objet encore
-    /// là, place) puis rangement ; refus de la propriétaire ou 1,5 s sans propriété → message vanilla « Utilisé par
+    /// l'objet reste dans l'inventaire. Une pile répartie entre plusieurs coffres a une attente par coffre. Chaque frame,
+    /// dans l'ordre des clics : coffre reçu → revalidation (objet encore là, place) puis rangement de ce qui rentre ; refus de la propriétaire ou 1,5 s sans propriété → message vanilla « Utilisé par
     /// quelqu'un d'autre », rien ne bouge. Le coffre est gardé tant que l'attente dure (garde courte renouvelée à chaque
     /// frame, qui s'éteint d'elle-même après le rangement) : une demande concurrente arrivée juste après la propriété est
     /// refusée au lieu de nous la reprendre avant le rangement.
@@ -72,14 +72,14 @@ namespace Ovomium.Features.QuickStash
             float waited = Time.time - p.Since;
             if (nview.IsOwner())
             {
-                int amount = Mathf.Min(p.Amount, p.Item.m_stack);
-                if (p.Chest.GetInventory().CanAddItem(p.Item, amount) && QuickStash.Stash(gui, p.Source, p.Item, amount, p.Chest))
-                {
-                    Plugin.Log.LogInfo($"QuickStash : rangé après {waited:0.00} s d'attente de propriété");
-                    return true;
-                }
-                Plugin.Log.LogInfo($"QuickStash : {p.Chest.m_name} plein à la réception, {Name(p.Item)} reste en inventaire");
-                Player.m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_itsfull");
+                int wanted = Mathf.Min(p.Amount, p.Item.m_stack);
+                int amount = Mathf.Min(wanted, QuickStash.Room(p.Chest.GetInventory(), p.Item));
+                if (amount <= 0 || !QuickStash.Stash(gui, p.Source, p.Item, amount, p.Chest)) amount = 0;
+                else Plugin.Log.LogInfo($"QuickStash : rangé après {waited:0.00} s d'attente de propriété");
+                if (amount == wanted) return true;
+                Plugin.Log.LogInfo($"QuickStash : {p.Chest.m_name} plein à la réception, "
+                    + $"{wanted - amount} × {Name(p.Item)} reste(nt) en inventaire");
+                QuickStash.Full();
                 return true;
             }
             bool refused = ChestReservation.RefusedSince(p.Chest, p.Since);
@@ -90,7 +90,7 @@ namespace Ovomium.Features.QuickStash
             return true;
         }
 
-        private static string Name(ItemDrop.ItemData item) => Localization.instance.Localize(item.m_shared.m_name);
+        private static string Name(ItemDrop.ItemData item) => QuickStash.Name(item);
 
         /// <summary>Rechargement à chaud.</summary>
         public static void Unload() => s_pending.Clear();

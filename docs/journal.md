@@ -2,6 +2,12 @@
 
 Une entrée par jour de travail, plus récent en haut : fait, décisions (avec leurs raisons), en suspens. Ce que git dit déjà n'y va pas. Règles : `CLAUDE.md`, section « Suivi ».
 
+## 2026-09-24 — QuickStash : piles partielles
+
+- **Fait** : Ctrl + clic répartit la pile entre les coffres qui contiennent déjà l'objet (`QuickStash.Plan`), une part par coffre, chacune rangée tout de suite ou en attente de propriété (une entrée `QuickStashQueue` par coffre). Place calculée par `QuickStash.Room` (cases vides + place des piles de même nom, qualité et niveau de monde) plutôt que `CanAddItem`, qui ignore la qualité alors qu'`AddItem` en tient compte : une surestimation ferait échouer `AddItem` à mi-course après avoir déjà empilé, d'où duplication. Correctif au passage : ranger une partie d'une pile équipée (flèches) ne déséquipe plus le reste.
+- **Décisions d'Edia** : remplissage du plus proche au plus loin (plutôt que préférer un coffre qui prend tout : un coffre presque plein finit plein) ; reste seulement vers les coffres qui contiennent déjà l'objet ; ce qui ne rentre nulle part reste en inventaire avec « C'est plein » (aucun coffre qui convienne : jet vanilla inchangé).
+- **En suspens** : validation en jeu (TODO). Le jeu est passé en mode dev (`scripts/`) : relance nécessaire.
+
 ## 2026-09-23 — QuickStash : essais de déclencheur abandonnés, ManualChest validé, release 1.0.0, pile perdue à deux
 
 - **Pile perdue à deux (QuickStash)** : Edia et une amie, Ctrl + clic simultané vers le même coffre, une pile disparaît (deux essais sur deux). Cause, vérifiée dans le décompilé : le contenu d'un coffre est un bloc unique du ZDO ; `QuickStash` (comme le repli de `NearbyChests.Remove` et l'expiration de `ChestReservation`) prenait la propriété de force (`ClaimOwnership`), d'où deux écrivaines. `ZDOMan.RPC_ZDOData` ignore une révision de données ≤ à la sienne : deux écritures parties de la même révision, le serveur garde la première arrivée, la perdante garde sa version locale (même numéro, elle ignore celle du serveur), sa pile déjà sortie de l'inventaire. Aggravant : inventaires ouverts, la réservation anticipée se renvoie la propriété toutes les 2 s. Même défaut pour deux crafteuses (perte ou duplication), ex-« limite assumée » du TODO.
