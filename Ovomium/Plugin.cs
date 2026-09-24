@@ -23,6 +23,7 @@ using Ovomium.Features.MapZoomToCursor;
 using Ovomium.Features.MenuDoubleClick;
 using Ovomium.Features.MinimapSize;
 using Ovomium.Features.PasswordReveal;
+using Ovomium.Features.PickupFilter;
 using Ovomium.Features.PortalRange;
 using Ovomium.Features.QuickStash;
 using Ovomium.Features.RecipeKeyboardNav;
@@ -80,6 +81,7 @@ namespace Ovomium
             ButcherKnifeConfig.Bind(Config);
             UpgradeDiffConfig.Bind(Config);
             CraftFromChestsConfig.Bind(Config);
+            PickupFilterConfig.Bind(Config);
             ItemFlightConfig.Bind(Config);
             SkillTooltipConfig.Bind(Config);
             TooltipStyleConfig.Bind(Config);
@@ -118,6 +120,7 @@ namespace Ovomium
             RequirementBackdrop.Unload();
             ItemFlightPatch.Unload();
             ManualChestButton.Unload();
+            PickupFilterBadge.Unload();
             GraphicsPreview.Unload();
             m_harmony?.UnpatchSelf();
             Log.LogInfo($"{Name} {Version} déchargé");

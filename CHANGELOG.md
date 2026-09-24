@@ -6,6 +6,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 - **Plus d'objets perdus à deux sur un même coffre** : ranger, fabriquer, construire ou recharger un feu en même temps qu'une autre joueuse depuis le même coffre ne perd plus rien, et si le coffre est occupé chez elle rien ne bouge et « Utilisé par quelqu'un d'autre » s'affiche (mise à jour à installer chez tout le monde) (QuickStash, CraftFromChests).
 - **Rangement rapide des grosses piles** : Ctrl + clic sur une pile qui ne rentre pas en entier dans le coffre le plus proche remplit ce coffre puis envoie le reste aux suivants qui contiennent déjà l'objet ; ce qui ne rentre nulle part reste dans l'inventaire au lieu d'être jeté (QuickStash).
+- **Choisir ce que le ramassage auto ignore** : V sur un objet survolé dans l'inventaire (ou un coffre) ou visé au sol fait qu'il n'est plus ramassé automatiquement, un nouvel appui le réautorise ; ses cases portent un petit panneau « interdit » et il se ramasse toujours avec E (PickupFilter).
 - **Voir voler les objets des amies** : les objets qu'une amie prend dans les coffres ou y range s'envolent aussi sous vos yeux, si elle a le mod à jour (ItemFlight).
 
 ## 1.0.1 — 2026-09-23

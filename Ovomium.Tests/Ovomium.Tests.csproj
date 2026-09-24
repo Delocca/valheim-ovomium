@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Include="../Ovomium/Features/ChestFill/StackGrouping.cs" Link="ChestFill/StackGrouping.cs" />
+    <Compile Include="../Ovomium/Features/PickupFilter/PickupFilterList.cs" Link="PickupFilter/PickupFilterList.cs" />
   </ItemGroup>
 
   <Target Name="RunTests" AfterTargets="Build">
