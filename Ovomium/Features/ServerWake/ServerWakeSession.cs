@@ -13,7 +13,8 @@ namespace Ovomium.Features.ServerWake
     /// <c>status=online</c> (il distingue déjà <c>started</c>, processus lancé, d'<c>online</c>, monde chargé ; le
     /// serveur, crossplay, ne répond pas aux requêtes Steam A2S). Un 429 n'interrompt jamais l'attente : pause de
     /// <see cref="NodecraftThrottle"/> affichée, puis reprise. Réseau sur des tâches d'arrière-plan, attente dans une
-    /// coroutine de FejdStartup.
+    /// coroutine de FejdStartup. Même attente pour ajouter un serveur archivé (<see cref="BeginAdd"/>) : seuls changent
+    /// le moment où il est prêt (adresse connue) et l'action finale (<see cref="s_onReady"/>).
     /// </summary>
     internal static class ServerWakeSession
     {
@@ -24,6 +25,11 @@ namespace Ovomium.Features.ServerWake
         private static readonly Dictionary<string, float> s_startedAt = new Dictionary<string, float>();
 
         private static FejdStartup s_startup;
+        /// <summary>Vrai : jonction, prête à <c>online</c>, « Rejoindre » proposé après un échec. Faux : ajout d'un favori.</summary>
+        private static bool s_forJoin;
+        /// <summary>Action finale, appelée fenêtre fermée avec l'adresse du serveur prêt et son dernier état.</summary>
+        private static System.Action<ServerJoinData, NodecraftStatus> s_onReady;
+        /// <summary>Favori suivi (jonction), <c>None</c> pour un ajout tant que l'adresse n'est pas connue.</summary>
         private static ServerJoinData s_server;
         private static string s_shareId;
         private static string s_name;
@@ -55,8 +61,25 @@ namespace Ovomium.Features.ServerWake
             if (link == null)
                 return true;
             if (!IsRunning)
-                Begin(startup, server, link.ShareId);
+            {
+                Launch(startup, link.ShareId, MultiBackendMatchmaking.GetServerName(server), server, true, (ready, _) => Join(startup, ready));
+                Plugin.Log.LogInfo($"ServerWake : jonction à {s_name} ({server}) reportée, vérification Nodecraft");
+            }
             return false;
+        }
+
+        /// <summary>
+        /// Réveil d'un serveur dont le lien ne donne pas encore d'adresse (archivé), pour l'ajouter : <paramref name="add"/>
+        /// est appelé dès que Nodecraft donne l'adresse (souvent avant <c>online</c> : l'ajout n'a pas à attendre le
+        /// chargement du monde, le serveur finit de démarrer seul et une jonction ultérieure reprend l'attente sans
+        /// redemander le démarrage ; si l'IP change encore, <see cref="LinkedFavorite.Sync"/> suit à <c>online</c>).
+        /// </summary>
+        public static void BeginAdd(FejdStartup startup, string shareId, string name, System.Action<ServerJoinData, NodecraftStatus> add)
+        {
+            if (IsRunning || startup == null)
+                return;
+            Launch(startup, shareId, name, ServerJoinData.None, false, add);
+            Plugin.Log.LogInfo($"ServerWake : réveil de {(name.Length > 0 ? name : shareId)} pour l'ajouter aux favoris");
         }
 
         public static void Unload()
@@ -64,21 +87,23 @@ namespace Ovomium.Features.ServerWake
             Stop();
         }
 
-        private static void Begin(FejdStartup startup, ServerJoinData server, string shareId)
+        private static void Launch(FejdStartup startup, string shareId, string name, ServerJoinData server, bool forJoin,
+            System.Action<ServerJoinData, NodecraftStatus> onReady)
         {
             s_startup = startup;
+            s_forJoin = forJoin;
+            s_onReady = onReady;
             s_server = server;
             s_shareId = shareId;
-            s_name = MultiBackendMatchmaking.GetServerName(server);
+            s_name = name;
             s_phase = "Vérification de l'état du serveur…";
             s_startTime = Time.realtimeSinceStartup;
             s_loggedState = null;
-            Plugin.Log.LogInfo($"ServerWake : jonction à {s_name} ({server}) reportée, vérification Nodecraft");
             s_popup = ServerWakePopups.ShowWaiting(Header, Body, Cancel);
             s_routine = startup.StartCoroutine(Run());
         }
 
-        private static string Header() => $"Réveil de {s_name}";
+        private static string Header() => s_name.Length > 0 ? $"Réveil de {s_name}" : "Réveil du serveur";
 
         private static string Body()
         {
@@ -105,9 +130,9 @@ namespace Ovomium.Features.ServerWake
                 NodecraftStatus status = s_result;
                 if (status.State != WakeState.RateLimited)
                     Observe(status);
-                if (status.State == WakeState.Online)
+                if (IsReady(status))
                 {
-                    Finish();
+                    Finish(status);
                     yield break;
                 }
                 if (status.State == WakeState.Offline && !startSent)
@@ -139,6 +164,15 @@ namespace Ovomium.Features.ServerWake
             }
         }
 
+        /// <summary>Jonction : monde chargé (<c>online</c>). Ajout : adresse connue, quel que soit l'avancement du démarrage.</summary>
+        private static bool IsReady(NodecraftStatus status)
+        {
+            if (s_forJoin)
+                return status.State == WakeState.Online;
+            bool awake = status.State == WakeState.Online || status.State == WakeState.Starting || status.State == WakeState.Offline;
+            return awake && LinkedFavorite.FromStatus(status).IsValid;
+        }
+
         /// <summary>Démarrage déjà accepté pour ce lien pendant une attente récente (annulée) : ne pas le redemander.</summary>
         private static bool StartedRecently()
         {
@@ -163,8 +197,13 @@ namespace Ovomium.Features.ServerWake
         private static void Observe(NodecraftStatus status)
         {
             ServerWakeBadges.Remember(s_shareId, status);
-            s_server = LinkedFavorite.Sync(s_server, status);
-            s_name = MultiBackendMatchmaking.GetServerName(s_server);
+            if (s_server.IsValid)
+            {
+                s_server = LinkedFavorite.Sync(s_server, status);
+                s_name = MultiBackendMatchmaking.GetServerName(s_server);
+            }
+            else if (status.Name.Length > 0)
+                s_name = status.Name;
             string state = status.State == WakeState.Error
                 ? $"erreur ({status.Message})"
                 : $"status={status.Status}, jit_status={status.JitStatus}";
@@ -201,13 +240,13 @@ namespace Ovomium.Features.ServerWake
             }
         }
 
-        private static void Finish()
+        private static void Finish(NodecraftStatus status)
         {
-            Plugin.Log.LogInfo($"ServerWake : serveur prêt après {(int)(Time.realtimeSinceStartup - s_startTime)} s, connexion");
-            FejdStartup startup = s_startup;
-            ServerJoinData server = s_server;
+            Plugin.Log.LogInfo($"ServerWake : serveur prêt après {Elapsed} s" + (s_forJoin ? ", connexion" : ", ajout aux favoris"));
+            ServerJoinData server = s_server.IsValid ? s_server : LinkedFavorite.FromStatus(status);
+            System.Action<ServerJoinData, NodecraftStatus> onReady = s_onReady;
             Stop();
-            Join(startup, server);
+            onReady(server, status);
         }
 
         private static void Join(FejdStartup startup, ServerJoinData server)
@@ -227,10 +266,15 @@ namespace Ovomium.Features.ServerWake
             string page = NodecraftLink.PageUrl(s_shareId);
             Stop();
             PopupBase choice = null;
-            choice = ServerWakePopups.ShowChoice($"Réveil de {s_name}", message
-                    + "\n\nRejoindre : tenter la connexion quand même.\nVoir la page : ouvrir la page Nodecraft du serveur.",
-                "Rejoindre", () => { ServerWakePopups.Close(choice); Join(startup, server); },
-                "Voir la page", () => { ServerWakePopups.Close(choice); Application.OpenURL(page); RestoreMenu(startup); });
+            System.Action openPage = () => { ServerWakePopups.Close(choice); Application.OpenURL(page); RestoreMenu(startup); };
+            if (s_forJoin)
+                choice = ServerWakePopups.ShowChoice(Header(), message
+                        + "\n\nRejoindre : tenter la connexion quand même.\nVoir la page : ouvrir la page Nodecraft du serveur.",
+                    "Rejoindre", () => { ServerWakePopups.Close(choice); Join(startup, server); }, "Voir la page", openPage);
+            else
+                choice = ServerWakePopups.ShowChoice(Header(), message + "\n\nLe serveur n'a pas été ajouté aux favoris : recolle "
+                        + "son lien une fois démarré.\nVoir la page : ouvrir la page Nodecraft du serveur.",
+                    "Voir la page", openPage, "Fermer", () => { ServerWakePopups.Close(choice); RestoreMenu(startup); });
             if (choice == null)
                 RestoreMenu(startup);
         }
@@ -248,6 +292,7 @@ namespace Ovomium.Features.ServerWake
             if (s_routine != null && s_startup != null)
                 s_startup.StopCoroutine(s_routine);
             s_routine = null;
+            s_onReady = null;
             ServerWakePopups.Close(s_popup);
             s_popup = null;
         }

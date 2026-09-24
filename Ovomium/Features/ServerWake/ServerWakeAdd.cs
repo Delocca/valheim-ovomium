@@ -12,6 +12,7 @@ namespace Ovomium.Features.ServerWake
     /// sans doublon : un favori de même adresse reçoit le lien) et le lien est rangé à part (<see cref="ServerLinkStore"/>).
     /// Supprimer le favori retire son lien. Pendant la requête, <c>m_isAwaitingServerAdd</c> grise les boutons du
     /// dialogue comme pour une résolution DNS vanilla ; coroutine sur FejdStartup, qui survit à la fermeture du dialogue.
+    /// Serveur archivé (sans adresse) : réveil proposé, ajout à la fin du réveil (<see cref="OfferWake"/>).
     /// </summary>
     internal static class ServerWakeAdd
     {
@@ -51,6 +52,11 @@ namespace Ovomium.Features.ServerWake
             gui.m_isAwaitingServerAdd = false;
             NodecraftStatus status = task.Result;
             ServerJoinData server = LinkedFavorite.FromStatus(status);
+            if (!server.IsValid && (status.State == WakeState.Offline || status.State == WakeState.Starting))
+            {
+                OfferWake(gui.m_startup, shareId, status);
+                yield break;
+            }
             string error = ErrorOf(status, server);
             if (error != null)
             {
@@ -58,11 +64,49 @@ namespace Ovomium.Features.ServerWake
                 UnifiedPopup.Push(new WarningPopup("Ajout du serveur Nodecraft impossible", error, UnifiedPopup.Pop, localizeText: false));
                 yield break;
             }
-            ServerLinkStore.Set(server, new ServerLink(shareId, status.Name));
+            AddLinked(shareId, status.Name, server, status);
+        }
+
+        /// <summary>
+        /// Serveur archivé (pas d'adresse tant qu'il dort, cas courant) : réveil proposé, puis ajout dès que l'adresse est
+        /// connue (<see cref="ServerWakeSession.BeginAdd"/>), sans connexion.
+        /// </summary>
+        private static void OfferWake(FejdStartup startup, string shareId, NodecraftStatus status)
+        {
+            string name = status.Name;
+            string who = name.Length > 0 ? name : "Le serveur";
+            string question = status.State == WakeState.Starting
+                ? $"{who} démarre : attendre qu'il soit prêt pour l'ajouter ?"
+                : $"{who} dort : le réveiller pour l'ajouter ?";
+            Plugin.Log.LogInfo($"ServerWake : {who} sans adresse (status={status.Status}, jit_status={status.JitStatus}), réveil proposé");
+            PopupBase ask = null;
+            ask = ServerWakePopups.ShowChoice("Ajouter un serveur Nodecraft", question,
+                "Oui", () =>
+                {
+                    ServerWakePopups.Close(ask);
+                    ServerWakeSession.BeginAdd(startup, shareId, name, (server, ready) => AddWoken(shareId, name, server, ready));
+                },
+                "Non", () => ServerWakePopups.Close(ask));
+        }
+
+        private static void AddWoken(string shareId, string name, ServerJoinData server, NodecraftStatus status)
+        {
+            string finalName = status.Name.Length > 0 ? status.Name : name;
+            if (AddLinked(shareId, finalName, server, status))
+                return; // liste ouverte : le favori y apparaît sélectionné
+            string who = finalName.Length > 0 ? finalName : "Le serveur";
+            string state = status.State == WakeState.Online ? "Il est en ligne" : "Il finit de démarrer";
+            UnifiedPopup.Push(new WarningPopup($"{who} ajouté aux favoris",
+                $"{state} : rejoins-le depuis la liste des serveurs, onglet Favoris.", UnifiedPopup.Pop, localizeText: false));
+        }
+
+        /// <summary>Lien rangé puis favori ajouté ; vrai s'il est affiché, sélectionné dans la liste ouverte.</summary>
+        private static bool AddLinked(string shareId, string name, ServerJoinData server, NodecraftStatus status)
+        {
+            ServerLinkStore.Set(server, new ServerLink(shareId, name));
             ServerWakeBadges.Remember(shareId, status);
-            Plugin.Log.LogInfo($"ServerWake : favori {status.Name} ({server}) ajouté depuis son lien Nodecraft");
-            if (gui != null)
-                gui.OnManualAddToFavoritesSuccess(server);
+            Plugin.Log.LogInfo($"ServerWake : favori {name} ({server}) ajouté depuis son lien Nodecraft");
+            return LinkedFavorite.Add(server);
         }
 
         private static string ErrorOf(NodecraftStatus status, ServerJoinData server)

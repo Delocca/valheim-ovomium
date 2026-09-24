@@ -53,6 +53,12 @@ namespace Ovomium.Tests
             Check("archivé", NodecraftStatus.Parse(archived).State, WakeState.Unavailable);
             string storedAvailable = RealStatus.Replace("\"live\"", "\"stored\"").Replace(",\"status\":\"offline\"", "");
             Check("archivé démarrable, sans status", NodecraftStatus.Parse(storedAvailable).State, WakeState.Offline);
+            // Cas courant à l'ajout : archivé sans bloc network → réveil proposé (démarrable, adresse vide).
+            string storedNoNetwork = storedAvailable.Replace("\"network\":{\"address\":\"46.151.199.8\",\"hostname\":\"crapoutchblouf\",\"domain\":\"nodecraft.gg\"},", "");
+            NodecraftStatus sleeping = NodecraftStatus.Parse(storedNoNetwork);
+            Check("archivé sans network : état", sleeping.State, WakeState.Offline);
+            Check("archivé sans network : adresse", sleeping.Address, "");
+            Check("archivé sans network : nom", sleeping.Name, "Crapoutchblouf");
             NodecraftStatus locked = NodecraftStatus.Parse("{\"code\":\"instances.jit_locked\",\"message\":\"Locked\",\"success\":false}");
             Check("verrouillé", locked.State, WakeState.Locked);
             Check("verrouillé : message", locked.Message, "Locked");

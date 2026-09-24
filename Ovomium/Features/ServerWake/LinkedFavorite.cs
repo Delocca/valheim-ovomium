@@ -8,6 +8,7 @@ namespace Ovomium.Features.ServerWake
     /// propage trop lentement, décision d'Edia 2026-09-24) : quand Nodecraft annonce une autre adresse, le favori est
     /// remplacé sur place (même position) et son lien suit. Liste vivante de <c>ServerListGui</c> si elle existe (elle
     /// réécrit le fichier à sa fermeture), sinon le fichier. Un favori enregistré par nom d'hôte garde son adresse.
+    /// Ajout d'un favori lié : <see cref="Add"/>, commun à l'ajout direct et à l'ajout après réveil.
     /// </summary>
     internal static class LinkedFavorite
     {
@@ -46,26 +47,55 @@ namespace Ovomium.Features.ServerWake
             return fresh;
         }
 
+        /// <summary>
+        /// Ajoute un favori (sans doublon) par le code vanilla du dialogue « Ajouter un serveur »
+        /// (<c>OnManualAddToFavoritesSuccess</c> : onglet Favoris, favori sélectionné, dialogue refermé), même liste
+        /// fermée ; écrit tout de suite (liste fermée, elle ne le ferait qu'à sa prochaine fermeture). Rend vrai si la
+        /// liste est affichée, favori sélectionné sous les yeux de la joueuse.
+        /// </summary>
+        public static bool Add(ServerJoinData server)
+        {
+            ServerListGui gui = ServerListGui.s_instance;
+            if (gui != null && gui.m_favoriteServersList != null)
+            {
+                gui.OnManualAddToFavoritesSuccess(server);
+                gui.m_favoriteServersList.Save();
+                return gui.isActiveAndEnabled;
+            }
+            EditFavoritesFile(list =>
+            {
+                if (list.Contains(server))
+                    return false;
+                list.Add(server);
+                return true;
+            });
+            return false;
+        }
+
         private static bool IsIp(string text) => !string.IsNullOrEmpty(text) && System.Net.IPAddress.TryParse(text, out _);
 
         private static bool ReplaceInFavorites(ServerJoinData old, ServerJoinData fresh)
         {
             ServerListGui gui = ServerListGui.s_instance;
-            if (gui != null && gui.m_favoriteServersList != null)
-            {
-                if (!Replace(gui.m_favoriteServersList, old, fresh))
-                    return false;
-                gui.m_favoriteServersList.Save();
-                if (gui.m_startup != null && gui.m_startup.GetServerToJoin() == old)
-                    gui.m_startup.SetServerToJoin(fresh);
-                gui.m_filteredListOutdated = true;
-                gui.UpdateServerListGui(false);
-                return true;
-            }
+            if (gui == null || gui.m_favoriteServersList == null)
+                return EditFavoritesFile(list => Replace(list, old, fresh));
+            if (!Replace(gui.m_favoriteServersList, old, fresh))
+                return false;
+            gui.m_favoriteServersList.Save();
+            if (gui.m_startup != null && gui.m_startup.GetServerToJoin() == old)
+                gui.m_startup.SetServerToJoin(fresh);
+            gui.m_filteredListOutdated = true;
+            gui.UpdateServerListGui(false);
+            return true;
+        }
+
+        /// <summary>Fichier des favoris quand la liste n'existe pas (jamais ouverte) : écrit si <paramref name="edit"/> rend vrai.</summary>
+        private static bool EditFavoritesFile(Func<LocalServerList, bool> edit)
+        {
             var list = new LocalServerList(null, ServerListGui.GetServerListLocations("favorite"));
             try
             {
-                if (!Replace(list, old, fresh))
+                if (!edit(list))
                     return false;
                 list.Save();
                 return true;
