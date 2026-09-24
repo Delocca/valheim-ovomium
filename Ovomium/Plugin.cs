@@ -27,6 +27,7 @@ using Ovomium.Features.PickupFilter;
 using Ovomium.Features.PortalRange;
 using Ovomium.Features.QuickStash;
 using Ovomium.Features.RecipeKeyboardNav;
+using Ovomium.Features.ServerWake;
 using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
 using Ovomium.Features.ItemFlight;
@@ -65,6 +66,7 @@ namespace Ovomium
             MapZoomToCursorConfig.Bind(Config);
             MenuDoubleClickConfig.Bind(Config);
             PasswordRevealConfig.Bind(Config);
+            ServerWakeConfig.Bind(Config);
             FirstPersonConfig.Bind(Config);
             StartupSkipConfig.Bind(Config);
             LoadingArtConfig.Bind(Config);
@@ -111,6 +113,7 @@ namespace Ovomium
             OvomiumMenuButton.Unload();
             ContinueMenuButton.Unload();
             PasswordRevealPatch.Unload();
+            ServerWakePatch.Unload();
             MinimapSizePatch.Unload();
             PortalRangePatch.Unload();
             TooltipStylePatch.Unload();

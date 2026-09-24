@@ -13,6 +13,12 @@
   <ItemGroup>
     <Compile Include="../Ovomium/Features/ChestFill/StackGrouping.cs" Link="ChestFill/StackGrouping.cs" />
     <Compile Include="../Ovomium/Features/PickupFilter/PickupFilterList.cs" Link="PickupFilter/PickupFilterList.cs" />
+    <Compile Include="../Ovomium/Features/Updater/MiniJson.cs" Link="Updater/MiniJson.cs" />
+    <Compile Include="../Ovomium/Features/ServerWake/NodecraftLink.cs" Link="ServerWake/NodecraftLink.cs" />
+    <Compile Include="../Ovomium/Features/ServerWake/NodecraftStatus.cs" Link="ServerWake/NodecraftStatus.cs" />
+    <Compile Include="../Ovomium/Features/ServerWake/NodecraftHttp.cs" Link="ServerWake/NodecraftHttp.cs" />
+    <Compile Include="../Ovomium/Features/ServerWake/NodecraftThrottle.cs" Link="ServerWake/NodecraftThrottle.cs" />
+    <Compile Include="../Ovomium/Features/ServerWake/ServerLink.cs" Link="ServerWake/ServerLink.cs" />
   </ItemGroup>
 
   <Target Name="RunTests" AfterTargets="Build">
