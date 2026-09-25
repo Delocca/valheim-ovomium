@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+## 1.2.0 — 2026-09-25
+
 - **Mises à jour sans relancer le jeu** : au menu principal, une nouvelle version s'installe toute seule pendant qu'une fenêtre affiche les nouveautés, puis OK et c'est fini ; en partie, rien ne change (proposition au menu Échap, puis relance). Cette version-ci s'installe encore avec une relance, les suivantes non (Updater).
 
 ## 1.1.0 — 2026-09-24
