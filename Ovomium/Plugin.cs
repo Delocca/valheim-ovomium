@@ -8,6 +8,7 @@ using Ovomium.Features.AutoJoin;
 using Ovomium.Features.ButcherKnife;
 using Ovomium.Features.ContinueButton;
 using Ovomium.Features.CraftFromChests;
+using Ovomium.Features.DarkPrepTable;
 using Ovomium.Features.EitrRadiation;
 using Ovomium.Features.FastPortal;
 using Ovomium.Features.FirstPerson;
@@ -78,6 +79,7 @@ namespace Ovomium
             FocusClickPatch.Install(host);
             UpdaterPatch.Install(host);
             PortalRangePatch.Install();
+            DarkPrepTablePatch.Install();
             ItemFlightPatch.Install();
             ManualChestButton.Install();
             Log.LogInfo($"{Name} {Version} chargé");
@@ -109,6 +111,7 @@ namespace Ovomium
             QuickStashConfig.Bind(config);
             ManualChestConfig.Bind(config);
             PortalRangeConfig.Bind(config);
+            DarkPrepTableConfig.Bind(config);
             ButcherKnifeConfig.Bind(config);
             EitrRadiationConfig.Bind(config);
             UpgradeDiffConfig.Bind(config);
@@ -136,6 +139,7 @@ namespace Ovomium
             ServerWakePatch.Unload();
             MinimapSizePatch.Unload();
             PortalRangePatch.Unload();
+            DarkPrepTablePatch.Unload();
             TooltipStylePatch.Unload();
             UpdaterPatch.Unload();
             ChestReservation.Unload();
