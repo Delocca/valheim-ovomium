@@ -1,3 +1,4 @@
+using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -35,12 +36,16 @@ using Ovomium.Features.StackDrag;
 using Ovomium.Features.TooltipStyle;
 using Ovomium.Features.Updater;
 using Ovomium.Features.UpgradeDiff;
+using UnityEngine;
 
 namespace Ovomium
 {
-    /// <summary>Point d'entrée BepInEx : charge la config de chaque fonctionnalité puis applique les patches.</summary>
-    [BepInPlugin(Guid, Name, Version)]
-    public class Plugin : BaseUnityPlugin
+    /// <summary>
+    /// Point d'entrée du cœur, appelé par le chargeur (Ovomium.Loader, seul plugin BepInEx) : charge la config de
+    /// chaque fonctionnalité puis applique les patches. Contrat stable avec le chargeur (réflexion, signatures à ne
+    /// pas changer) : <see cref="Load"/> et <see cref="Unload"/>.
+    /// </summary>
+    public static class Plugin
     {
         public const string Guid = "ovo.ovomium";
         public const string Name = "Ovomium";
@@ -48,65 +53,78 @@ namespace Ovomium
         public const string Version = PluginVersion.Value;
 
         internal static ManualLogSource Log;
-        /// <summary>Fichier de config du mod, parcouru par la fenêtre Ovomium (SettingsMenu).</summary>
+        /// <summary>Fichier de config du mod, parcouru par la fenêtre Ovomium (SettingsMenu). Un nouveau par
+        /// chargement : les entrées de la version déchargée (et leurs abonnements <c>SettingChanged</c>) restent
+        /// attachées à l'ancien, que plus rien ne modifie.</summary>
         internal static ConfigFile ConfigFile;
+        /// <summary>Demande au chargeur de remplacer ce cœur par la DLL indiquée, à la frame suivante (Updater).</summary>
+        internal static System.Action<string> RequestReload;
 
-        private Harmony m_harmony;
+        private static Harmony s_harmony;
 
-        private void Awake()
+        public static void Load(GameObject host, ManualLogSource log, System.Action<string> requestReload)
         {
-            Log = Logger;
-            ConfigFile = Config;
-            FoodRecipeSortConfig.Bind(Config);
-            FoodMarkerConfig.Bind(Config);
-            RecipeKeyboardNavConfig.Bind(Config);
-            StackDragConfig.Bind(Config);
-            FastPortalConfig.Bind(Config);
-            MinimapSizeConfig.Bind(Config);
-            MapZoomToCursorConfig.Bind(Config);
-            MenuDoubleClickConfig.Bind(Config);
-            PasswordRevealConfig.Bind(Config);
-            ServerWakeConfig.Bind(Config);
-            FirstPersonConfig.Bind(Config);
-            StartupSkipConfig.Bind(Config);
-            LoadingArtConfig.Bind(Config);
-            AutoJoinConfig.Bind(Config);
-            ContinueButtonConfig.Bind(Config);
-            FocusClickConfig.Bind(Config);
-            MapExploreConfig.Bind(Config);
-            AmbientOcclusionConfig.Bind(Config);
-            HotbarSlotsConfig.Bind(Config);
-            ChestFillConfig.Bind(Config);
-            QuickStashConfig.Bind(Config);
-            ManualChestConfig.Bind(Config);
-            PortalRangeConfig.Bind(Config);
-            ButcherKnifeConfig.Bind(Config);
-            UpgradeDiffConfig.Bind(Config);
-            CraftFromChestsConfig.Bind(Config);
-            PickupFilterConfig.Bind(Config);
-            ItemFlightConfig.Bind(Config);
-            SkillTooltipConfig.Bind(Config);
-            TooltipStyleConfig.Bind(Config);
-            SettingsMenuConfig.Bind(Config);
-            UpdaterConfig.Bind(Config);
-
-            m_harmony = new Harmony(Guid);
-            PatchInstaller.Install(m_harmony);
+            Log = log;
+            RequestReload = requestReload;
+            ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, Guid + ".cfg"), true, new BepInPlugin(Guid, Name, Version));
+            BindAll(ConfigFile);
+            // Identifiant propre à cette assembly (nom unique par chargement) : l'UnpatchSelf d'une version ne
+            // retire jamais les patches d'une autre.
+            s_harmony = new Harmony(typeof(Plugin).Assembly.GetName().Name);
+            PatchInstaller.Install(s_harmony);
             OvomiumMenuButton.Install();  // rechargement à chaud : les menus existent déjà, leurs Start ne rejouent pas
             ContinueMenuButton.Install();
-            FocusClickPatch.Install(gameObject);
-            UpdaterPatch.Install(gameObject);
+            FocusClickPatch.Install(host);
+            UpdaterPatch.Install(host);
             PortalRangePatch.Install();
             ItemFlightPatch.Install();
             ManualChestButton.Install();
             Log.LogInfo($"{Name} {Version} chargé");
+            UpdaterPatch.AfterLoad();
+        }
+
+        private static void BindAll(ConfigFile config)
+        {
+            FoodRecipeSortConfig.Bind(config);
+            FoodMarkerConfig.Bind(config);
+            RecipeKeyboardNavConfig.Bind(config);
+            StackDragConfig.Bind(config);
+            FastPortalConfig.Bind(config);
+            MinimapSizeConfig.Bind(config);
+            MapZoomToCursorConfig.Bind(config);
+            MenuDoubleClickConfig.Bind(config);
+            PasswordRevealConfig.Bind(config);
+            ServerWakeConfig.Bind(config);
+            FirstPersonConfig.Bind(config);
+            StartupSkipConfig.Bind(config);
+            LoadingArtConfig.Bind(config);
+            AutoJoinConfig.Bind(config);
+            ContinueButtonConfig.Bind(config);
+            FocusClickConfig.Bind(config);
+            MapExploreConfig.Bind(config);
+            AmbientOcclusionConfig.Bind(config);
+            HotbarSlotsConfig.Bind(config);
+            ChestFillConfig.Bind(config);
+            QuickStashConfig.Bind(config);
+            ManualChestConfig.Bind(config);
+            PortalRangeConfig.Bind(config);
+            ButcherKnifeConfig.Bind(config);
+            UpgradeDiffConfig.Bind(config);
+            CraftFromChestsConfig.Bind(config);
+            PickupFilterConfig.Bind(config);
+            ItemFlightConfig.Bind(config);
+            SkillTooltipConfig.Bind(config);
+            TooltipStyleConfig.Bind(config);
+            SettingsMenuConfig.Bind(config);
+            UpdaterConfig.Bind(config);
         }
 
         /// <summary>
-        /// Rechargement à chaud (ScriptEngine, tools/deploy.sh --dev) : retire les patches et les effets posés sur la
-        /// scène avant que la nouvelle version ne s'installe, sinon les deux versions tournent ensemble.
+        /// Rechargement à chaud (mise à jour au menu, mode dev) ou fermeture du jeu : retire les patches et les effets
+        /// posés sur la scène avant que la nouvelle version ne s'installe, sinon les deux versions tournent ensemble.
+        /// Le chargeur détruit ensuite l'objet hôte (guetteurs).
         /// </summary>
-        private void OnDestroy()
+        public static void Unload()
         {
             FirstPersonMode.Unload();
             LoadingArtView.Unload();
@@ -125,7 +143,8 @@ namespace Ovomium
             ManualChestButton.Unload();
             PickupFilterBadge.Unload();
             GraphicsPreview.Unload();
-            m_harmony?.UnpatchSelf();
+            s_harmony?.UnpatchSelf();
+            s_harmony = null;
             Log.LogInfo($"{Name} {Version} déchargé");
         }
     }

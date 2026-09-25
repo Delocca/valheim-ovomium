@@ -44,7 +44,7 @@ namespace Ovomium.Features.LoadingArt
 
         /// <summary>
         /// Dossier des images, absolu (option Folder relative à BepInEx/plugins/Ovomium/). Pas Assembly.Location :
-        /// vide quand ScriptEngine charge la DLL depuis ses octets (tools/deploy.sh --dev).
+        /// vide, le chargeur démarre le cœur depuis ses octets.
         /// </summary>
         internal static string Folder
         {

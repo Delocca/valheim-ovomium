@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Chargeur (BepInEx/plugins/Ovomium/Ovomium.dll) : seul plugin vu par BepInEx, il charge Ovomium.Core.dll depuis
+       ses octets et sait la recharger à chaud (mise à jour au menu principal, mode dev). Version fixe : chargé, donc
+       verrouillé sous Windows, il n'est remplacé que par le patcher au lancement suivant ; son contrat avec le cœur
+       (Ovomium.Plugin.Load / Unload) doit rester compatible dans les deux sens.
+       Propriétés communes : ../Directory.Build.props -->
+  <PropertyGroup>
+    <AssemblyName>Ovomium</AssemblyName>
+    <RootNamespace>Ovomium.Loader</RootNamespace>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx ; Mono.Cecil (renommage de l'assembly chargée) vient en dépendance -->
+    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Façade UnityEngine.dll : BepInEx.Core y référence MonoBehaviour (redirigé vers CoreModule) -->
+    <Reference Include="UnityEngine">
+      <HintPath>$(ValheimManaged)/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Touche F6 du mode dev -->
+    <Reference Include="Unity.InputSystem">
+      <HintPath>$(ValheimManaged)/Unity.InputSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>$(ValheimManaged)/netstandard.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

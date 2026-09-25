@@ -29,7 +29,8 @@ namespace Ovomium.Features.Updater
             UpdateState.Started = true;
             if (!UpdaterConfig.Enabled.Value)
                 return;
-            if (Directory.Exists(UpdateFolder))
+            // Dossier update/ de la version qui tourne déjà (installée à chaud) : rien en attente, on revérifie.
+            if (Directory.Exists(UpdateFolder) && ReadPendingVersion() != PluginVersion.Value)
             {
                 UpdateState.Version = ReadPendingVersion();
                 UpdateState.Downloaded = true;
@@ -42,7 +43,7 @@ namespace Ovomium.Features.Updater
             new Thread(() => Run(url)) { IsBackground = true, Name = "Ovomium.Updater.Check" }.Start();
         }
 
-        private static string ReadPendingVersion()
+        public static string ReadPendingVersion()
         {
             string file = Path.Combine(UpdateFolder, "version.txt");
             return File.Exists(file) ? File.ReadAllText(file).Trim() : "?";

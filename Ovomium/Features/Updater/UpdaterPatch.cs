@@ -4,27 +4,37 @@ using UnityEngine;
 namespace Ovomium.Features.Updater
 {
     /// <summary>
-    /// Mise à jour du mod depuis le jeu : vérification au menu principal, ligne sous la version vanilla, fenêtre
-    /// oui/non avec le changelog (au menu principal, ou au premier menu Échap si le menu a été sauté par AutoJoin),
-    /// téléchargement dans <c>update/</c>, relance du jeu (<see cref="GameRelauncher"/>), installation par le
-    /// patcher Ovomium.Updater à ce lancement.
+    /// Mise à jour du mod depuis le jeu : vérification au menu principal, ligne sous la version vanilla, puis
+    /// - au menu : installation sans question ni relance (<see cref="HotInstall"/>) ;
+    /// - en partie (menu sauté par AutoJoin) : fenêtre oui/non au premier menu Échap (<see cref="UpdaterPopup"/>),
+    ///   téléchargement dans <c>update/</c> et relance du jeu (<see cref="GameRelauncher"/>).
+    /// Le patcher Ovomium.Updater installe <c>update/</c> au lancement suivant dans les deux cas.
     /// Les threads de fond n'écrivent que <see cref="UpdateState"/> ; le guetteur applique l'état à l'UI sur le
     /// thread principal.
     /// </summary>
     internal static class UpdaterPatch
     {
-        /// <summary>Pose le guetteur sur l'objet du plugin (détruit avec lui au rechargement à chaud).</summary>
+        /// <summary>Pose le guetteur sur l'objet hôte du cœur (détruit par le chargeur au rechargement).</summary>
         public static void Install(GameObject host)
         {
-            if (host.GetComponent<UpdateWatcher>() == null)
-                host.AddComponent<UpdateWatcher>();
+            host.AddComponent<UpdateWatcher>();
             UpdaterConsole.Install();
         }
 
+        /// <summary>Fin du chargement du cœur : résultat d'une installation à chaud.</summary>
+        public static void AfterLoad()
+        {
+            if (UpdaterConfig.Enabled.Value)
+                HotInstall.AfterLoad();
+        }
+
+        /// <summary>Notre fenêtre est retirée ; la version suivante la réaffiche d'après l'état (oui/non reproposée).</summary>
         internal static void Unload()
         {
             UpdaterMenuLabel.Unload();
-            UpdaterPopupLayout.Restore();
+            UpdaterPopupHost.Close();
+            if (UpdateState.PopupShown && !UpdateState.PopupDone)
+                UpdateState.PopupShown = false;
             UpdaterConsole.Unload();
         }
 
@@ -55,7 +65,7 @@ namespace Ovomium.Features.Updater
 
             private void Update()
             {
-                if (!UpdaterConfig.Enabled.Value || !UpdateState.Started)
+                if (!UpdaterConfig.Enabled.Value || !(UpdateState.Started || UpdateState.HotInstall))
                     return;
                 // Fenêtre emportée par un changement de scène sans réponse (AutoJoin) : à reproposer au menu Échap.
                 if (UpdateState.PopupShown && !UpdateState.PopupDone && !UnifiedPopup.IsVisible())
@@ -89,20 +99,7 @@ namespace Ovomium.Features.Updater
                     m_labelText = text;
                     UpdaterMenuLabel.Apply(startup, text);
                 }
-                // Seulement sur un écran de menu : pendant une jonction (AutoJoin, ContinueButton) tous sont masqués
-                // et la scène va disparaître ; l'écran Loading, lui, n'est actif qu'au chargement effectif.
-                if (MenuScreenVisible(startup))
-                    UpdaterPopup.TryShow();
-            }
-
-            private static bool MenuScreenVisible(FejdStartup startup)
-            {
-                return Active(startup.m_mainMenu) || Active(startup.m_characterSelectScreen) || Active(startup.m_startGamePanel);
-            }
-
-            private static bool Active(GameObject screen)
-            {
-                return screen != null && screen.activeInHierarchy;
+                HotInstall.Tick(startup);
             }
 
             /// <summary>Messages en haut à gauche : « disponible » (menu sauté par AutoJoin) puis « téléchargée ».</summary>

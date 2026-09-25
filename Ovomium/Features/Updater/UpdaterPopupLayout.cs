@@ -1,4 +1,3 @@
-using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -24,7 +23,6 @@ namespace Ovomium.Features.Updater
         private static float s_fontSize;
         private static TextOverflowModes s_overflow;
         private static Vector2 s_bodySize, s_panelSize;
-        private static bool s_logged;
 
         /// <summary>À appeler juste après le <c>Push</c> de notre fenêtre (texte posé).</summary>
         public static void Apply()
@@ -34,11 +32,6 @@ namespace Ovomium.Features.Updater
                 return;
             if (s_panel != null || s_body != null)
                 Restore();  // fenêtre précédente emportée sans réponse
-            if (!s_logged)
-            {
-                s_logged = true;
-                LogHierarchy(popup);
-            }
             RectTransform panel = FindPanel(popup);
             if (panel == null)
                 return;
@@ -109,35 +102,6 @@ namespace Ovomium.Features.Updater
             Canvas canvas = panel.GetComponentInParent<Canvas>();
             var root = canvas != null ? canvas.rootCanvas.transform as RectTransform : null;
             return root != null ? root.rect.height : Screen.height;
-        }
-
-        /// <summary>Relevé du prefab pour le réglage fin : une ligne par niveau, avant modification.</summary>
-        private static void LogHierarchy(UnifiedPopup popup)
-        {
-            TextMeshProUGUI body = popup.bodyText;
-            Plugin.Log.LogInfo($"Updater : bodyText autoSize={body.enableAutoSizing} fontSize={body.fontSize} "
-                + $"min/max={body.fontSizeMin}/{body.fontSizeMax} size={body.rectTransform.rect.size} "
-                + $"overflow={body.overflowMode}");
-            int depth = 0;
-            for (Transform t = body.transform; t != null; t = t.parent)
-            {
-                if (t is RectTransform rect)
-                    Plugin.Log.LogInfo($"Updater : popup [{depth++}] {Describe(rect)}");
-                if (popup.popupUIParent != null && t == popup.popupUIParent.transform)
-                    break;
-            }
-        }
-
-        private static string Describe(RectTransform rect)
-        {
-            var sb = new StringBuilder(rect.name).Append(" comps={");
-            foreach (Component component in rect.GetComponents<Component>())
-                if (!(component is Transform) && !(component is CanvasRenderer))
-                    sb.Append(component.GetType().Name).Append(", ");
-            sb.Append("} anchors=").Append(rect.anchorMin).Append('-').Append(rect.anchorMax)
-              .Append(" pivot=").Append(rect.pivot).Append(" pos=").Append(rect.anchoredPosition)
-              .Append(" sizeDelta=").Append(rect.sizeDelta).Append(" size=").Append(rect.rect.size);
-            return sb.ToString();
         }
     }
 }

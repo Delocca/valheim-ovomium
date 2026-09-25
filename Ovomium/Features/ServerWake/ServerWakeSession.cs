@@ -82,9 +82,13 @@ namespace Ovomium.Features.ServerWake
             Plugin.Log.LogInfo($"ServerWake : réveil de {(name.Length > 0 ? name : shareId)} pour l'ajouter aux favoris");
         }
 
+        /// <summary>Comme l'annulation : sans <see cref="RestoreMenu"/>, un réveil lancé depuis la sélection du
+        /// personnage laisserait un menu vide après le rechargement.</summary>
         public static void Unload()
         {
+            FejdStartup startup = s_startup;
             Stop();
+            RestoreMenu(startup);
         }
 
         private static void Launch(FejdStartup startup, string shareId, string name, ServerJoinData server, bool forJoin,

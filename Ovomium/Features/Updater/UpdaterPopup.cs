@@ -1,19 +1,18 @@
-using TMPro;
-
 namespace Ovomium.Features.Updater
 {
     /// <summary>
-    /// Fenêtre vanilla oui/non « Ovomium x.y.z » avec le changelog : oui télécharge puis relance le jeu
-    /// (<see cref="GameRelauncher"/>, en partie la sortie sauvegarde), non repousse à la prochaine session. Les callbacks de <c>YesNoPopup</c> ne ferment pas la fenêtre : <c>Pop()</c> explicite. Le corps est
-    /// centré par <c>ResetUI</c> à chaque affichage : on l'aligne à gauche après le Push, rien à restaurer ;
-    /// l'agrandissement (<see cref="UpdaterPopupLayout"/>), lui, est restauré avant le Pop.
+    /// En partie seulement (menu principal sauté par AutoJoin ; au menu, c'est <see cref="HotInstall"/>) : fenêtre
+    /// vanilla oui/non « Ovomium x.y.z » avec le changelog au premier menu Échap ; oui télécharge puis relance le jeu
+    /// (<see cref="GameRelauncher"/>, la sortie sauvegarde), non repousse à la prochaine session. Les callbacks de
+    /// <c>YesNoPopup</c> ne ferment pas la fenêtre : fermeture explicite.
     /// </summary>
     internal static class UpdaterPopup
     {
         /// <summary>Affiche la fenêtre si elle n'est ni en attente de réponse ni déjà répondue ; vrai si affichée.</summary>
         public static bool TryShow()
         {
-            if (UpdateState.PopupShown || UpdateState.PopupDone || !UpdateState.Available || UpdateState.Downloaded)
+            if (UpdateState.PopupShown || UpdateState.PopupDone || !UpdateState.Available || UpdateState.Downloaded
+                || UpdateState.Downloading)
                 return false;
             if (!UnifiedPopup.IsAvailable() || UnifiedPopup.IsVisible())
                 return false;
@@ -21,9 +20,7 @@ namespace Ovomium.Features.Updater
             string header = $"Ovomium {UpdateState.Version}";
             string body = ChangelogFormatter.ToRichText(UpdateState.Changelog);
             string text = (body.Length > 0 ? body + "\n\n" : "") + "Télécharger et relancer le jeu maintenant ?";
-            UnifiedPopup.Push(new YesNoPopup(header, text, OnYes, OnNo, localizeText: false));
-            UpdaterPopupLayout.Apply();
-            AlignBodyLeft();
+            UpdaterPopupHost.Show(new YesNoPopup(header, text, OnYes, OnNo, localizeText: false));
             Plugin.Log.LogInfo($"Updater : fenêtre de mise à jour {UpdateState.Version} affichée");
             return true;
         }
@@ -31,13 +28,7 @@ namespace Ovomium.Features.Updater
         private static void OnYes()
         {
             UpdateState.PopupDone = true;
-            UpdaterPopupLayout.Restore();
-            UnifiedPopup.Pop();
-            if (UpdateState.FakePopup)
-            {
-                Plugin.Log.LogInfo("Updater : fenêtre de test, « oui » sans téléchargement");
-                return;
-            }
+            UpdaterPopupHost.Close();
             UpdateState.RelaunchRequested = true;
             UpdateDownloader.Start();
             if (MessageHud.instance != null)
@@ -48,16 +39,8 @@ namespace Ovomium.Features.Updater
         private static void OnNo()
         {
             UpdateState.PopupDone = true;
-            UpdaterPopupLayout.Restore();
-            UnifiedPopup.Pop();
+            UpdaterPopupHost.Close();
             Plugin.Log.LogInfo("Updater : mise à jour refusée pour cette session");
-        }
-
-        private static void AlignBodyLeft()
-        {
-            TextMeshProUGUI body = UnifiedPopup.instance != null ? UnifiedPopup.instance.bodyText : null;
-            if (body != null)
-                body.alignment = TextAlignmentOptions.TopLeft;
         }
     }
 }

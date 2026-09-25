@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!-- Patcher BepInEx (BepInEx/patchers/Ovomium.Updater.dll) : installe la mise à jour préparée par la feature
-       Updater du mod avant que Ovomium.dll ne soit chargée. Version fixe : il ne peut pas se mettre à jour lui-même
+       Updater du mod avant que le chargeur Ovomium.dll ne soit chargé. Version fixe : il ne peut pas se mettre à jour lui-même
        (chargé, donc verrouillé sous Windows), l'installateur .bat s'en charge s'il doit changer un jour.
        Propriétés communes : ../Directory.Build.props -->
   <PropertyGroup>

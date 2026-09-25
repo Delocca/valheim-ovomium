@@ -28,16 +28,23 @@ namespace Ovomium.Features.Updater
         public static bool HudMessageDone { get => Flag("HudMessageDone"); set => Set("HudMessageDone", value); }
         /// <summary>Message en jeu « téléchargée » déjà affiché.</summary>
         public static bool HudDownloadedDone { get => Flag("HudDownloadedDone"); set => Set("HudDownloadedDone", value); }
-        /// <summary>Fenêtre de test (commande console <c>ovomium_updatepopup</c>) : « oui » ne télécharge rien.</summary>
-        public static bool FakePopup { get => Flag("FakePopup"); set => Set("FakePopup", value); }
+        /// <summary>Installation à chaud en cours, lancée au menu (<see cref="HotInstall"/>) : fenêtre de progression.</summary>
+        public static bool HotInstall { get => Flag("HotInstall"); set => Set("HotInstall", value); }
+        /// <summary>Rechargement demandé au chargeur : le cœur démarré ensuite (nouveau, ou ancien si échec) affiche le résultat.</summary>
+        public static bool HotReloadRequested { get => Flag("HotReloadRequested"); set => Set("HotReloadRequested", value); }
 
         public static string Version { get => Text("Version"); set => Set("Version", value); }
         public static string Changelog { get => Text("Changelog"); set => Set("Changelog", value); }
         public static string DownloadUrl { get => Text("DownloadUrl"); set => Set("DownloadUrl", value); }
-        public static long DownloadSize
+        /// <summary>Dernière erreur de téléchargement, vide si aucune.</summary>
+        public static string Error { get => Text("Error"); set => Set("Error", value); }
+        public static long DownloadSize { get => Number("DownloadSize"); set => Set("DownloadSize", value); }
+        /// <summary>Octets reçus du téléchargement en cours (progression affichée).</summary>
+        public static long DownloadedBytes { get => Number("DownloadedBytes"); set => Set("DownloadedBytes", value); }
+
+        private static long Number(string key)
         {
-            get => System.AppDomain.CurrentDomain.GetData(Prefix + "DownloadSize") is long size ? size : 0L;
-            set => Set("DownloadSize", value);
+            return System.AppDomain.CurrentDomain.GetData(Prefix + key) is long value ? value : 0L;
         }
 
         private static bool Flag(string key)

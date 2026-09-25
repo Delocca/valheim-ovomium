@@ -1,6 +1,6 @@
 <Project>
 
-  <!-- Propriétés communes aux deux projets (Ovomium/ et Ovomium.Updater/), compilés ensemble par Ovomium.sln. -->
+  <!-- Propriétés communes aux projets d'Ovomium.sln (Ovomium/, Ovomium.Loader/, Ovomium.Updater/, Ovomium.Tests/). -->
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <LangVersion>10</LangVersion>

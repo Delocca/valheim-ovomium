@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Propriétés communes (net48, warnings = erreurs, ValheimManaged…) : ../Directory.Build.props -->
+  <!-- Cœur du mod (Ovomium.Core.dll), démarré et rechargé à chaud par le chargeur Ovomium.Loader/ (Ovomium.dll).
+       Propriétés communes (net48, warnings = erreurs, ValheimManaged…) : ../Directory.Build.props -->
   <PropertyGroup>
-    <AssemblyName>Ovomium</AssemblyName>
+    <AssemblyName>Ovomium.Core</AssemblyName>
     <RootNamespace>Ovomium</RootNamespace>
     <Version>1.1.0</Version>
   </PropertyGroup>

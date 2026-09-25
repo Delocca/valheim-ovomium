@@ -10,17 +10,25 @@ namespace Ovomium.Features.Updater
     /// Téléchargement de l'archive Windows de la release sur un thread d'arrière-plan : zip dans <c>update.zip.part</c>,
     /// extraction dans <c>update.tmp/</c>, puis seul le dossier <c>BepInEx/plugins/Ovomium/</c> de l'archive est
     /// renommé en <c>update/</c> (même volume : jamais de dossier à moitié rempli). Le patcher Ovomium.Updater
-    /// l'installe au lancement suivant. BepInEx lui-même n'est pas touché (installateur .bat).
+    /// l'installe au lancement suivant ; au menu, <see cref="HotInstall"/> en démarre le cœur tout de suite.
+    /// BepInEx lui-même n'est pas touché (installateur .bat). Une URL <c>file://</c> copie une archive locale (test
+    /// du flux complet, commande console <c>ovomium_updatetest</c>).
     /// </summary>
     internal static class UpdateDownloader
     {
         private const string ArchivePluginPath = "BepInEx/plugins/Ovomium";
+        /// <summary>Cœur de la nouvelle version, démarré à chaud depuis <c>update/</c>.</summary>
+        public const string CoreFile = "Ovomium.Core.dll";
 
-        /// <summary>À appeler depuis le thread principal (réponse « oui » de la fenêtre).</summary>
+        public static string UpdateCorePath => Path.Combine(UpdateChecker.UpdateFolder, CoreFile);
+
+        /// <summary>À appeler depuis le thread principal (réponse « oui » de la fenêtre, installation au menu).</summary>
         public static void Start()
         {
             if (UpdateState.Downloading || UpdateState.Downloaded || UpdateState.DownloadUrl.Length == 0)
                 return;
+            UpdateState.Error = "";
+            UpdateState.DownloadedBytes = 0;
             UpdateState.Downloading = true;
             Plugin.Log.LogInfo($"Updater : téléchargement de la version {UpdateState.Version} depuis {UpdateState.DownloadUrl}");
             new Thread(Run) { IsBackground = true, Name = "Ovomium.Updater.Download" }.Start();
@@ -39,17 +47,21 @@ namespace Ovomium.Features.Updater
                 CheckSize(part);
                 ZipFile.ExtractToDirectory(part, tmp);
                 string source = Path.Combine(tmp, ArchivePluginPath.Replace('/', Path.DirectorySeparatorChar));
-                if (!File.Exists(Path.Combine(source, "Ovomium.dll")))
-                    throw new FileNotFoundException($"archive sans {ArchivePluginPath}/Ovomium.dll");
+                if (!File.Exists(Path.Combine(source, CoreFile)))
+                    throw new FileNotFoundException($"archive sans {ArchivePluginPath}/{CoreFile}");
                 string update = UpdateChecker.UpdateFolder;
                 if (Directory.Exists(update))
                     Directory.Delete(update, true);
                 Directory.Move(source, update);
+                string version = UpdateChecker.ReadPendingVersion();
+                if (version.Length > 0 && version != "?")
+                    UpdateState.Version = version;  // celle de l'archive fait foi (archive de test : version annoncée factice)
                 UpdateState.Downloaded = true;
-                Plugin.Log.LogInfo($"Updater : version {UpdateState.Version} téléchargée dans {update}, installée au prochain lancement");
+                Plugin.Log.LogInfo($"Updater : version {UpdateState.Version} téléchargée dans {update}");
             }
             catch (System.Exception e)
             {
+                UpdateState.Error = e.Message;
                 Plugin.Log.LogWarning($"Updater : téléchargement de la mise à jour échoué : {e.Message}");
             }
             finally
@@ -61,6 +73,12 @@ namespace Ovomium.Features.Updater
 
         private static void Download(string url, string destination)
         {
+            if (url.StartsWith("file://"))
+            {
+                using (Stream input = File.OpenRead(new System.Uri(url).LocalPath))
+                    Copy(input, destination);
+                return;
+            }
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; // Mono ancien : TLS 1.0 par défaut
             using (var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = true }))
             {
@@ -70,8 +88,24 @@ namespace Ovomium.Features.Updater
                 {
                     response.EnsureSuccessStatusCode();
                     using (Stream input = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult())
-                    using (FileStream output = File.Create(destination))
-                        input.CopyTo(output);
+                        Copy(input, destination);
+                }
+            }
+        }
+
+        /// <summary>Copie en publiant la progression (<see cref="UpdateState.DownloadedBytes"/>).</summary>
+        private static void Copy(Stream input, string destination)
+        {
+            var buffer = new byte[81920];
+            long total = 0;
+            using (FileStream output = File.Create(destination))
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    output.Write(buffer, 0, read);
+                    total += read;
+                    UpdateState.DownloadedBytes = total;
                 }
             }
         }

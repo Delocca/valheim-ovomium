@@ -8,7 +8,9 @@ namespace Ovomium.Updater
     /// <summary>
     /// Patcher BepInEx : au lancement du jeu, avant tout chargement de plugin, copie le contenu de
     /// <c>BepInEx/plugins/Ovomium/update/</c> (déposé par la feature Updater du mod) par-dessus le dossier du plugin,
-    /// puis le supprime. Windows verrouille une DLL chargée : c'est le seul moment où Ovomium.dll est remplaçable.
+    /// puis le supprime. Windows verrouille une DLL chargée : c'est le seul moment où le chargeur Ovomium.dll est
+    /// remplaçable (le cœur Ovomium.Core.dll, lu depuis ses octets, ne l'est jamais ; au menu, la nouvelle version a
+    /// déjà pu être démarrée à chaud depuis <c>update/</c>).
     /// Ne patche aucune assembly : <c>TargetDLLs</c> est le premier membre appelé par BepInEx 5, l'installation s'y
     /// fait, et la liste renvoyée est vide.
     /// </summary>

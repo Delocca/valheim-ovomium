@@ -115,14 +115,14 @@ try {
     Write-Step 'Extraction'
     $extracted = Join-Path $work 'extracted'
     Expand-Archive -LiteralPath $zip -DestinationPath $extracted -Force
-    if (-not (Test-Path -LiteralPath (Join-Path $extracted 'BepInEx\plugins\Ovomium\Ovomium.dll'))) {
-        throw "Archive inattendue : Ovomium.dll introuvable après extraction."
+    if (-not (Test-Path -LiteralPath (Join-Path $extracted 'BepInEx\plugins\Ovomium\Ovomium.Core.dll'))) {
+        throw "Archive inattendue : Ovomium.Core.dll introuvable après extraction."
     }
     Write-Ok 'Extrait.'
 
     Write-Step "Copie dans $game"
     Copy-Item -Path (Join-Path $extracted '*') -Destination $game -Recurse -Force
-    foreach ($f in 'winhttp.dll', 'BepInEx\core\BepInEx.dll', 'BepInEx\plugins\Ovomium\Ovomium.dll', 'BepInEx\plugins\Ovomium\version.txt') {
+    foreach ($f in 'winhttp.dll', 'BepInEx\core\BepInEx.dll', 'BepInEx\plugins\Ovomium\Ovomium.dll', 'BepInEx\plugins\Ovomium\Ovomium.Core.dll', 'BepInEx\plugins\Ovomium\version.txt') {
         if (-not (Test-Path -LiteralPath (Join-Path $game $f))) { throw "Copie incomplète : $f manquant dans le dossier du jeu." }
     }
     Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
