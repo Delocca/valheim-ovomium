@@ -34,7 +34,7 @@ namespace Ovomium.Features.CraftFromChests
         }
 
         /// <summary>Prévision de <see cref="TakeOne"/> sans rien retirer : coffre prévu dans <paramref name="pulls"/> (vide si inventaire) ; faux si rien à prendre.</summary>
-        private static bool PlanOne(Player player, ItemDrop item, List<Pull> pulls)
+        internal static bool PlanOne(Player player, ItemDrop item, List<Pull> pulls)
         {
             Vector3 center = player.transform.position;
             bool chestsFirst = PullOrder.ChestsFirst;
@@ -42,6 +42,47 @@ namespace Ovomium.Features.CraftFromChests
             pulls.Clear();
             if (player.m_inventory.CountItems(item.m_itemData.m_shared.m_name) > 0) return true;
             return !chestsFirst && NearbyChests.Plan(center, item, 1, -1, pulls) == 0;
+        }
+
+        /// <summary>
+        /// Objet visé que la prochaine pression rechargerait : feu rechargeable, ou interrupteur de combustible d'un four
+        /// ou d'une marmite (le jeu interagit avec l'<c>Interactable</c> le plus proche dans les parents : le <c>Switch</c>) ;
+        /// null sinon. <paramref name="fuel"/> : son combustible (null pour un four sans combustible).
+        /// </summary>
+        internal static MonoBehaviour Hovered(Player player, out ItemDrop fuel)
+        {
+            fuel = null;
+            GameObject hovering = player.GetHoverObject();
+            if (hovering == null) return null;
+            Switch button = hovering.GetComponentInParent<Switch>();
+            if (button != null)
+            {
+                Smelter smelter = button.GetComponentInParent<Smelter>();
+                if (smelter != null && smelter.m_addWoodSwitch == button) { fuel = smelter.m_fuelItem; return smelter; }
+                CookingStation station = button.GetComponentInParent<CookingStation>();
+                if (station != null && station.m_addFuelSwitch == button) { fuel = station.m_fuelItem; return station; }
+                return null;
+            }
+            Fireplace fireplace = hovering.GetComponentInParent<Fireplace>();
+            if (fireplace == null || !fireplace.m_canRefill || fireplace.m_infiniteFuel) return null;
+            fuel = fireplace.m_fuelItem;
+            return fireplace;
+        }
+
+        /// <summary>Plein (mêmes seuils que les patches de recharge ci-dessous) ou pas encore en réseau : la pression ne puiserait rien.</summary>
+        internal static bool IsFull(MonoBehaviour consumer)
+        {
+            switch (consumer)
+            {
+                case Fireplace f:
+                    return !f.m_nview.IsValid() || Mathf.CeilToInt(f.m_nview.GetZDO().GetFloat(ZDOVars.s_fuel)) >= f.m_maxFuel;
+                case Smelter s:
+                    return !s.m_nview.IsValid() || s.GetFuel() > s.m_maxFuel - 1;
+                case CookingStation c:
+                    return !c.m_nview.IsValid() || c.GetFuel() > c.m_maxFuel - 1;
+                default:
+                    return true;
+            }
         }
 
         /// <summary>

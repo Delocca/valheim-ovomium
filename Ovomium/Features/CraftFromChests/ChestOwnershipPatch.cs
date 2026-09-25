@@ -66,11 +66,10 @@ namespace Ovomium.Features.CraftFromChests
         {
             private static bool Prefix(Player __instance, Piece piece, ref bool __result)
             {
-                if (!CraftFromChestsPatch.Active(__instance) || __instance.m_noPlacementCost
-                    || __instance.m_placementStatus != Player.PlacementStatus.Valid
-                    || ZoneSystem.instance.GetGlobalKey(piece.FreeBuildKey())) return true;
-                var pulls = PullPlan.Predict(__instance, piece.m_resources, 0, -1, 1);
-                if (ChestReservation.EnsureOwned(__instance, pulls, "pose")) return true;
+                if (!CraftFromChestsPatch.Active(__instance)
+                    || __instance.m_placementStatus != Player.PlacementStatus.Valid) return true;
+                var pulls = PullPlan.PredictPiece(__instance, piece);
+                if (pulls == null || ChestReservation.EnsureOwned(__instance, pulls, "pose")) return true;
                 __result = false;
                 return false;
             }
