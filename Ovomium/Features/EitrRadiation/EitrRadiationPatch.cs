@@ -7,9 +7,10 @@ namespace Ovomium.Features.EitrRadiation
     /// La raffinerie d'Eitr en marche (enfant <c>_enabled</c>) et l'Eitr au sol (enfant <c>attach</c>) portent des
     /// <c>Radiator</c> : chez le propriétaire de leur ZDO, une boucle lance toutes les quelques secondes un projectile
     /// « radiation » (30 foudre + 30 poison, 20 m/s, 2 s de vie, sans attaquant) ; à l'impact, ce client appelle
-    /// <c>Character.Damage</c>, qui envoie <c>RPC_Damage</c> au propriétaire de la victime. Le coup est donc écarté aux
-    /// deux bouts : à l'envoi (protège aussi les joueuses et créatures sans le mod quand l'émetteur a le mod) et à la
-    /// réception (protège quand l'émetteur ne l'a pas). Le projectile garde son vol et son effet d'impact.
+    /// <c>Character.Damage</c> ou <c>WearNTear.Damage</c> (pièces construites), qui envoient <c>RPC_Damage</c> au
+    /// propriétaire de la cible. Le coup est donc écarté aux deux bouts : à l'envoi (protège aussi les cibles des
+    /// joueuses sans le mod quand l'émetteur a le mod) et à la réception (protège quand l'émetteur ne l'a pas). Arbres
+    /// et roches : ni coupe ni pioche, le projectile ne leur fait rien. Il garde son vol et son effet d'impact.
     /// Signature d'un coup de radiation : pas d'attaquant, dégâts identiques à ceux du projectile d'un Radiator, point
     /// d'impact à portée de ce Radiator. Seuls ces deux prefabs portent un Radiator (bundle des prefabs, 1.0.15) ; l'Eitr
     /// posé sur un présentoir en porte aussi un (le présentoir instancie son enfant <c>attach</c>), d'où un filtre sur
@@ -58,6 +59,20 @@ namespace Ovomium.Features.EitrRadiation
     /// <summary>Côté victime : le coup reçu est ignoré (ni dégâts, ni effet, ni chiffre).</summary>
     [HarmonyPatch(typeof(Character), "RPC_Damage", new System.Type[] { typeof(long), typeof(HitData) })]
     internal static class EitrRadiationReceivePatch
+    {
+        private static bool Prefix(HitData hit) => !EitrRadiationFilter.IsRadiationHit(hit);
+    }
+
+    /// <summary>Pièces construites, côté émetteur : même schéma que <c>Character</c> (<c>InvokeRPC</c> vers la propriétaire de la pièce).</summary>
+    [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.Damage), new System.Type[] { typeof(HitData) })]
+    internal static class EitrRadiationPieceSendPatch
+    {
+        private static bool Prefix(HitData hit) => !EitrRadiationFilter.IsRadiationHit(hit);
+    }
+
+    /// <summary>Pièces construites, côté propriétaire de la pièce : ni usure, ni chiffre.</summary>
+    [HarmonyPatch(typeof(WearNTear), "RPC_Damage", new System.Type[] { typeof(long), typeof(HitData) })]
+    internal static class EitrRadiationPieceReceivePatch
     {
         private static bool Prefix(HitData hit) => !EitrRadiationFilter.IsRadiationHit(hit);
     }

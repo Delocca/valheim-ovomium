@@ -12,7 +12,7 @@ namespace Ovomium.Features.EitrRadiation
         {
             Enabled = config.Bind("EitrRadiation", "Enabled", true,
                 new ConfigDescription("Les particules lancées par la raffinerie d'Eitr en marche et par l'Eitr raffiné au sol ou sur un "
-                    + "présentoir ne blessent plus personne (elles restent visibles).",
+                    + "présentoir n'abîment plus les constructions et ne blessent plus personne (elles restent visibles).",
                     null, new SettingLabel("Activé")));
         }
     }

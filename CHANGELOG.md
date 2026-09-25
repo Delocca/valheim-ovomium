@@ -5,7 +5,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 ## Non publié
 
 - **Moins de « Utilisé par quelqu'un d'autre » à plusieurs** : le mod ne réserve plus tous les coffres à portée mais seulement ceux de la recette sélectionnée, de la pièce choisie au marteau ou du feu visé, et un coffre bloqué se libère deux fois plus vite : deux joueuses qui craftent ou construisent près de la même réserve se gênent beaucoup moins (CraftFromChests).
-- **Eitr sans danger** : les particules de la raffinerie d'Eitr et de l'Eitr raffiné ne blessent plus, elles restent visibles (EitrRadiation).
+- **Eitr sans danger** : les particules de la raffinerie d'Eitr et de l'Eitr raffiné n'abîment plus les constructions et ne blessent plus personne, elles restent visibles (EitrRadiation).
 
 ## 1.2.0 — 2026-09-25
 
