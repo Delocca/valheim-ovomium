@@ -2,7 +2,7 @@
 
 Chantiers restants, par priorité. Une entrée par chantier avec le contexte utile (décisions, ancrages dans `build/decompiled/`). Règles de maintenance : `CLAUDE.md`, section « Suivi ».
 
-1. **Mise à jour à chaud au menu (chargeur + cœur)** (livré le 2026-09-24, décisions d'Edia : au menu seulement, installation sans question avec nouveautés + progression puis OK ; ScriptEngine remplacé par le chargeur en dev). **Validé en jeu le 2026-09-25** : chargement unique, dev à chaud au menu et en partie (fonctions intactes), flux prod local (`ovomium_updatetest <chemin du zip>`), échec (zip sans cœur → message, ancienne version active). F6 corrigé et validé. Reste : un vrai cycle de release (la première passe encore par la relance, depuis 1.1.0).
+1. **Mise à jour à chaud au menu (chargeur + cœur)** (livré le 2026-09-24, décisions d'Edia : au menu seulement, installation sans question avec nouveautés + progression puis OK ; ScriptEngine remplacé par le chargeur en dev). **Validé en jeu le 2026-09-25** : chargement unique, dev à chaud au menu et en partie (fonctions intactes), flux prod local (`ovomium_updatetest <chemin du zip>`), échec (zip sans cœur → message, ancienne version active). F6 corrigé et validé. Reste : un vrai cycle de release. 1.2.0 (publiée le 2026-09-25) s'installe encore par la relance chez les amies (depuis 1.1.0) ; la release suivante sera la première installée à chaud au menu.
 
 2. **Refermer le dépôt** (`tools/repo-visibility.sh private`, hors bac à sable) une fois les amies passées en 0.9.0 (publiée le 2026-09-20, dépôt public depuis).
 
