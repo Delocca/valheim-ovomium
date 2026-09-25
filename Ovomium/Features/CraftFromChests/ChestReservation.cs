@@ -122,6 +122,7 @@ namespace Ovomium.Features.CraftFromChests
 
         private static void ExpirePending()
         {
+            RedirectPending();
             s_expired.Clear();
             foreach (var pair in s_pending)
                 if (pair.Key == null || Time.time - pair.Value.Time > PendingTimeout) s_expired.Add(pair.Key);
@@ -141,6 +142,29 @@ namespace Ovomium.Features.CraftFromChests
             Prune(s_refusedAt, LateResponseWindow);
         }
 
+        /// <summary>
+        /// Coffre passé chez une autre pendant que notre demande attendait : l'ancienne propriétaire l'ignore
+        /// (<c>RPC_RequestOpen</c> sans effet si elle ne l'est plus, jamais de réponse, même tardive : journal du
+        /// 2026-09-25), donc la demande est renvoyée tout de suite à la nouvelle au lieu d'attendre l'expiration.
+        /// Devenu le nôtre ou sans propriétaire : plus rien à attendre. L'ancienne demande passe en tardive : si
+        /// l'ancienne propriétaire y a quand même répondu (course avec sa cession), la réponse est avalée, pas ouverte.
+        /// </summary>
+        private static void RedirectPending()
+        {
+            s_expired.Clear();
+            foreach (var pair in s_pending)
+                if (pair.Key != null && pair.Key.m_nview.IsValid() && pair.Key.m_nview.GetZDO().GetOwner() != pair.Value.Owner)
+                    s_expired.Add(pair.Key);
+            foreach (var container in s_expired)
+            {
+                s_late[container] = s_pending[container];
+                s_pending.Remove(container);
+                if (container.m_nview.IsOwner() || !container.m_nview.HasOwner()) continue;
+                RequestNow(container);
+                ReservationLog.Redirected();
+            }
+        }
+
         /// <summary>Retire les entrées d'objets détruits ou dont l'échéance (+ <paramref name="keep"/>) est passée.</summary>
         private static void Prune(Dictionary<Container, float> times, float keep)
         {
@@ -150,17 +174,21 @@ namespace Ovomium.Features.CraftFromChests
             foreach (var container in s_expired) times.Remove(container);
         }
 
-        /// <summary>Réponse à une de nos demandes, en attente ou expirée depuis peu : consommée (true) ; sinon vrai clic (false).</summary>
+        /// <summary>
+        /// Réponse à une de nos demandes, en attente ou expirée depuis peu : consommée (true) ; sinon vrai clic (false).
+        /// Une réponse ne consomme qu'une entrée : deux demandes en vol (renvoi après changement de propriétaire)
+        /// peuvent recevoir deux réponses, toutes deux avalées.
+        /// </summary>
         public static bool OnOpenResponse(Container container, bool granted)
         {
             bool late = false;
-            if (!s_pending.TryGetValue(container, out Request request))
+            if (s_pending.TryGetValue(container, out Request request)) s_pending.Remove(container);
+            else
             {
                 if (!s_late.TryGetValue(container, out request)) return false;
+                s_late.Remove(container);
                 late = true;
             }
-            s_pending.Remove(container);
-            s_late.Remove(container);
             float delay = Time.time - request.Time;
             if (granted) ReservationLog.Granted(container, delay, late);
             else

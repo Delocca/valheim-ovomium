@@ -16,6 +16,7 @@ namespace Ovomium.Features.CraftFromChests
         private static int s_late;
         private static int s_refused;
         private static int s_silent;
+        private static int s_redirected;
         private static float s_nextSummary;
 
         public static void Granted(Container chest, float delay, bool late)
@@ -37,6 +38,9 @@ namespace Ovomium.Features.CraftFromChests
         }
 
         /// <summary><paramref name="asked"/> : propriétaire à qui la demande est partie (<c>ZNetView.InvokeRPC</c> vise la propriétaire du moment).</summary>
+        /// <summary>Demande renvoyée à la nouvelle propriétaire, l'ancienne ne répondra pas : seulement comptée.</summary>
+        public static void Redirected() => s_redirected++;
+
         public static void Silent(Container chest, float timeout, long asked)
         {
             s_silent++;
@@ -51,11 +55,11 @@ namespace Ovomium.Features.CraftFromChests
         {
             if (Time.time < s_nextSummary) return;
             s_nextSummary = Time.time + SummaryInterval;
-            if (s_onTime + s_late + s_refused + s_silent == 0) return;
+            if (s_onTime + s_late + s_refused + s_silent + s_redirected == 0) return;
             string mean = s_onTime > 0 ? $" (moyenne {Ms(s_onTimeDelays / s_onTime)})" : "";
             Plugin.Log.LogInfo($"ChestReservation : bilan, {s_onTime} accordée(s) à temps{mean}, {s_late} en retard, "
-                + $"{s_refused} refus, {s_silent} sans réponse à temps");
-            s_onTime = s_late = s_refused = s_silent = 0;
+                + $"{s_refused} refus, {s_silent} sans réponse à temps, {s_redirected} renvoyée(s) à la nouvelle propriétaire");
+            s_onTime = s_late = s_refused = s_silent = s_redirected = 0;
             s_onTimeDelays = 0f;
         }
 
@@ -81,7 +85,7 @@ namespace Ovomium.Features.CraftFromChests
         /// <summary>Rechargement à chaud.</summary>
         public static void Unload()
         {
-            s_onTime = s_late = s_refused = s_silent = 0;
+            s_onTime = s_late = s_refused = s_silent = s_redirected = 0;
             s_onTimeDelays = 0f;
             s_nextSummary = 0f;
         }

@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Coffres réservés plus vite à plusieurs** : quand un coffre change de mains pendant qu'on le demande, la demande suit tout de suite sa nouvelle propriétaire au lieu d'attendre, d'où moins de « Utilisé par quelqu'un d'autre » (CraftFromChests).
+
 ## 1.3.0 — 2026-09-25
 
 - **Moins de « Utilisé par quelqu'un d'autre » à plusieurs** : le mod ne réserve plus tous les coffres à portée mais seulement ceux de la recette sélectionnée, de la pièce choisie au marteau ou du feu visé, et un coffre bloqué se libère deux fois plus vite : deux joueuses qui craftent ou construisent près de la même réserve se gênent beaucoup moins (CraftFromChests).
