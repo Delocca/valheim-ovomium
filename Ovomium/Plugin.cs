@@ -8,6 +8,7 @@ using Ovomium.Features.AutoJoin;
 using Ovomium.Features.ButcherKnife;
 using Ovomium.Features.ContinueButton;
 using Ovomium.Features.CraftFromChests;
+using Ovomium.Features.EitrRadiation;
 using Ovomium.Features.FastPortal;
 using Ovomium.Features.FirstPerson;
 using Ovomium.Features.FocusClick;
@@ -109,6 +110,7 @@ namespace Ovomium
             ManualChestConfig.Bind(config);
             PortalRangeConfig.Bind(config);
             ButcherKnifeConfig.Bind(config);
+            EitrRadiationConfig.Bind(config);
             UpgradeDiffConfig.Bind(config);
             CraftFromChestsConfig.Bind(config);
             PickupFilterConfig.Bind(config);
