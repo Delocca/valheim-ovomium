@@ -4,6 +4,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Plus de faux « échec de la mise à jour »** : une mise à jour installée au menu s'annonçait ratée alors qu'elle avait réussi ; le bon message s'affiche désormais (Updater).
 - **Coffres réservés plus vite à plusieurs** : quand un coffre change de mains pendant qu'on le demande, la demande suit tout de suite sa nouvelle propriétaire au lieu d'attendre, d'où moins de « Utilisé par quelqu'un d'autre » (CraftFromChests).
 
 ## 1.3.0 — 2026-09-25

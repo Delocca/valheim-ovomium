@@ -21,11 +21,17 @@ namespace Ovomium.Features.Updater
             UpdaterConsole.Install();
         }
 
-        /// <summary>Fin du chargement du cœur : résultat d'une installation à chaud.</summary>
+        private static bool s_afterLoadPending;
+
+        /// <summary>
+        /// Fin du chargement du cœur : résultat d'une installation à chaud, lu à la première frame du guetteur. Le
+        /// chargeur ne publie le chemin du cœur démarré (<c>Ovomium.Loader.CorePath</c>) qu'au retour de
+        /// <c>Plugin.Load</c> : lu ici même, il désignait encore l'ancien cœur et une installation réussie
+        /// s'annonçait en échec (1.2.0 → 1.3.0).
+        /// </summary>
         public static void AfterLoad()
         {
-            if (UpdaterConfig.Enabled.Value)
-                HotInstall.AfterLoad();
+            s_afterLoadPending = true;
         }
 
         /// <summary>Notre fenêtre est retirée ; la version suivante la réaffiche d'après l'état (oui/non reproposée).</summary>
@@ -65,6 +71,11 @@ namespace Ovomium.Features.Updater
 
             private void Update()
             {
+                if (s_afterLoadPending)
+                {
+                    s_afterLoadPending = false;
+                    if (UpdaterConfig.Enabled.Value) HotInstall.AfterLoad();
+                }
                 if (!UpdaterConfig.Enabled.Value || !(UpdateState.Started || UpdateState.HotInstall))
                     return;
                 // Fenêtre emportée par un changement de scène sans réponse (AutoJoin) : à reproposer au menu Échap.
