@@ -63,26 +63,33 @@ namespace Ovomium.Features.DarkPrepTable
             return null;
         }
 
-        /// <summary>Recalcule la copie : zone du bois multipliée par <paramref name="brightness"/>, reste inchangé.</summary>
-        public void Apply(float brightness)
+        /// <summary>Recalcule la copie : zone du bois resaturée puis assombrie, reste inchangé.</summary>
+        public void Apply(float brightness, float saturation)
         {
             bool linear = QualitySettings.activeColorSpace == ColorSpace.Linear;
             int width = Copy.width;
             foreach (RectInt r in m_zone)
                 for (int y = r.yMin; y < r.yMax; y++)
                     for (int x = r.xMin; x < r.xMax; x++)
-                        m_pixels[y * width + x] = Darken(m_base[y * width + x], brightness, linear);
+                        m_pixels[y * width + x] = Darken(m_base[y * width + x], brightness, saturation, linear);
             Copy.SetPixels32(m_pixels);
             Copy.Apply(true);
         }
 
         public void Destroy() => Object.Destroy(Copy);
 
-        /// <summary>Multiplication en espace linéaire si le rendu l'est, comme une teinte <c>_Color</c>.</summary>
-        private static Color32 Darken(Color32 pixel, float k, bool linear)
+        /// <summary>Saturation autour de la luminance (Rec. 709) puis multiplication par <paramref name="k"/>, en espace
+        /// linéaire si le rendu l'est (comme une teinte <c>_Color</c>), bornée à 0-1.</summary>
+        private static Color32 Darken(Color32 pixel, float k, float saturation, bool linear)
         {
             Color c = pixel;
-            Color dark = linear ? (c.linear * k).gamma : c * k;
+            Color work = linear ? c.linear : c;
+            float luminance = 0.2126f * work.r + 0.7152f * work.g + 0.0722f * work.b;
+            Color dark = new Color(
+                Mathf.Clamp01((luminance + (work.r - luminance) * saturation) * k),
+                Mathf.Clamp01((luminance + (work.g - luminance) * saturation) * k),
+                Mathf.Clamp01((luminance + (work.b - luminance) * saturation) * k));
+            dark = linear ? dark.gamma : dark;
             dark.a = c.a;
             return dark;
         }

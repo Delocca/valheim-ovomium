@@ -39,6 +39,7 @@ namespace Ovomium.Features.DarkPrepTable
         {
             DarkPrepTableConfig.Enabled.SettingChanged += (_, __) => Refresh();
             DarkPrepTableConfig.Brightness.SettingChanged += (_, __) => UpdateTextures();
+            DarkPrepTableConfig.Saturation.SettingChanged += (_, __) => UpdateTextures();
             if (ZNetScene.instance != null)
                 s_prefab = ZNetScene.instance.GetPrefab(PrefabName);
             Refresh();
@@ -91,7 +92,7 @@ namespace Ovomium.Features.DarkPrepTable
         private static void UpdateTextures()
         {
             foreach (WoodTexture wood in s_woods.Values)
-                wood?.Apply(DarkPrepTableConfig.Brightness.Value);
+                wood?.Apply(DarkPrepTableConfig.Brightness.Value, DarkPrepTableConfig.Saturation.Value);
         }
 
         /// <summary>Tables en scène (le fantôme de placement en est une, mais ses matériaux sont ses propres copies).</summary>

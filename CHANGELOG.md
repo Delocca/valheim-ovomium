@@ -6,7 +6,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 - **Plus de faux « échec de la mise à jour »** : une mise à jour installée au menu s'annonçait ratée alors qu'elle avait réussi ; le bon message s'affiche désormais (Updater).
 - **Coffres réservés plus vite à plusieurs** : quand un coffre change de mains pendant qu'on le demande, la demande suit tout de suite sa nouvelle propriétaire au lieu d'attendre, d'où moins de « Utilisé par quelqu'un d'autre » (CraftFromChests).
-- **Table de préparation en bois sombre** : le bois de la table de préparation culinaire est assombri (même texture, teinte réglable), les ustensiles et aliments posés dessus gardent leurs couleurs ; visible chez vous seulement (DarkPrepTable).
+- **Table de préparation en bois sombre** : le bois de la table de préparation culinaire devient brun foncé (même texture, luminosité et saturation réglables), les ustensiles et aliments posés dessus gardent leurs couleurs ; visible chez vous seulement (DarkPrepTable).
 
 ## 1.3.0 — 2026-09-25
 
