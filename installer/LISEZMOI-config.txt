@@ -1,0 +1,19 @@
+Configuration Valheim d'Edia pour ce PC Windows
+================================================
+
+Valheim doit être installé par Steam et fermé. Double-cliquer sur Installer-Config.bat (depuis un dossier extrait, pas depuis l'intérieur du zip), puis répondre à la question sur VHVR (Entrée = oui).
+
+Ce que fait Installer-Config.bat :
+- installe Ovomium s'il manque (Installer-Ovomium.bat de la dernière version, téléchargé depuis https://github.com/Delocca/valheim-ovomium/releases/latest) ;
+- copie ovo.ovomium.cfg (options d'Ovomium) dans le dossier du jeu, BepInEx\config. La vue subjective d'Ovomium (FirstPerson) y est désactivée : elle gênerait la caméra VR ;
+- copie favorite et recent (serveurs favoris et récents) dans %USERPROFILE%\AppData\LocalLow\IronGate\Valheim\serverlist_local ;
+- importe valheim-prefs.reg dans le registre (HKEY_CURRENT_USER\Software\IronGate\Valheim) : touches, son, interface, accessibilité et langue. Les réglages graphiques et d'écran de ce PC ne sont pas touchés ;
+- installe le mod de réalité virtuelle VHVR 0.10.5 dans le dossier du jeu (sauf réponse « n », et rien à faire s'il est déjà là).
+On peut le relancer sans risque.
+
+Non copié : les mots de passe de serveurs et les liens de réveil Nodecraft d'Ovomium (chiffrés pour le PC Linux, illisibles ici). Retaper le mot de passe à la première connexion.
+Les personnages et les mondes n'ont pas besoin d'être copiés : Steam Cloud les synchronise.
+
+Revenir en arrière :
+- Chaque fichier remplacé a été gardé à côté avec l'extension .bak (ex. ovo.ovomium.cfg.bak) : supprimer le fichier et enlever .bak au nom de la sauvegarde. Le .bak garde toujours l'original d'avant le premier import.
+- Les anciens réglages du registre sont dans %USERPROFILE%\AppData\LocalLow\IronGate\Valheim\valheim-prefs-avant-import.reg : double-cliquer dessus pour les réimporter (les réglages ajoutés par l'import restent ; pour repartir de zéro, supprimer d'abord la clé HKEY_CURRENT_USER\Software\IronGate\Valheim dans regedit).

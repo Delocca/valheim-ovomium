@@ -1,0 +1,284 @@
+<# : batch portion
+@echo off
+rem Ce fichier est a la fois un .bat et un script PowerShell 5.1 (Windows 10/11). Lignes CRLF obligatoires.
+rem Genere par tools/make-pc-vr-installer.sh depuis installer/Installer-PC-VR.bat.in (ne pas modifier la copie generee).
+setlocal
+chcp 65001 >nul
+title Ovomium - preparation du PC VR
+set "OVOMIUM_SELF=%~f0"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& ([ScriptBlock]::Create((Get-Content -Raw -LiteralPath $env:OVOMIUM_SELF -Encoding UTF8)))"
+echo.
+pause
+exit /b
+#>
+
+# Prépare le PC VR Windows, sans droits administrateur ; relançable sans dégât :
+#  1. installe Syncthing pour l'utilisateur courant (Syncthing Windows Setup, démarrage à l'ouverture de session) ;
+#  2. le nomme « PC VR », ajoute le PC Linux d'Edia et crée les trois partages (mêmes ID que tools/pc-vr-link.sh) :
+#       ovomium-pc-vr          %USERPROFILE%\Ovomium-PC-VR          envoi et réception (config envoyée par Linux)
+#       ovomium-pc-vr-bepinex  <jeu>\BepInEx                        envoi seul, LogOutput.log uniquement
+#       ovomium-pc-vr-unity    ...\AppData\LocalLow\IronGate\Valheim envoi seul, Player.log et Player-prev.log
+#  3. attend la config d'Ovomium venue du PC Linux, puis lance Ovomium-PC-VR\config\Installer-Config.bat.
+$LINUX_ID = '@@LINUX_DEVICE_ID@@'   # posé par tools/make-pc-vr-installer.sh
+$LINUX_NAME = 'Linux Edia'
+$MY_NAME = 'PC VR'                  # nom attendu par tools/pc-vr-link.sh
+$SETUP_REPO = 'Bill-Stewart/SyncthingWindowsSetup'
+$VALHEIM_APPID = '892970'
+$WAIT_MINUTES = 30
+
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'   # la barre de progression de PowerShell 5.1 ralentit énormément le téléchargement
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
+$SyncthingDir = Join-Path $env:LOCALAPPDATA 'Programs\Syncthing'   # installation « utilisateur courant »
+$ConfigXml    = Join-Path $env:LOCALAPPDATA 'Syncthing\config.xml'
+$SharedDir    = Join-Path $env:USERPROFILE 'Ovomium-PC-VR'
+$UnityLogDir  = Join-Path $env:USERPROFILE 'AppData\LocalLow\IronGate\Valheim'
+$ConfigBat    = Join-Path $SharedDir 'config\Installer-Config.bat'
+# L'installation sans admin ne crée pas de règle de pare-feu : Windows la demande au premier démarrage de Syncthing.
+$FirewallHint = 'Si Windows demande d''autoriser Syncthing dans le pare-feu : coche « Réseaux privés » et clique Autoriser.'
+
+function Write-Step($text) { Write-Host ''; Write-Host "== $text" -ForegroundColor Cyan }
+function Write-Ok($text)   { Write-Host "   $text" -ForegroundColor Green }
+function Write-Info($text) { Write-Host "   $text" }
+function Write-Warn($text) { Write-Host "   $text" -ForegroundColor Yellow }
+
+# Dossier Valheim via le registre Steam et les bibliothèques (libraryfolders.vdf), comme Installer-Ovomium.bat.
+function Find-ValheimFromSteam {
+    $steam = (Get-ItemProperty -Path 'HKCU:\Software\Valve\Steam' -ErrorAction SilentlyContinue).SteamPath
+    if (-not $steam) { return $null }
+    $steam = $steam -replace '/', '\'
+    $libraries = @($steam)
+    $vdf = Join-Path $steam 'steamapps\libraryfolders.vdf'
+    if (Test-Path -LiteralPath $vdf) {
+        foreach ($m in [regex]::Matches((Get-Content -Raw -LiteralPath $vdf), '"path"\s+"([^"]+)"')) {
+            $libraries += ($m.Groups[1].Value -replace '\\\\', '\')
+        }
+    }
+    foreach ($lib in $libraries) {
+        try {   # une bibliothèque sur un disque débranché fait échouer Join-Path/Test-Path : on l'ignore
+            $acf = Join-Path $lib "steamapps\appmanifest_$VALHEIM_APPID.acf"
+            if (-not (Test-Path -LiteralPath $acf)) { continue }
+            $dir = 'Valheim'
+            $m = [regex]::Match((Get-Content -Raw -LiteralPath $acf), '"installdir"\s+"([^"]+)"')
+            if ($m.Success) { $dir = $m.Groups[1].Value }
+            $game = Join-Path $lib "steamapps\common\$dir"
+            if (Test-Path -LiteralPath (Join-Path $game 'valheim.exe')) { return $game }
+        } catch { continue }
+    }
+    return $null
+}
+
+# Vide = on saute le partage du journal BepInEx (il suffira de relancer ce fichier une fois Valheim installé).
+function Ask-ValheimFolder {
+    Write-Info "Dossier de Valheim introuvable via Steam."
+    Write-Info "Dans Steam : clic droit sur Valheim > Gérer > Parcourir les fichiers locaux, puis copie le chemin ici."
+    while ($true) {
+        $answer = (Read-Host '   Chemin du dossier de Valheim (vide pour passer)').Trim().Trim('"')
+        if (-not $answer) { return $null }
+        if (Test-Path -LiteralPath (Join-Path $answer 'valheim.exe')) { return $answer }
+        Write-Info "Pas de valheim.exe dans « $answer », réessaie."
+    }
+}
+
+# --- Syncthing : installation et démarrage ---
+
+function Install-Syncthing {
+    if (Test-Path -LiteralPath (Join-Path $SyncthingDir 'syncthing.exe')) { Write-Ok 'Déjà installé.'; return }
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$SETUP_REPO/releases/latest" `
+        -Headers @{ 'User-Agent' = 'Ovomium-Installer'; 'Accept' = 'application/vnd.github+json' }
+    $asset = @($release.assets | Where-Object { $_.name -like '*.exe' })[0]
+    if (-not $asset) { throw "La release $($release.tag_name) de Syncthing Windows Setup ne contient pas d'installateur .exe." }
+    $exe = Join-Path $env:TEMP $asset.name
+    Write-Info "Téléchargement de $($asset.name) ($($release.tag_name))…"
+    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $exe -UseBasicParsing -Headers @{ 'User-Agent' = 'Ovomium-Installer' }
+    Write-Info 'Installation (Syncthing lui-même est téléchargé par l''installateur)…'
+    Write-Warn $FirewallHint
+    # Utilisateur courant (défaut, sans admin), silencieux ; tâches cochées par défaut : démarrage à l'ouverture de
+    # session et juste après l'installation. /noconfigpage : pas de page web proposée à la fin.
+    $setup = Start-Process -FilePath $exe -Wait -PassThru `
+        -ArgumentList '/currentuser', '/silent', '/suppressmsgboxes', '/norestart', '/noconfigpage'
+    Remove-Item -LiteralPath $exe -Force -ErrorAction SilentlyContinue
+    if ($setup.ExitCode -ne 0) { throw "L'installateur de Syncthing a échoué (code $($setup.ExitCode))." }
+    if (-not (Test-Path -LiteralPath (Join-Path $SyncthingDir 'syncthing.exe'))) {
+        throw "Syncthing introuvable après installation dans $SyncthingDir."
+    }
+    Write-Ok 'Installé.'
+}
+
+# Lit adresse et clé de l'API dans config.xml (absent tant que Syncthing n'a jamais tourné).
+function Read-ApiConfig {
+    if (-not (Test-Path -LiteralPath $ConfigXml)) { return $false }
+    try { [xml]$xml = Get-Content -Raw -LiteralPath $ConfigXml -Encoding UTF8 } catch { return $false }
+    $gui = $xml.configuration.gui
+    if (-not $gui -or -not $gui.apikey) { return $false }
+    $scheme = 'http'
+    if ($gui.tls -eq 'true') {
+        $scheme = 'https'   # certificat auto-signé de Syncthing, en local
+        [Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
+    }
+    $script:ApiBase = "${scheme}://$($gui.address -replace '^0\.0\.0\.0', '127.0.0.1')"
+    $script:ApiKey = $gui.apikey
+    return $true
+}
+
+function Invoke-Api($method, $path, $body) {
+    $params = @{ Method = $method; Uri = "$script:ApiBase$path"; Headers = @{ 'X-API-Key' = $script:ApiKey } }
+    if ($null -ne $body) {   # octets UTF-8 : PowerShell 5.1 n'encode pas une chaîne en UTF-8 de lui-même
+        $params.Body = [Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $body -Depth 6 -Compress))
+        $params.ContentType = 'application/json'
+    }
+    Invoke-RestMethod @params
+}
+
+function Get-ApiOrNull($path) {
+    try { return Invoke-Api 'GET' $path $null }
+    catch {
+        if ($_.Exception.Response -and [int]$_.Exception.Response.StatusCode -eq 404) { return $null }
+        throw
+    }
+}
+
+function Test-Api {
+    if (-not (Read-ApiConfig)) { return $false }
+    try { Invoke-Api 'GET' '/rest/system/ping' $null | Out-Null; return $true } catch { return $false }
+}
+
+function Start-SyncthingIfNeeded {
+    if (Test-Api) { Write-Ok 'Syncthing tourne.'; return }
+    Write-Info 'Démarrage de Syncthing…'
+    Write-Warn $FirewallHint
+    & (Join-Path $SyncthingDir 'stctl.exe') --start -q | Out-Null   # -q : pas de message s'il tourne déjà
+    for ($i = 0; $i -lt 60; $i++) {
+        if (Test-Api) { Write-Ok 'Syncthing tourne.'; return }
+        Start-Sleep -Seconds 2
+    }
+    throw "Syncthing ne répond pas après 2 minutes ($ConfigXml)."
+}
+
+# --- Configuration par l'API ---
+
+function Set-DeviceSetup {
+    $script:MyId = (Invoke-Api 'GET' '/rest/system/status' $null).myID
+    # Nom envoyé au PC Linux à la connexion : doit être posé avant d'ajouter l'appareil Linux.
+    Invoke-Api 'PATCH' "/rest/config/devices/$script:MyId" @{ name = $MY_NAME } | Out-Null
+    Write-Ok "Ce PC s'appelle « $MY_NAME » ($script:MyId)."
+    if (Get-ApiOrNull "/rest/config/devices/$LINUX_ID") {
+        Write-Ok "PC Linux déjà ajouté."
+    } else {
+        Invoke-Api 'POST' '/rest/config/devices' @{ deviceID = $LINUX_ID; name = $LINUX_NAME; addresses = @('dynamic') } | Out-Null
+        Write-Ok "PC Linux ajouté ($LINUX_NAME)."
+    }
+}
+
+# Crée le partage (ou complète ses appareils s'il existe). $ignore : lignes du .stignore, posé avant la création
+# pour que le premier scan le respecte.
+function Set-SharedFolder($id, $label, $path, $type, $ignore, $watchDelayS, $rescanS) {
+    New-Item -ItemType Directory -Force -Path $path | Out-Null
+    if ($ignore) {
+        $text = (@('// Posé par Installer-PC-VR.bat : seuls les fichiers en ! sont envoyés au PC Linux.') + $ignore) -join "`n"
+        [IO.File]::WriteAllText((Join-Path $path '.stignore'), "$text`n", (New-Object Text.UTF8Encoding $false))
+    }
+    $existing = Get-ApiOrNull "/rest/config/folders/$id"
+    if (-not $existing) {
+        Invoke-Api 'POST' '/rest/config/folders' @{
+            id = $id; label = $label; path = $path; type = $type
+            devices = @(@{ deviceID = $script:MyId }, @{ deviceID = $LINUX_ID })
+            fsWatcherEnabled = $true; fsWatcherDelayS = $watchDelayS; rescanIntervalS = $rescanS
+        } | Out-Null
+        Write-Ok "$label : créé ($path)."
+        return
+    }
+    if ($existing.path.TrimEnd('\') -ne $path.TrimEnd('\')) {
+        Write-Warn "$label : existe déjà sur un autre dossier ($($existing.path)), laissé tel quel."
+    }
+    if (@($existing.devices | Where-Object { $_.deviceID -eq $LINUX_ID }).Count -eq 0) {
+        $devices = @($existing.devices) + @([pscustomobject]@{ deviceID = $LINUX_ID })
+        Invoke-Api 'PATCH' "/rest/config/folders/$id" @{ devices = $devices } | Out-Null
+        Write-Ok "$label : partagé avec le PC Linux."
+    } else {
+        Write-Ok "$label : déjà en place."
+    }
+}
+
+# --- Attente de la config venue du PC Linux ---
+
+function Wait-ConfigFromLinux {
+    $deadline = (Get-Date).AddMinutes($WAIT_MINUTES)
+    $nextMessage = Get-Date
+    while ($true) {
+        $connection = (Invoke-Api 'GET' '/rest/system/connections' $null).connections.$LINUX_ID
+        $status = Invoke-Api 'GET' '/rest/db/status?folder=ovomium-pc-vr' $null
+        $synced = $status.state -eq 'idle' -and $status.needTotalItems -eq 0
+        if ((Test-Path -LiteralPath $ConfigBat) -and $synced) { Write-Ok 'Config reçue.'; return }
+        $left = [math]::Ceiling(($deadline - (Get-Date)).TotalMinutes)
+        if ($left -le 0) {
+            throw "Rien reçu du PC Linux en $WAIT_MINUTES minutes. Vérifie que tools/pc-vr-link.sh a tourné sur Linux (et que les deux PC sont allumés), puis relance ce fichier."
+        }
+        if ((Get-Date) -ge $nextMessage) {
+            if ($connection -and $connection.connected) {
+                Write-Info "Connecté au PC Linux, synchronisation en cours… ($left min restantes)"
+            } else {
+                Write-Info "En attente de la synchronisation avec le PC Linux… (lance tools/pc-vr-link.sh sur Linux ; $left min restantes)"
+            }
+            $nextMessage = (Get-Date).AddSeconds(30)
+        }
+        Start-Sleep -Seconds 3
+    }
+}
+
+try {
+    Write-Host 'Ovomium - préparation du PC VR (Syncthing + config)' -ForegroundColor Yellow
+
+    Write-Step 'Syncthing'
+    Install-Syncthing
+    Start-SyncthingIfNeeded
+
+    Write-Step 'Appareils'
+    Set-DeviceSetup
+
+    Write-Step 'Recherche du dossier de Valheim'
+    $game = Find-ValheimFromSteam
+    if (-not $game) { $game = Ask-ValheimFolder }
+    if ($game) { Write-Ok $game } else { Write-Warn 'Pas de dossier Valheim : journal BepInEx non partagé pour cette fois.' }
+
+    Write-Step 'Partages'
+    Set-SharedFolder 'ovomium-pc-vr' 'Ovomium PC VR' $SharedDir 'sendreceive' $null 10 3600
+    if ($game) {
+        # Créé s'il manque : Installer-Config.bat installe BepInEx dans ce même dossier ensuite (il teste BepInEx.dll).
+        Set-SharedFolder 'ovomium-pc-vr-bepinex' 'PC VR - journal BepInEx' (Join-Path $game 'BepInEx') 'sendonly' `
+            @('!/LogOutput.log', '*') 5 60
+    }
+    Set-SharedFolder 'ovomium-pc-vr-unity' 'PC VR - journal Unity' $UnityLogDir 'sendonly' `
+        @('!/Player.log', '!/Player-prev.log', '*') 5 60
+
+    Write-Step 'Config d''Ovomium venue du PC Linux'
+    Wait-ConfigFromLinux
+
+    # Partie PowerShell seule, dans cette console : lancé comme .bat, il changerait le titre et ferait sa propre pause.
+    Write-Step 'Lancement de Installer-Config.bat'
+    $self = $env:OVOMIUM_SELF
+    $env:OVOMIUM_SELF = $ConfigBat
+    try {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command '& ([ScriptBlock]::Create((Get-Content -Raw -LiteralPath $env:OVOMIUM_SELF -Encoding UTF8)))'
+    } finally {
+        $env:OVOMIUM_SELF = $self
+    }
+    # Installer-Config.bat affiche ses erreurs sans code de sortie : on juge sur son résultat.
+    if ($game -and -not (Test-Path -LiteralPath (Join-Path $game 'BepInEx\config\ovo.ovomium.cfg'))) {
+        throw 'Import de la config incomplet (voir le message ci-dessus). Relance ce fichier une fois le problème réglé.'
+    }
+    Write-Ok 'Installer-Config.bat terminé.'
+
+    Write-Host ''
+    Write-Host 'PC VR prêt.' -ForegroundColor Green
+    Write-Host "Syncthing démarre tout seul à l'ouverture de session ; les journaux du jeu partent vers le PC Linux."
+    Write-Host "Config envoyée par Edia : $SharedDir\config (relance ce fichier ou Installer-Config.bat pour l'appliquer)."
+    if (-not $game) { Write-Warn 'Journal BepInEx non partagé : relance ce fichier une fois Valheim installé.' }
+}
+catch {
+    Write-Host ''
+    Write-Host "Erreur : $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host 'Relance ce fichier : il reprend là où il s''est arrêté. Sinon, envoie ce message à Edia.'
+}
