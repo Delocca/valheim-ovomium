@@ -15,7 +15,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             new Tab { Title = "Cuisine", Sections = new[] { "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav" } },
             new Tab { Title = "Interface", Sections = new[] { "StackDrag", "HotbarSlots", "ChestFill", "QuickStash", "ManualChest", "MinimapSize", "MapZoomToCursor", "MapExplore", "TooltipStyle", "SkillTooltip", "MenuDoubleClick", "PasswordReveal", "ServerWake" } },
-            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "EitrRadiation", "CraftFromChests", "PickupFilter", "UtilitySlots", "ItemFlight", "UpgradeDiff", "AmbientOcclusion", "FirstPerson", "StartupSkip", "LoadingArt", "Updater", "AutoJoin" } },
+            new Tab { Title = "Jeu", Sections = new[] { "FastPortal", "PortalRange", "ButcherKnife", "EitrRadiation", "CraftFromChests", "PickupFilter", "UtilitySlots", "ItemFlight", "UpgradeDiff", "AmbientOcclusion", "SmoothShading", "FirstPerson", "StartupSkip", "LoadingArt", "Updater", "AutoJoin" } },
         };
 
         private static readonly Dictionary<string, string> s_sectionLabels = new Dictionary<string, string>
@@ -42,6 +42,7 @@ namespace Ovomium.Features.SettingsMenu
             { "ItemFlight", "Ingrédients qui volent" },
             { "UpgradeDiff", "Diff de stats à l'amélioration" },
             { "AmbientOcclusion", "Occlusion ambiante" },
+            { "SmoothShading", "Ombrage lisse" },
             { "MenuDoubleClick", "Double-clic dans les menus" },
             { "PasswordReveal", "Mot de passe serveur" },
             { "ServerWake", "Réveil des serveurs Nodecraft" },

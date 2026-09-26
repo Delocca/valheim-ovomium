@@ -1,0 +1,11 @@
+# Générés par l'éditeur Unity (tools/build-shaders.sh). À versionner : Assets/ (avec les .meta), Packages/,
+# ProjectSettings/.
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/MemoryCaptures/
+*.csproj
+*.sln

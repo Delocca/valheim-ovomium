@@ -51,6 +51,11 @@
       <HintPath>$(ValheimManaged)/UnityEngine.AudioModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- AssetBundle (SmoothShading : shader embarqué) -->
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>$(ValheimManaged)/UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <!-- Texture2D.LoadImage (LoadingArt) ; ce module cible netstandard 2.1, absent des assemblies de référence
          net48 : on prend la façade netstandard.dll du jeu -->
     <Reference Include="UnityEngine.ImageConversionModule">
@@ -91,6 +96,12 @@
       <HintPath>$(ValheimManaged)/System.IO.Compression.FileSystem.dll</HintPath>
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <!-- Shader de SmoothShading, produit par tools/build-shaders.sh (versionné) ; absent, la feature reste inactive -->
+  <ItemGroup>
+    <EmbeddedResource Include="Features/SmoothShading/smoothshading.bundle" LogicalName="Ovomium.SmoothShading.bundle"
+      Condition="Exists('Features/SmoothShading/smoothshading.bundle')" />
   </ItemGroup>
 
   <!-- Seule source de vérité de la version : <Version> ci-dessus, exposée au code via PluginVersion.Value -->

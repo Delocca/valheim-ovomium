@@ -34,6 +34,7 @@ using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.ServerWake;
 using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
+using Ovomium.Features.SmoothShading;
 using Ovomium.Features.ItemFlight;
 using Ovomium.Features.StackDrag;
 using Ovomium.Features.TooltipStyle;
@@ -85,6 +86,7 @@ namespace Ovomium
             ItemFlightPatch.Install();
             ManualChestButton.Install();
             UtilitySlotsPatch.Install();
+            DeferredShaderSwap.Install();
             Log.LogInfo($"{Name} {Version} chargé");
             UpdaterPatch.AfterLoad();
         }
@@ -110,6 +112,7 @@ namespace Ovomium
             FocusClickConfig.Bind(config);
             MapExploreConfig.Bind(config);
             AmbientOcclusionConfig.Bind(config);
+            SmoothShadingConfig.Bind(config);
             HotbarSlotsConfig.Bind(config);
             ChestFillConfig.Bind(config);
             QuickStashConfig.Bind(config);
@@ -154,6 +157,7 @@ namespace Ovomium
             ManualChestButton.Unload();
             PickupFilterBadge.Unload();
             GraphicsPreview.Unload();
+            DeferredShaderSwap.Unload();
             s_harmony?.UnpatchSelf();
             s_harmony = null;
             Log.LogInfo($"{Name} {Version} déchargé");

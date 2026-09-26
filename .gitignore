@@ -1,6 +1,7 @@
 bin/
 obj/
 build/
+__pycache__/
 # Artworks Iron Gate (256 Mo) : source de BepInEx/plugins/Ovomium/loading/ (deploy.sh), pas versionnée
 valheim_art/
 .claude/settings.local.json
