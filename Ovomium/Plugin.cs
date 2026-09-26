@@ -39,6 +39,7 @@ using Ovomium.Features.StackDrag;
 using Ovomium.Features.TooltipStyle;
 using Ovomium.Features.Updater;
 using Ovomium.Features.UpgradeDiff;
+using Ovomium.Features.UtilitySlots;
 using UnityEngine;
 
 namespace Ovomium
@@ -83,6 +84,7 @@ namespace Ovomium
             DarkPrepTablePatch.Install();
             ItemFlightPatch.Install();
             ManualChestButton.Install();
+            UtilitySlotsPatch.Install();
             Log.LogInfo($"{Name} {Version} chargé");
             UpdaterPatch.AfterLoad();
         }
@@ -119,6 +121,7 @@ namespace Ovomium
             UpgradeDiffConfig.Bind(config);
             CraftFromChestsConfig.Bind(config);
             PickupFilterConfig.Bind(config);
+            UtilitySlotsConfig.Bind(config);
             ItemFlightConfig.Bind(config);
             SkillTooltipConfig.Bind(config);
             TooltipStyleConfig.Bind(config);
