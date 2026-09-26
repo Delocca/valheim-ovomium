@@ -1,3 +1,5 @@
+using BepInEx.Configuration;
+
 namespace Ovomium.Features.SettingsMenu
 {
     /// <summary>
@@ -14,14 +16,28 @@ namespace Ovomium.Features.SettingsMenu
         /// (<see cref="SliderPeek"/>). Faux pour les durées, portées, densités… dont rien n'est visible sur-le-champ.
         /// </summary>
         public bool LivePreview { get; }
+        /// <summary>Réglage fin rarement utile : rangé sous « Réglages avancés », replié à l'ouverture de la fenêtre.</summary>
+        public bool Advanced { get; }
 
-        public SettingLabel(string label, bool restartRequired = false, bool livePreview = false)
+        public SettingLabel(string label, bool restartRequired = false, bool livePreview = false, bool advanced = false)
         {
             Label = label;
             RestartRequired = restartRequired;
             LivePreview = livePreview;
+            Advanced = advanced;
         }
 
-        public string Display => RestartRequired ? Label + " (au redémarrage)" : Label;
+        public const string RestartSuffix = "(au redémarrage)";
+
+        public string Display => RestartRequired ? Label + " " + RestartSuffix : Label;
+
+        /// <summary>Le tag d'une option, null si elle n'en a pas (absente de la fenêtre).</summary>
+        public static SettingLabel Of(ConfigEntryBase entry)
+        {
+            foreach (var tag in entry.Description.Tags)
+                if (tag is SettingLabel label)
+                    return label;
+            return null;
+        }
     }
 }

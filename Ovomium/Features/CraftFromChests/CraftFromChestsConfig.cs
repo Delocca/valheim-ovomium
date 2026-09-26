@@ -27,8 +27,7 @@ namespace Ovomium.Features.CraftFromChests
                     + "Ctrl + clic (bouton Fabriquer, pose d'une pièce) ou Ctrl + E (recharge d'un feu) fait l'ordre inverse.",
                     null, new SettingLabel("Coffres avant l'inventaire")));
             LogPulls = config.Bind("CraftFromChests", "LogPulls", false,
-                new ConfigDescription("Écrit dans le journal chaque retrait d'un coffre : objet, quantité, coffre, distance.",
-                    null, new SettingLabel("Journaliser les retraits")));
+                "Écrit dans le journal chaque retrait d'un coffre : objet, quantité, coffre, distance. Fichier cfg seulement.");
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Ovomium.Features.FirstPerson
             NearClip = config.Bind("FirstPerson", "NearClip", 0.05f,
                 new ConfigDescription("Distance (m) en deçà de laquelle la caméra ne dessine rien, en vue subjective. "
                     + "Plus bas = moins de trous dans les murs collés au visage, mais moins de précision de profondeur au loin.",
-                    new AcceptableValueRange<float>(0.01f, 0.3f), new SettingLabel("Distance de coupe (m)", livePreview: true)));
+                    new AcceptableValueRange<float>(0.01f, 0.3f), new SettingLabel("Distance de coupe (m)", livePreview: true, advanced: true)));
             ForwardOffset = config.Bind("FirstPerson", "ForwardOffset", 0.1f,
                 new ConfigDescription("Distance (m) de la caméra devant le point œil du personnage. Le prefab vanilla met 0,5, "
                     + "ce qui fait tourner la caméra en arc quand on tourne la tête.",

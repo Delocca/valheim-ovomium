@@ -73,6 +73,7 @@ namespace Ovomium
             RequestReload = requestReload;
             ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, Guid + ".cfg"), true, new BepInPlugin(Guid, Name, Version));
             BindAll(ConfigFile);
+            SettingsMenuLayout.WarnOrphans(ConfigFile);
             // Identifiant propre à cette assembly (nom unique par chargement) : l'UnpatchSelf d'une version ne
             // retire jamais les patches d'une autre.
             s_harmony = new Harmony(typeof(Plugin).Assembly.GetName().Name);

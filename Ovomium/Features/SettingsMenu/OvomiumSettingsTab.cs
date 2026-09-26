@@ -8,11 +8,12 @@ namespace Ovomium.Features.SettingsMenu
 {
     /// <summary>
     /// Une page de la fenêtre Ovomium (composant <c>ISettingsTab</c> attendu par <c>Settings</c> sur chaque page) :
-    /// liste défilante d'en-têtes de section et de lignes générées depuis les options taguées <see cref="SettingLabel"/>.
+    /// liste défilante de sections (<see cref="SettingSection"/>) générées depuis les options taguées <see cref="SettingLabel"/>.
     /// </summary>
     internal sealed class OvomiumSettingsTab : MonoBehaviour, ISettingsTab
     {
         private readonly List<SettingRow> m_rows = new List<SettingRow>();
+        private readonly List<SettingSection> m_sections = new List<SettingSection>();
 
 #pragma warning disable CS0067 // exigé par l'interface, jamais levé ici
         public event System.Action<string, int> SharedSettingChanged;
@@ -116,41 +117,24 @@ namespace Ovomium.Features.SettingsMenu
         {
             foreach (var section in layout.Sections)
             {
-                SettingRows.CreateHeader(content, templates.LabelSample, SettingsMenuLayout.SectionLabel(section));
-                foreach (var entry in EntriesOf(config, section))
-                {
-                    var row = SettingRows.Create(entry, LabelOf(entry), templates, content);
-                    if (row != null)
-                        m_rows.Add(row);
-                }
+                var built = SettingSection.Build(section, config, templates, content, m_rows);
+                if (built != null)
+                    m_sections.Add(built);
             }
-        }
-
-        /// <summary>Options taguées d'une section, dans l'ordre de déclaration (ordre de Bind).</summary>
-        private static IEnumerable<ConfigEntryBase> EntriesOf(ConfigFile config, string section)
-        {
-            foreach (var pair in config)
-                if (pair.Key.Section == section && LabelOf(pair.Value) != null)
-                    yield return pair.Value;
-        }
-
-        private static SettingLabel LabelOf(ConfigEntryBase entry)
-        {
-            foreach (var tag in entry.Description.Tags)
-                if (tag is SettingLabel label)
-                    return label;
-            return null;
         }
 
         /// <summary>
         /// Les lignes appliquent chaque changement aussitôt (aperçu en direct) ; l'écriture du fichier cfg est
         /// suspendue jusqu'au OK pour ne pas écrire à chaque cran de curseur. Retour remet les valeurs d'ouverture.
+        /// Grisage recalculé ensuite : une case déjà dans le bon état ne lève pas de changement.
         /// </summary>
         public void Initialize()
         {
             Plugin.ConfigFile.SaveOnConfigSet = false;
             foreach (var row in m_rows)
                 row.Load();
+            foreach (var section in m_sections)
+                section.Refresh();
         }
 
         // Membres à implémentation par défaut dans ISettingsTab : redéclarés, le compilateur net48 refuse d'en hériter.

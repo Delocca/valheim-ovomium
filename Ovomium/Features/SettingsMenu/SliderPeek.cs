@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Ovomium.Features.SettingsMenu
 {
@@ -12,7 +13,13 @@ namespace Ovomium.Features.SettingsMenu
     {
         private const float PeekAlpha = 0.1f;
 
-        public void OnPointerDown(PointerEventData eventData) => SetAlpha(PeekAlpha);
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            // Curseur d'une section désactivée (CanvasGroup non interactif) : il ne bouge pas, rien à montrer.
+            var slider = GetComponent<Selectable>();
+            if (slider == null || slider.IsInteractable())
+                SetAlpha(PeekAlpha);
+        }
         public void OnPointerUp(PointerEventData eventData) => SetAlpha(1f);
         private void OnDisable() => SetAlpha(1f);
 

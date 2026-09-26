@@ -25,11 +25,11 @@ namespace Ovomium.Features.MinimapSize
                     new AcceptableValueRange<float>(MinScale, MaxScale), new SettingLabel("Échelle", livePreview: true)));
             Step = config.Bind("MinimapSize", "Step", 0.1f,
                 new ConfigDescription("Variation du facteur d'échelle à chaque pas (appui, ou répétition en maintenant la touche).",
-                    new AcceptableValueRange<float>(0.05f, 0.5f), new SettingLabel("Pas d'échelle")));
+                    new AcceptableValueRange<float>(0.05f, 0.5f), new SettingLabel("Pas d'échelle", advanced: true)));
             MinZoom = config.Bind("MinimapSize", "MinZoom", 0.0025f,
                 new ConfigDescription("Zoom avant maximal de la minicarte (fraction de la carte affichée, à l'échelle 1). "
                     + "Vanilla : 0.01, qui est aussi le zoom de départ ; chaque pas de zoom divise par 2 (0.0025 = 2 pas de plus).",
-                    new AcceptableValueRange<float>(0.001f, 0.01f), new SettingLabel("Zoom avant maximal")));
+                    new AcceptableValueRange<float>(0.001f, 0.01f), new SettingLabel("Zoom avant maximal", advanced: true)));
         }
     }
 }

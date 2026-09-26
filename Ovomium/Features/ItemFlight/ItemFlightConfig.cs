@@ -38,22 +38,22 @@ namespace Ovomium.Features.ItemFlight
             MaxPerType = config.Bind("ItemFlight", "MaxPerType", 10,
                 new ConfigDescription("Nombre maximal d'exemplaires animés pour un même ingrédient : ils s'envolent en file "
                     + "sur la même trajectoire, et un seul porte la traînée.",
-                    new AcceptableValueRange<int>(1, 20), new SettingLabel("Exemplaires par ingrédient")));
+                    new AcceptableValueRange<int>(1, 20), new SettingLabel("Exemplaires par ingrédient", advanced: true)));
             TrailLinger = config.Bind("ItemFlight", "TrailLinger", 10f,
                 new ConfigDescription("Durée de vie, en secondes, de chaque particule de la traînée (elle s'efface derrière l'objet à ce rythme).",
-                    new AcceptableValueRange<float>(1f, 30f), new SettingLabel("Persistance de la traînée (s)")));
+                    new AcceptableValueRange<float>(1f, 30f), new SettingLabel("Persistance de la traînée (s)", advanced: true)));
             TrailDensity = config.Bind("ItemFlight", "TrailDensity", 23f,
                 new ConfigDescription("Particules de traînée émises par mètre parcouru.",
-                    new AcceptableValueRange<float>(1f, 60f), new SettingLabel("Densité de la traînée (par m)")));
+                    new AcceptableValueRange<float>(1f, 60f), new SettingLabel("Densité de la traînée (par m)", advanced: true)));
             TrailSize = config.Bind("ItemFlight", "TrailSize", 0.22f,
                 new ConfigDescription("Taille des particules de traînée, en proportion de leur taille d'origine dans le projectile.",
-                    new AcceptableValueRange<float>(0.05f, 2f), new SettingLabel("Taille des particules")));
+                    new AcceptableValueRange<float>(0.05f, 2f), new SettingLabel("Taille des particules", advanced: true)));
             TrailSpread = config.Bind("ItemFlight", "TrailSpread", 0.04f,
                 new ConfigDescription("Rayon, en mètres, autour de la ligne de vol dans lequel les particules apparaissent.",
-                    new AcceptableValueRange<float>(0f, 0.5f), new SettingLabel("Dispersion des particules (m)")));
+                    new AcceptableValueRange<float>(0f, 0.5f), new SettingLabel("Dispersion des particules (m)", advanced: true)));
             MaxInFlight = config.Bind("ItemFlight", "MaxInFlight", 60,
                 new ConfigDescription("Nombre maximal d'objets en vol en même temps (les suivants ne sont pas animés).",
-                    new AcceptableValueRange<int>(1, 200), new SettingLabel("Objets en vol au maximum")));
+                    new AcceptableValueRange<int>(1, 200), new SettingLabel("Objets en vol au maximum", advanced: true)));
             TrailItem = config.Bind("ItemFlight", "TrailItem", "ArrowFire",
                 "Nom du prefab de flèche ou carreau dont la traînée de projectile est réutilisée "
                 + "(ArrowFire, ArrowFrost, ArrowPoison, ArrowSilver, BoltIron, etc.). Fichier cfg seulement.");
