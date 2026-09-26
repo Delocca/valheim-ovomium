@@ -16,6 +16,7 @@ using Ovomium.Features.FocusClick;
 using Ovomium.Features.FoodMarker;
 using Ovomium.Features.FoodRecipeSort;
 using Ovomium.Features.GraphicsPreview;
+using Ovomium.Features.Grappling;
 using Ovomium.Features.HotbarSlots;
 using Ovomium.Features.ChestFill;
 using Ovomium.Features.LoadingArt;
@@ -99,6 +100,7 @@ namespace Ovomium
             PasswordRevealConfig.Bind(config);
             ServerWakeConfig.Bind(config);
             FirstPersonConfig.Bind(config);
+            GrapplingConfig.Bind(config);
             StartupSkipConfig.Bind(config);
             LoadingArtConfig.Bind(config);
             AutoJoinConfig.Bind(config);
