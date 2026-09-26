@@ -2,12 +2,12 @@
 # Relie ce PC Linux au PC VR Windows par Syncthing, sans passer par l'interface web :
 #  1. génère build/Installer-PC-VR.bat (tools/make-pc-vr-installer.sh), le fichier à lancer sur le PC VR ;
 #  2. crée les trois partages (mêmes ID que dans installer/Installer-PC-VR.bat.in) :
-#       ovomium-pc-vr          build/pc-vr/                envoi et réception (config poussée vers le PC VR)
+#       ovomium-pc-vr          build/pc-vr/                envoi seul (config poussée vers le PC VR, qui ne peut rien y écrire)
 #       ovomium-pc-vr-bepinex  build/pc-vr-logs/bepinex/   réception seule (LogOutput.log du PC VR)
 #       ovomium-pc-vr-unity    build/pc-vr-logs/unity/     réception seule (Player.log, Player-prev.log)
 #  3. copie build/windows-config/ (tools/export-windows-config.sh) dans build/pc-vr/config/ ;
 #  4. attend (30 min max) que le PC VR se présente, l'accepte et lui partage les trois dossiers.
-# Idempotent : relançable sans dégât (après un nouvel export de config, par exemple).
+# Idempotent : relançable sans dégât (après un nouvel export de config, par exemple) ; corrige le type d'un partage existant.
 # À lancer hors bac à sable (API Syncthing locale). Usage : tools/pc-vr-link.sh    Journal : /tmp/pc-vr-link.log
 set -euo pipefail
 exec > >(tee /tmp/pc-vr-link.log) 2>&1
@@ -18,7 +18,7 @@ REMOTE_NAME="PC VR"
 WAIT_S=1800
 # id|type|dossier|libellé
 FOLDERS=(
-    "ovomium-pc-vr|sendreceive|$PROJECT/build/pc-vr|Ovomium PC VR"
+    "ovomium-pc-vr|sendonly|$PROJECT/build/pc-vr|Ovomium PC VR"
     "ovomium-pc-vr-bepinex|receiveonly|$PROJECT/build/pc-vr-logs/bepinex|PC VR - journal BepInEx"
     "ovomium-pc-vr-unity|receiveonly|$PROJECT/build/pc-vr-logs/unity|PC VR - journal Unity"
 )
@@ -56,6 +56,10 @@ if ! "${CURL[@]}" -o /dev/null "$BASE/rest/system/ping" 2>/dev/null; then
 fi
 MY_ID="$(api GET /rest/system/status | py 'print(json.load(sys.stdin)["myID"])')"
 echo "   OK ($BASE), cet appareil : $MY_ID"
+# Les deux PC sont sur le même réseau local : ni annonce publique, ni relais, ni port ouvert sur la box (UPnP).
+api PATCH /rest/config/options \
+    '{"globalAnnounceEnabled": false, "relaysEnabled": false, "natEnabled": false, "localAnnounceEnabled": true}' >/dev/null
+echo "   Réseau local seulement : découverte globale, relais et UPnP coupés"
 
 step "Installateur du PC VR"
 "$PROJECT/tools/make-pc-vr-installer.sh"
@@ -67,10 +71,14 @@ for spec in "${FOLDERS[@]}"; do
     current="$(api GET /rest/config/folders/"$id" 2>/dev/null)" || current=""
     if [ -n "$current" ]; then
         known_path="$(py 'print(json.load(sys.stdin)["path"])' <<<"$current")"
-        if [ "${known_path%/}" = "$path" ]; then
-            echo "   $id : déjà présent"
-        else
+        known_type="$(py 'print(json.load(sys.stdin)["type"])' <<<"$current")"
+        if [ "${known_path%/}" != "$path" ]; then
             echo "   ATTENTION : $id existe déjà sur un autre dossier ($known_path), laissé tel quel."
+        elif [ "$known_type" != "$type" ]; then
+            api PATCH /rest/config/folders/"$id" "{\"type\": \"$type\"}" >/dev/null
+            echo "   $id : type corrigé ($known_type → $type)"
+        else
+            echo "   $id : déjà présent"
         fi
         continue
     fi

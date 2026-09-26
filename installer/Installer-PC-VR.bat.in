@@ -15,7 +15,7 @@ exit /b
 # Prépare le PC VR Windows, sans droits administrateur ; relançable sans dégât :
 #  1. installe Syncthing pour l'utilisateur courant (Syncthing Windows Setup, démarrage à l'ouverture de session) ;
 #  2. le nomme « PC VR », ajoute le PC Linux d'Edia et crée les trois partages (mêmes ID que tools/pc-vr-link.sh) :
-#       ovomium-pc-vr          %USERPROFILE%\Ovomium-PC-VR          envoi et réception (config envoyée par Linux)
+#       ovomium-pc-vr          %USERPROFILE%\Ovomium-PC-VR          réception seule (config envoyée par Linux)
 #       ovomium-pc-vr-bepinex  <jeu>\BepInEx                        envoi seul, LogOutput.log uniquement
 #       ovomium-pc-vr-unity    ...\AppData\LocalLow\IronGate\Valheim envoi seul, Player.log et Player-prev.log
 #  3. attend la config d'Ovomium venue du PC Linux, puis lance Ovomium-PC-VR\config\Installer-Config.bat.
@@ -164,6 +164,11 @@ function Set-DeviceSetup {
     # Nom envoyé au PC Linux à la connexion : doit être posé avant d'ajouter l'appareil Linux.
     Invoke-Api 'PATCH' "/rest/config/devices/$script:MyId" @{ name = $MY_NAME } | Out-Null
     Write-Ok "Ce PC s'appelle « $MY_NAME » ($script:MyId)."
+    # Les deux PC sont sur le même réseau local : ni annonce publique, ni relais, ni port ouvert sur la box (UPnP).
+    Invoke-Api 'PATCH' '/rest/config/options' @{
+        globalAnnounceEnabled = $false; relaysEnabled = $false; natEnabled = $false; localAnnounceEnabled = $true
+    } | Out-Null
+    Write-Ok 'Réseau local seulement : découverte globale, relais et UPnP coupés.'
     if (Get-ApiOrNull "/rest/config/devices/$LINUX_ID") {
         Write-Ok "PC Linux déjà ajouté."
     } else {
@@ -172,7 +177,7 @@ function Set-DeviceSetup {
     }
 }
 
-# Crée le partage (ou complète ses appareils s'il existe). $ignore : lignes du .stignore, posé avant la création
+# Crée le partage (ou corrige son type et complète ses appareils s'il existe). $ignore : lignes du .stignore, posé avant la création
 # pour que le premier scan le respecte.
 function Set-SharedFolder($id, $label, $path, $type, $ignore, $watchDelayS, $rescanS) {
     New-Item -ItemType Directory -Force -Path $path | Out-Null
@@ -192,6 +197,10 @@ function Set-SharedFolder($id, $label, $path, $type, $ignore, $watchDelayS, $res
     }
     if ($existing.path.TrimEnd('\') -ne $path.TrimEnd('\')) {
         Write-Warn "$label : existe déjà sur un autre dossier ($($existing.path)), laissé tel quel."
+    }
+    if ($existing.type -ne $type) {
+        Invoke-Api 'PATCH' "/rest/config/folders/$id" @{ type = $type } | Out-Null
+        Write-Ok "$label : type corrigé ($($existing.type) -> $type)."
     }
     if (@($existing.devices | Where-Object { $_.deviceID -eq $LINUX_ID }).Count -eq 0) {
         $devices = @($existing.devices) + @([pscustomobject]@{ deviceID = $LINUX_ID })
@@ -244,7 +253,7 @@ try {
     if ($game) { Write-Ok $game } else { Write-Warn 'Pas de dossier Valheim : journal BepInEx non partagé pour cette fois.' }
 
     Write-Step 'Partages'
-    Set-SharedFolder 'ovomium-pc-vr' 'Ovomium PC VR' $SharedDir 'sendreceive' $null 10 3600
+    Set-SharedFolder 'ovomium-pc-vr' 'Ovomium PC VR' $SharedDir 'receiveonly' $null 10 3600
     if ($game) {
         # Créé s'il manque : Installer-Config.bat installe BepInEx dans ce même dossier ensuite (il teste BepInEx.dll).
         Set-SharedFolder 'ovomium-pc-vr-bepinex' 'PC VR - journal BepInEx' (Join-Path $game 'BepInEx') 'sendonly' `
