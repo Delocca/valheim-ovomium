@@ -5,7 +5,7 @@ namespace Ovomium.Features.Updater
 {
     /// <summary>
     /// Notes de release (markdown de CHANGELOG.md) vers le rich text TextMeshPro de la fenêtre. Une entrée
-    /// <c>- **Titre** : phrase (Feature).</c> devient son titre en gras orange puis la phrase en retrait, plus petite et
+    /// <c>- **Titre** : phrase (Feature).</c> devient son titre en gras vert pâle puis la phrase en retrait, plus petite et
     /// grise (nom de feature plus pâle), un demi-interligne entre deux entrées ; les autres lignes gardent gras et puces.
     /// Sous-titre de version <c>## x.y.z</c> (changelog cumulé, <see cref="ReleaseNotes"/>) en « Version x.y.z » plus
     /// grand ; autres titres retirés, lignes vides compactées. Pas de troncature : le corps défile
@@ -13,7 +13,7 @@ namespace Ovomium.Features.Updater
     /// </summary>
     internal static class ChangelogFormatter
     {
-        private const string TitleColor = "orange";  // couleur des mises en avant du jeu dans ses propres textes
+        internal const string TitleColor = "#A5D6A7";  // vert pâle
         private const string DetailColor = "#BEBEBE";
         private const string FeatureColor = "#8C8C8C";
         private const string EntryGap = "<size=40%>\n</size>";  // ligne vide réduite : le saut de ligne porte la taille
