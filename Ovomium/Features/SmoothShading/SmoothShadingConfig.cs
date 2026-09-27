@@ -10,7 +10,7 @@ namespace Ovomium.Features.SmoothShading
 
         public static void Bind(ConfigFile config)
         {
-            Enabled = config.Bind("SmoothShading", "Enabled", true,
+            Enabled = config.Bind("SmoothShading", "Enabled", false,
                 new ConfigDescription("Éclairage au rendu du jeu, sans les bandes de couleur que crée son ombrage en paliers "
                     + "sur le décor, les constructions et les personnages.",
                     null, new SettingLabel("Activé")));

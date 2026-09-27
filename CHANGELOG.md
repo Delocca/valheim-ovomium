@@ -5,7 +5,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 ## Non publié
 
 - **Trois objets utilitaires à la fois** : Megingjord, Bréchet et Lumière de feu-follet se portent ensemble et leurs effets s'additionnent ; équiper l'un ne retire plus les autres (UtilitySlots).
-- **Éclairage sans bandes de couleur** : la lumière sur le décor, les constructions et les personnages passe en dégradé continu au lieu de marches de couleur, l'ambiance du jeu reste la même ; se désactive dans la fenêtre Ovomium, effet immédiat (SmoothShading).
+- **Éclairage sans bandes de couleur** : la lumière sur le décor, les constructions et les personnages passe en dégradé continu au lieu de marches de couleur, l'ambiance du jeu reste la même ; désactivé par défaut (pas encore essayé sous Windows), case « Ombrage lisse » de l'onglet Affichage de la fenêtre Ovomium, effet immédiat : si l'image devient noire ou rose, décochez-le (SmoothShading).
 - **Fenêtre Ovomium réorganisée** : cinq onglets (Craft, Inventaire, Monde, Affichage, Menus), la case « Activé » de chaque fonctionnalité dans son titre et ses autres options grisées quand elle est décochée, les réglages fins repliés sous « Réglages avancés » ; le grappin, le bouton Continuer, le clic de retour au jeu et la table de préparation sombre y sont maintenant réglables (SettingsMenu).
 - **Plus de faux « échec de la mise à jour »** : une mise à jour installée au menu s'annonçait ratée alors qu'elle avait réussi ; le bon message s'affiche désormais (Updater).
 - **Coffres réservés plus vite à plusieurs** : quand un coffre change de mains pendant qu'on le demande, la demande suit tout de suite sa nouvelle propriétaire au lieu d'attendre, d'où moins de « Utilisé par quelqu'un d'autre » (CraftFromChests).
