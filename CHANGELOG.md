@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Nouveautés lisibles dans la fenêtre de mise à jour** : chaque changement affiche son titre bien en vue, et son détail en dessous, en retrait, plus petit et en gris (Updater).
+
 ## 1.4.0 — 2026-09-27
 
 - **Trois objets utilitaires à la fois** : Megingjord, Bréchet et Lumière de feu-follet se portent ensemble et leurs effets s'additionnent ; équiper l'un ne retire plus les autres (UtilitySlots).

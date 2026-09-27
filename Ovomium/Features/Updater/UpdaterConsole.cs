@@ -55,11 +55,11 @@ namespace Ovomium.Features.Updater
             return $"Ovomium : installation de test depuis {archive} (fermer la console)";
         }
 
-        /// <summary>Douze lignes longues, la limite de <see cref="ChangelogFormatter.MaxLines"/>.</summary>
+        /// <summary>Douze entrées longues, la limite de <see cref="ChangelogFormatter.MaxItems"/>.</summary>
         private static string FakeChangelog()
         {
             var sb = new StringBuilder();
-            for (int i = 1; i <= ChangelogFormatter.MaxLines; i++)
+            for (int i = 1; i <= ChangelogFormatter.MaxItems; i++)
                 sb.Append($"- **Fonctionnalité de test {i}** : une phrase assez longue pour dépasser la largeur de la "
                     + $"fenêtre et vérifier le retour à la ligne, la taille du texte et la hauteur du panneau (Section{i}).\n");
             return sb.ToString();
