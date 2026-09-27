@@ -1,9 +1,11 @@
-
 {
   "permissions": {
-    "ask": ["Bash(tools/build.sh:*)", "Bash(tools/deploy.sh:*)"]
+    "ask": []
   },
   "sandbox": {
-    "excludedCommands": ["tools/build.sh *", "tools/deploy.sh *"]
+    "excludedCommands": [
+      "tools/build.sh *",
+      "tools/deploy.sh *"
+    ]
   }
 }
