@@ -4,7 +4,7 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
-- **Nouveautés lisibles dans la fenêtre de mise à jour** : chaque changement affiche son titre bien en vue, et son détail en dessous, en retrait, plus petit et en gris (Updater).
+- **Nouveautés lisibles dans la fenêtre de mise à jour** : chaque changement affiche son titre bien en vue, et son détail en dessous, en retrait, plus petit et en gris ; avec plusieurs versions de retard, les nouveautés de toutes les versions manquées s'affichent, et un texte trop long défile (molette, ou la barre à droite) (Updater).
 
 ## 1.4.0 — 2026-09-27
 

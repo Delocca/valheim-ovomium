@@ -11,6 +11,7 @@ namespace Ovomium.Features.Updater
     internal static class UpdaterPopupHost
     {
         private static PopupBase s_popup;
+        private static bool s_covered;
 
         /// <summary>Notre fenêtre est affichée, au sommet de la pile.</summary>
         public static bool IsShown(PopupBase popup = null)
@@ -37,7 +38,32 @@ namespace Ovomium.Features.Updater
                 return;
             body.alignment = TextAlignmentOptions.TopLeft;
             if (text != null && body.text != text)
+            {
                 body.text = text;
+                UpdaterPopupScroll.Refit();  // garde la position de défilement
+            }
+        }
+
+        /// <summary>
+        /// Chaque frame : une fenêtre vanilla empilée sur la nôtre reprend la mise en page vanilla (sinon son texte
+        /// court, centré dans notre zone défilante, peut sortir de la vue) ; la nôtre la retrouve à son retour.
+        /// </summary>
+        public static void Tick()
+        {
+            if (s_popup == null)
+                return;
+            bool shown = IsShown();
+            if (!shown && UpdaterPopupLayout.IsApplied)
+            {
+                UpdaterPopupLayout.Restore();
+                s_covered = true;
+            }
+            else if (shown && s_covered)
+            {
+                s_covered = false;
+                UpdaterPopupLayout.Apply();
+                SetBody(null);
+            }
         }
 
         public static void Close()
@@ -46,6 +72,7 @@ namespace Ovomium.Features.Updater
             if (IsShown())
                 UnifiedPopup.Pop();
             s_popup = null;
+            s_covered = false;
         }
     }
 }

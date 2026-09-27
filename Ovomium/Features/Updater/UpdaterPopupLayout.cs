@@ -9,8 +9,8 @@ namespace Ovomium.Features.Updater
     /// <c>PopupBlockingBackground</c> plein écran. Police du corps fixée (le prefab la rétrécit pour faire tenir le
     /// texte), largeur du panneau × <c>PopupScale</c>, hauteur du corps = hauteur préférée du texte mesurée à cette
     /// largeur, panneau rehaussé d'autant (chrome en-tête + boutons constant), plafonné à 90 % du canvas (le corps
-    /// passe alors en ellipse). L'instance est un singleton réutilisé par les fenêtres vanilla : tout est restauré
-    /// avant le <c>Pop()</c>.
+    /// défile alors : <see cref="UpdaterPopupScroll"/>). L'instance est un singleton réutilisé par les fenêtres
+    /// vanilla : tout est restauré avant le <c>Pop()</c>.
     /// </summary>
     internal static class UpdaterPopupLayout
     {
@@ -23,6 +23,8 @@ namespace Ovomium.Features.Updater
         private static float s_fontSize;
         private static TextOverflowModes s_overflow;
         private static Vector2 s_bodySize, s_panelSize;
+
+        public static bool IsApplied => s_panel != null;
 
         /// <summary>À appeler juste après le <c>Push</c> de notre fenêtre (texte posé).</summary>
         public static void Apply()
@@ -48,6 +50,7 @@ namespace Ovomium.Features.Updater
         /// <summary>Remet tout ce qui a été touché ; sans effet si rien ne l'a été (objets détruits ignorés).</summary>
         public static void Restore()
         {
+            UpdaterPopupScroll.Unwrap();
             if (s_body != null)
             {
                 s_body.enableAutoSizing = s_autoSizing;
@@ -91,10 +94,13 @@ namespace Ovomium.Features.Updater
             float wanted = body.preferredHeight + BodyMargin;
             float maxPanel = CanvasHeight(panel) * MaxCanvasShare;
             float bodyHeight = Mathf.Min(wanted, maxPanel - chrome);
-            if (bodyHeight < wanted)
-                body.overflowMode = TextOverflowModes.Ellipsis;
             body.rectTransform.sizeDelta = new Vector2(s_bodySize.x, bodyHeight);
             panel.sizeDelta = new Vector2(panel.sizeDelta.x, chrome + bodyHeight);
+            if (bodyHeight < wanted)
+            {
+                body.overflowMode = TextOverflowModes.Overflow;
+                UpdaterPopupScroll.Wrap(body);
+            }
         }
 
         private static float CanvasHeight(RectTransform panel)

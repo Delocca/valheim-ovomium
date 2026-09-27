@@ -22,13 +22,13 @@ namespace Ovomium.Tests
                 + "<b><color=orange>B</color></b>\n" + Detail + "y <color=#8C8C8C>(G, H)</color></color></size></indent>");
             Check("entrée sans feature", "- **A** : fin (voir `cfg`) ici",
                 "<b><color=orange>A</color></b>\n" + Detail + "fin (voir cfg) ici</color></size></indent>");
-            Check("titre de version retiré, ligne libre et puce simple", "## 1.0\n\nTexte **gras**.\n- puce",
+            Check("autre titre retiré, ligne libre et puce simple", "# Notes\n\nTexte **gras**.\n- puce",
                 "Texte <b>gras</b>.\n• puce");
-            string many = "";
-            for (int i = 0; i < ChangelogFormatter.MaxItems + 3; i++)
-                many += $"ligne {i}\n";
-            string text = ChangelogFormatter.ToRichText(many);
-            Expect("troncature", text.EndsWith($"ligne {ChangelogFormatter.MaxItems - 2}\n…"), text);
+            Check("sous-titres de version", "## 1.4.1\n- **A** : x\n\n## 1.4.0\n- **B** : y",
+                "<size=120%><b>Version 1.4.1</b></size><size=40%>\n</size>"
+                + "<b><color=orange>A</color></b>\n" + Detail + "x</color></size></indent>\n\n"
+                + "<size=120%><b>Version 1.4.0</b></size><size=40%>\n</size>"
+                + "<b><color=orange>B</color></b>\n" + Detail + "y</color></size></indent>");
             Console.WriteLine(s_failures == 0 ? "ChangelogFormatter : tous les tests passent" : $"ChangelogFormatter : {s_failures} échec(s)");
             return s_failures;
         }

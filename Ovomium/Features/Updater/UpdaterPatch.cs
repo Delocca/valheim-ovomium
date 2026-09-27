@@ -84,6 +84,7 @@ namespace Ovomium.Features.Updater
                     UpdateState.PopupShown = false;
                     UpdaterPopupLayout.Restore();
                 }
+                UpdaterPopupHost.Tick();
                 if (UpdateState.Downloaded && UpdateState.RelaunchRequested)
                     Relaunch();
                 if (Player.m_localPlayer == null && FejdStartup.instance != null)

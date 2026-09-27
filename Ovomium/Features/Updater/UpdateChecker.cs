@@ -9,9 +9,9 @@ using BepInEx;
 namespace Ovomium.Features.Updater
 {
     /// <summary>
-    /// Vérification unique par session, sur un thread d'arrière-plan, de la dernière release GitHub : si son tag est
-    /// plus récent que la version du mod, publie version, changelog (notes de la release) et asset Windows dans
-    /// <see cref="UpdateState"/>. Dépôt privé (404 ou page HTML) : rien, silencieusement, comme LoadingArt.
+    /// Vérification unique par session, sur un thread d'arrière-plan, des releases GitHub : si une est plus récente que
+    /// la version du mod, publie la plus récente (version, asset Windows) et le changelog cumulé des versions manquées
+    /// (<see cref="ReleaseNotes"/>) dans <see cref="UpdateState"/>. Dépôt privé (404 ou page HTML) : rien, silencieusement, comme LoadingArt.
     /// </summary>
     internal static class UpdateChecker
     {
@@ -40,6 +40,7 @@ namespace Ovomium.Features.Updater
             string url = (UpdaterConfig.ReleasesApiUrl.Value ?? "").Trim();
             if (url.Length == 0)
                 return;
+            url = ReleaseNotes.ListUrl(url);
             new Thread(() => Run(url)) { IsBackground = true, Name = "Ovomium.Updater.Check" }.Start();
         }
 
@@ -88,28 +89,24 @@ namespace Ovomium.Features.Updater
             }
         }
 
-        private static void Publish(object release)
+        private static void Publish(object json)
         {
-            string tag = MiniJson.Get<string>(release, "tag_name") ?? "";
-            if (!System.Version.TryParse(tag.TrimStart('v', 'V'), out System.Version latest))
+            ReleaseNotes.Pending pending = ReleaseNotes.Select(json, System.Version.Parse(PluginVersion.Value));
+            if (pending == null)
             {
-                Plugin.Log.LogWarning($"Updater : tag de release illisible « {tag} »");
+                Plugin.Log.LogInfo($"Updater : version {PluginVersion.Value} à jour (dernière publiée : "
+                    + $"{ReleaseNotes.Latest(json)?.ToString() ?? "aucune lisible"})");
                 return;
             }
-            System.Version current = System.Version.Parse(PluginVersion.Value);
-            if (latest <= current)
-            {
-                Plugin.Log.LogInfo($"Updater : version {PluginVersion.Value} à jour (dernière publiée : {latest})");
-                return;
-            }
-            var asset = FindWindowsAsset(MiniJson.Get<List<object>>(release, "assets"));
+            System.Version latest = pending.Version;
+            var asset = FindWindowsAsset(MiniJson.Get<List<object>>(pending.Release, "assets"));
             if (asset == null)
             {
                 Plugin.Log.LogWarning($"Updater : release {latest} sans archive Ovomium-*-windows.zip");
                 return;
             }
             UpdateState.Version = latest.ToString();
-            UpdateState.Changelog = MiniJson.Get<string>(release, "body") ?? "";
+            UpdateState.Changelog = pending.Changelog;
             UpdateState.DownloadUrl = MiniJson.Get<string>(asset, "browser_download_url") ?? "";
             UpdateState.DownloadSize = MiniJson.Get<object>(asset, "size") is double size ? (long)size : 0L;
             UpdateState.Available = true;

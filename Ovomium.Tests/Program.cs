@@ -4,6 +4,6 @@ namespace Ovomium.Tests
     internal static class Program
     {
         private static int Main() => StackGroupingTests.Run() + PickupFilterListTests.Run() + ServerWakeTests.Run()
-            + ChangelogFormatterTests.Run();
+            + ChangelogFormatterTests.Run() + ReleaseNotesTests.Run();
     }
 }

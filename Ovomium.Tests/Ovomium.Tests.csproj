@@ -15,6 +15,7 @@
     <Compile Include="../Ovomium/Features/PickupFilter/PickupFilterList.cs" Link="PickupFilter/PickupFilterList.cs" />
     <Compile Include="../Ovomium/Features/Updater/MiniJson.cs" Link="Updater/MiniJson.cs" />
     <Compile Include="../Ovomium/Features/Updater/ChangelogFormatter.cs" Link="Updater/ChangelogFormatter.cs" />
+    <Compile Include="../Ovomium/Features/Updater/ReleaseNotes.cs" Link="Updater/ReleaseNotes.cs" />
     <Compile Include="../Ovomium/Features/ServerWake/NodecraftLink.cs" Link="ServerWake/NodecraftLink.cs" />
     <Compile Include="../Ovomium/Features/ServerWake/NodecraftStatus.cs" Link="ServerWake/NodecraftStatus.cs" />
     <Compile Include="../Ovomium/Features/ServerWake/NodecraftHttp.cs" Link="ServerWake/NodecraftHttp.cs" />

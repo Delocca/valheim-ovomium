@@ -7,7 +7,7 @@ namespace Ovomium.Features.Updater
     internal static class UpdaterConfig
     {
         // Doit rester identique à tools/release.sh et installer/Installer-Ovomium.bat (nom du dépôt).
-        private const string DefaultReleasesApiUrl = "https://api.github.com/repos/Delocca/valheim-ovomium/releases/latest";
+        private const string DefaultReleasesApiUrl = "https://api.github.com/repos/Delocca/valheim-ovomium/releases";
 
         public static ConfigEntry<bool> Enabled { get; private set; }
         public static ConfigEntry<string> ReleasesApiUrl { get; private set; }
@@ -21,7 +21,8 @@ namespace Ovomium.Features.Updater
                     + "télécharger (changelog affiché) ; elle s'installe au lancement suivant du jeu.",
                     null, new SettingLabel("Activé")));
             ReleasesApiUrl = config.Bind("Updater", "ReleasesApiUrl", DefaultReleasesApiUrl,
-                "URL de l'API GitHub « dernière release » interrogée (vide = pas de vérification).");
+                "URL de l'API GitHub de la liste des releases interrogée (vide = pas de vérification ; une URL "
+                + "« …/releases/latest » est ramenée à la liste, pour cumuler le changelog des versions manquées).");
             PopupScale = config.Bind("Updater", "PopupScale", 1.6f,
                 new ConfigDescription("Largeur de la fenêtre de mise à jour par rapport à la fenêtre vanilla (la hauteur "
                     + "suit le texte), pour que le changelog tienne sans rétrécir le texte.",
