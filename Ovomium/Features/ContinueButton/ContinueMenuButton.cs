@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Ovomium.Features.AutoJoin;
+using Ovomium.Ui;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -120,8 +121,7 @@ namespace Ovomium.Features.ContinueButton
             button.name = ButtonName;
             button.transform.SetSiblingIndex(template.transform.GetSiblingIndex());
             button.gameObject.SetActive(true);
-            button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(onClick);
+            ClonedControls.NewOnClick(button).AddListener(onClick);
             var texts = button.GetComponentsInChildren<TMP_Text>(true);
             if (texts.Length == 0)
                 Plugin.Log.LogWarning($"ContinueButton : aucun TMP_Text dans le bouton « {template.name} », libellé non posé");

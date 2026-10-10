@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Ovomium.Ui;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -187,7 +188,7 @@ namespace Ovomium.Features.SettingsMenu
             button.transform.SetSiblingIndex(siblingIndex);
             button.gameObject.SetActive(true);
             button.interactable = true;
-            button.onClick = new Button.ButtonClickedEvent();
+            ClonedControls.NewOnClick(button);
             // Seulement « Label » et « Selected/LabelSelected » : « KeyHint/Text » est l'indice de touche.
             foreach (var text in button.GetComponentsInChildren<TMP_Text>(true))
                 if (text.name.Contains("Label"))

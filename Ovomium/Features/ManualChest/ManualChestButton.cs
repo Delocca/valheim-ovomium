@@ -1,3 +1,4 @@
+using Ovomium.Ui;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -71,6 +72,7 @@ namespace Ovomium.Features.ManualChest
             Localization.instance.RemoveTextFromCache(label);
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(OnClick);
+            ClonedControls.RebindClickSound(button);
             AttachTooltip(gui);
         }
 
@@ -97,6 +99,7 @@ namespace Ovomium.Features.ManualChest
             s_button.onClick.RemoveAllListeners();
             InventoryGui gui = InventoryGui.instance;
             if (gui != null) s_button.onClick.AddListener(gui.OnStackAll);
+            ClonedControls.RebindClickSound(s_button);
             s_label.text = "$inventory_stackall";
             Localization.instance.Localize(s_label.transform); // réinscrit le libellé vanilla dans le cache
             s_label.color = s_originalColor;

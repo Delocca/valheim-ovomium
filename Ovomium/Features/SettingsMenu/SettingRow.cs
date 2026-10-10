@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using Ovomium.Ui;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,8 +47,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             m_entry = entry;
             m_toggle = toggle;
-            toggle.onValueChanged = new Toggle.ToggleEvent();
-            toggle.onValueChanged.AddListener(on =>
+            ClonedControls.NewOnValueChanged(toggle).AddListener(on =>
             {
                 Apply(on);
                 Changed?.Invoke(on);

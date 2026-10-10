@@ -2,6 +2,12 @@
 
 Une entrée par jour de travail, plus récent en haut : fait, décisions (avec leurs raisons), en suspens. Ce que git dit déjà n'y va pas. Règles : `CLAUDE.md`, section « Suivi ».
 
+## 2026-10-10 — Valheim 1.0.17
+
+- **Fait** : jeu passé en 1.0.17 (DLL du 2026-10-06). Compilation OK, autocontrôle OK au lancement (127 classes, 1279 méthodes). Décompilés `build/decompiled*` régénérés (gui et guiutils compris) ; changements : variantes d'objet invalides remises à 0 (`ItemDrop.ResetVariantIfInvalid`, `GetIcon`, `VariantDialog`), sauvegarde des chunks `ZDOMan`, `GuiInputField` filtre les surrogates au-delà de `characterLimit`, `ButtonSfx` s'abonne dans `OnEnable`/`OnDisable` au lieu de `Start`, `GuiUtils.SetNavigationHorizontal`. Aucun ancrage du mod touché.
+- **Seul effet sur le mod (déduit du code)** : nos clones actifs remplaçaient `onClick` / `onValueChanged` après l'abonnement de `ButtonSfx`, donc plus de son de clic sur les boutons Ovomium, Continuer, onglets et cases de la fenêtre Ovomium ; `RemoveAllListeners` (ManualChest) le retirait aussi. Correctif : `Ovomium/Ui/ClonedControls.cs` (événement neuf + désactivation/réactivation de `ButtonSfx`).
+- **Validé en jeu** par Edia : clic rétabli partout. Publié en 1.4.2.
+
 ## 2026-09-27 — Ombrage lisse (repérage), dépôt refermé, fenêtre Ovomium réorganisée
 
 - **Release 1.4.0** (première installée à chaud au menu chez les amies). **Décision d'Edia** : SmoothShading désactivé par défaut, jamais testé sous Windows / D3D11 (un shader cassé noircirait l'image des amies, la mise à jour s'installant seule) ; le changelog leur dit comment l'activer ou le couper. Dépôt rouvert (public) pour les mises à jour des amies : à refermer (`repo-visibility.sh private`) une fois toutes à jour.

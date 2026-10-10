@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Ovomium.Ui;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -84,8 +85,7 @@ namespace Ovomium.Features.SettingsMenu
             button.name = ButtonName;
             button.transform.SetSiblingIndex(template.transform.GetSiblingIndex() + 1);
             button.gameObject.SetActive(true);
-            button.onClick = new Button.ButtonClickedEvent();
-            button.onClick.AddListener(onClick);
+            ClonedControls.NewOnClick(button).AddListener(onClick);
             var texts = button.GetComponentsInChildren<TMP_Text>(true);
             if (texts.Length == 0)
                 Plugin.Log.LogWarning($"SettingsMenu : aucun TMP_Text dans le bouton « {template.name} », libellé non posé");
