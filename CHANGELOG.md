@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+## 1.4.2 — 2026-10-10
+
 - **Son de clic rétabli** : les boutons et cases ajoutés par le mod (Ovomium, Continuer, fenêtre des réglages, coffre auto) font de nouveau le bruit de clic du jeu depuis Valheim 1.0.17 (SettingsMenu).
 
 ## 1.4.1 — 2026-09-27
