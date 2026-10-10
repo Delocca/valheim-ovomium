@@ -11,7 +11,8 @@ namespace Ovomium.Features.CraftFromChests
     /// une unité de <c>m_fuelItem</c> par pression, identifiée par nom sans qualité, prise dans l'inventaire ; la
     /// branche de recharge est refaite avec inventaire + coffres, dans l'ordre de <c>ChestsFirst</c>, inversé si Ctrl
     /// est maintenu au moment de la pression (drapeau <see cref="PullOrder.Inverted"/> le temps du retrait). Le survol
-    /// affiche « Résine 3 (12) » comme le panneau de craft.
+    /// affiche « Résine 3 (12) » comme le panneau de craft. Même chemin pour l'objet à transformer des stations à
+    /// entrée unique (<see cref="StationInput"/>, <c>OreFromChestsPatch</c>).
     /// </summary>
     internal static class FuelFromChests
     {
@@ -45,9 +46,10 @@ namespace Ovomium.Features.CraftFromChests
         }
 
         /// <summary>
-        /// Objet visé que la prochaine pression rechargerait : feu rechargeable, ou interrupteur de combustible d'un four
-        /// ou d'une marmite (le jeu interagit avec l'<c>Interactable</c> le plus proche dans les parents : le <c>Switch</c>) ;
-        /// null sinon. <paramref name="fuel"/> : son combustible (null pour un four sans combustible).
+        /// Objet visé que la prochaine pression rechargerait : feu rechargeable, interrupteur de combustible d'un four
+        /// ou d'une marmite, ou d'entrée d'une station couverte par <see cref="StationInput"/> (le jeu interagit avec
+        /// l'<c>Interactable</c> le plus proche dans les parents : le <c>Switch</c>) ; null sinon. <paramref name="fuel"/> :
+        /// l'objet ajouté (null pour un four sans combustible ou une station sans entrée disponible).
         /// </summary>
         internal static MonoBehaviour Hovered(Player player, out ItemDrop fuel)
         {
@@ -59,6 +61,7 @@ namespace Ovomium.Features.CraftFromChests
             {
                 Smelter smelter = button.GetComponentInParent<Smelter>();
                 if (smelter != null && smelter.m_addWoodSwitch == button) { fuel = smelter.m_fuelItem; return smelter; }
+                if (smelter != null && smelter.m_addOreSwitch == button) { fuel = StationInput.Choose(player, smelter); return smelter; }
                 CookingStation station = button.GetComponentInParent<CookingStation>();
                 if (station != null && station.m_addFuelSwitch == button) { fuel = station.m_fuelItem; return station; }
                 return null;
@@ -69,13 +72,18 @@ namespace Ovomium.Features.CraftFromChests
             return fireplace;
         }
 
-        /// <summary>Plein (mêmes seuils que les patches de recharge ci-dessous) ou pas encore en réseau : la pression ne puiserait rien.</summary>
-        internal static bool IsFull(MonoBehaviour consumer)
+        /// <summary>
+        /// Plein (mêmes seuils que les patches de recharge) ou pas encore en réseau : la pression ne puiserait rien.
+        /// <paramref name="item"/> : objet ajouté, distingue le combustible d'un four de son entrée.
+        /// </summary>
+        internal static bool IsFull(MonoBehaviour consumer, ItemDrop item)
         {
             switch (consumer)
             {
                 case Fireplace f:
                     return !f.m_nview.IsValid() || Mathf.CeilToInt(f.m_nview.GetZDO().GetFloat(ZDOVars.s_fuel)) >= f.m_maxFuel;
+                case Smelter s when item != s.m_fuelItem:
+                    return !s.m_nview.IsValid() || s.GetQueueSize() >= s.m_maxOre;
                 case Smelter s:
                     return !s.m_nview.IsValid() || s.GetFuel() > s.m_maxFuel - 1;
                 case CookingStation c:
@@ -86,11 +94,11 @@ namespace Ovomium.Features.CraftFromChests
         }
 
         /// <summary>
-        /// Prend une unité (ordre inversé si Ctrl est maintenu) puis l'ajoute au feu (message, RPC vanilla, vol vers
-        /// <paramref name="target"/>) ; faux si rien à prendre. Coffre prévu pas encore à nous : rien n'est pris, message
-        /// « Utilisé par quelqu'un d'autre », vrai (la pression est consommée).
+        /// Prend une unité (ordre inversé si Ctrl est maintenu) puis l'ajoute au feu (message, <paramref name="add"/> :
+        /// RPC vanilla, vol vers <paramref name="target"/>) ; faux si rien à prendre. Coffre prévu pas encore à nous :
+        /// rien n'est pris, message « Utilisé par quelqu'un d'autre », vrai (la pression est consommée).
         /// </summary>
-        internal static bool Refuel(Player player, ItemDrop fuel, ZNetView nview, Transform target, string message)
+        internal static bool Refuel(Player player, ItemDrop fuel, System.Action add, Transform target, string message)
         {
             var taken = new List<Pull>();
             PullOrder.Inverted = PullOrder.CtrlHeld;
@@ -102,7 +110,7 @@ namespace Ovomium.Features.CraftFromChests
                 if (!ChestReservation.EnsureOwned(player, plan, "recharge")) return true;
                 if (!TakeOne(player, fuel, taken)) return false;
                 player.Message(MessageHud.MessageType.Center, message);
-                nview.InvokeRPC("RPC_AddFuel");
+                add();
                 CraftFromChestsPatch.RaiseConsumed(player, taken, HoverPoint(player, target));
                 return true;
             }
@@ -172,7 +180,7 @@ namespace Ovomium.Features.CraftFromChests
                 __result = false;
                 return false;
             }
-            if (!FuelFromChests.Refuel(player, __instance.m_fuelItem, __instance.m_nview, __instance.transform,
+            if (!FuelFromChests.Refuel(player, __instance.m_fuelItem, () => __instance.m_nview.InvokeRPC("RPC_AddFuel"), __instance.transform,
                     Localization.instance.Localize("$msg_fireadding", name))) return true;
             __result = true;
             return false;
@@ -202,7 +210,7 @@ namespace Ovomium.Features.CraftFromChests
             string name = __instance.m_fuelItem.m_itemData.m_shared.m_name;
             if (item != null && item.m_shared.m_name != name) return true;
             if (__instance.GetFuel() > __instance.m_maxFuel - 1) return true;
-            if (!FuelFromChests.Refuel(player, __instance.m_fuelItem, __instance.m_nview, __instance.transform,
+            if (!FuelFromChests.Refuel(player, __instance.m_fuelItem, () => __instance.m_nview.InvokeRPC("RPC_AddFuel"), __instance.transform,
                     "$msg_added " + name)) return true;
             __result = true;
             return false;
@@ -231,7 +239,7 @@ namespace Ovomium.Features.CraftFromChests
             string name = __instance.m_fuelItem.m_itemData.m_shared.m_name;
             if (item != null && item.m_shared.m_name != name) return true;
             if (__instance.GetFuel() > __instance.m_maxFuel - 1) return true;
-            if (!FuelFromChests.Refuel(player, __instance.m_fuelItem, __instance.m_nview, __instance.transform,
+            if (!FuelFromChests.Refuel(player, __instance.m_fuelItem, () => __instance.m_nview.InvokeRPC("RPC_AddFuel"), __instance.transform,
                     "$msg_added " + name)) return true;
             __result = true;
             return false;

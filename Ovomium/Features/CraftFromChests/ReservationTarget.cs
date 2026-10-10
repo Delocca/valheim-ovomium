@@ -6,7 +6,7 @@ namespace Ovomium.Features.CraftFromChests
     /// <summary>
     /// Prochaine action de la joueuse qui puiserait dans les coffres, pour la réservation anticipée
     /// (<see cref="ChestReservation"/>) : recette sélectionnée du panneau de craft (fabrication ou amélioration),
-    /// pièce choisie au marteau, ou combustible du feu, four ou marmite visé. Comparer deux cibles ne coûte rien
+    /// pièce choisie au marteau, ou combustible du feu, four ou marmite visé, ou entrée de la station visée. Comparer deux cibles ne coûte rien
     /// (identités d'objets) ; le plan de retrait, lui, parcourt les coffres.
     /// </summary>
     internal readonly struct ReservationTarget
@@ -74,7 +74,7 @@ namespace Ovomium.Features.CraftFromChests
                     return PullPlan.PredictRecipe(player, recipe, m_detail as ItemDrop.ItemData, 1);
                 case Piece piece:
                     return PullPlan.PredictPiece(player, piece);
-                case MonoBehaviour consumer when !FuelFromChests.IsFull(consumer):
+                case MonoBehaviour consumer when !FuelFromChests.IsFull(consumer, (ItemDrop)m_detail):
                     var pulls = new List<Pull>();
                     return FuelFromChests.PlanOne(player, (ItemDrop)m_detail, pulls) ? pulls : null;
                 default:

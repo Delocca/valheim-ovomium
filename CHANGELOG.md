@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Chargement des stations depuis les coffres** : E sur le four à charbon, le rouet, la raffinerie d'eitr, le moulin ou le bélier y ajoute le bois, le lin, le tissu délicat ou la céréale des coffres à portée, comme la recharge des feux ; le moulin prend l'orge, ou l'avoine selon le réglage, et le four à charbon ne prend que le bois ordinaire dans les coffres (CraftFromChests).
+
 ## 1.4.2 — 2026-10-10
 
 - **Son de clic rétabli** : les boutons et cases ajoutés par le mod (Ovomium, Continuer, fenêtre des réglages, coffre auto) font de nouveau le bruit de clic du jeu depuis Valheim 1.0.17 (SettingsMenu).

@@ -9,13 +9,15 @@ namespace Ovomium.Features.CraftFromChests
         public static ConfigEntry<bool> Enabled { get; private set; }
         public static ConfigEntry<float> Range { get; private set; }
         public static ConfigEntry<bool> ChestsFirst { get; private set; }
+        public static ConfigEntry<bool> MillOats { get; private set; }
         public static ConfigEntry<bool> LogPulls { get; private set; }
 
         public static void Bind(ConfigFile config)
         {
             Enabled = config.Bind("CraftFromChests", "Enabled", true,
                 new ConfigDescription("Le craft, l'amélioration, la construction au marteau et la recharge des feux "
-                    + "(torches, lampes, braséros) prennent les ingrédients dans les coffres, chariots et bateaux "
+                    + "(torches, lampes, braséros, fours) et le chargement des stations à entrée unique (bois du four à "
+                    + "charbon, lin du rouet, tissu de la raffinerie d'eitr, céréales du moulin) prennent les ingrédients dans les coffres, chariots et bateaux "
                     + "à portée (le plus proche d'abord) et dans l'inventaire.",
                     null, new SettingLabel("Activé")));
             Range = config.Bind("CraftFromChests", "Range", 50f,
@@ -26,6 +28,10 @@ namespace Ovomium.Features.CraftFromChests
                 new ConfigDescription("Puiser dans les coffres avant l'inventaire (sinon l'inventaire d'abord, puis les coffres). "
                     + "Ctrl + clic (bouton Fabriquer, pose d'une pièce) ou Ctrl + E (recharge d'un feu) fait l'ordre inverse.",
                     null, new SettingLabel("Coffres avant l'inventaire")));
+            MillOats = config.Bind("CraftFromChests", "MillOats", false,
+                new ConfigDescription("Le moulin prend l'avoine (graines puis flocons) dans les coffres plutôt que l'orge. "
+                    + "Une céréale portée sur soi passe toujours d'abord ; l'autre céréale sert de repli.",
+                    null, new SettingLabel("Moulin : avoine plutôt qu'orge")));
             LogPulls = config.Bind("CraftFromChests", "LogPulls", false,
                 "Écrit dans le journal chaque retrait d'un coffre : objet, quantité, coffre, distance. Fichier cfg seulement.");
         }
