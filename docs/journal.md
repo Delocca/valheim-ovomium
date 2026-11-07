@@ -10,7 +10,7 @@ Une entrée par jour de travail, plus récent en haut : fait, décisions (avec l
 - **Mise à jour à chaud au menu** : validée chez les amies selon Edia, de mémoire (« je crois »), retirée du TODO.
 - **Décisions d'Edia (SlopeWalk)** : dérapage supprimé jusqu'à 60°, limite réglable, plutôt que partout : les parois restent des parois, et au-delà le comportement vanilla reste intact (on y passe encore en courant, avec de l'endurance). Activé par défaut. Ralentissement proposé par l'agent et accepté : en montée seulement, progressif jusqu'à environ −30 %, lissé pour ne pas saccader sur les bosses, réglable.
 - **Fait (SlopeWalk)** : Prefix sur `Character.ApplySlide` (joueur local, pente ≤ `MaxAngle` : `m_slippage` à 0, méthode sautée), Postfix sur `Character.ApplyLiquidResistance` pour le ralentissement (calcul pur dans `SlopeSlowdown`, testé). Conséquence assumée : sous la limite, plus de `m_wallRunning`, donc plus d'inclinaison de wall-run, de pas « Climbing » ni de blocage de la régénération d'endurance.
-- **Validé en jeu** par Edia (SlopeWalk). Pas publié.
+- **Validé en jeu** par Edia (SlopeWalk). Publié en 1.6.0.
 
 ## 2026-10-10 — Valheim 1.0.17
 
