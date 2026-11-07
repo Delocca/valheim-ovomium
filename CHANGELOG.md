@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+- **Plus de dérapage dans les pentes** : on monte à pied les pentes jusqu'à 60° sans glisser et sans avoir à courir, avec un léger ralentissement progressif en montée (jusqu'à 30 %) ; au-delà de la limite, réglable, le jeu reprend la main (SlopeWalk).
+
 ## 1.5.0 — 2026-10-10
 
 - **Chargement des stations depuis les coffres** : E sur le four à charbon, le rouet, la raffinerie d'eitr, le moulin ou le bélier y ajoute le bois, le lin, le tissu délicat ou la céréale des coffres à portée, comme la recharge des feux ; le moulin prend l'orge, ou l'avoine selon le réglage, et le four à charbon ne prend que le bois ordinaire dans les coffres (CraftFromChests).

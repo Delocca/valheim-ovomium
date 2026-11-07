@@ -34,6 +34,7 @@ using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.ServerWake;
 using Ovomium.Features.SettingsMenu;
 using Ovomium.Features.SkillTooltip;
+using Ovomium.Features.SlopeWalk;
 using Ovomium.Features.SmoothShading;
 using Ovomium.Features.ItemFlight;
 using Ovomium.Features.StackDrag;
@@ -106,6 +107,7 @@ namespace Ovomium
             ServerWakeConfig.Bind(config);
             FirstPersonConfig.Bind(config);
             GrapplingConfig.Bind(config);
+            SlopeWalkConfig.Bind(config);
             StartupSkipConfig.Bind(config);
             LoadingArtConfig.Bind(config);
             AutoJoinConfig.Bind(config);

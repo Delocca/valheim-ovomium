@@ -2,6 +2,16 @@
 
 Une entrée par jour de travail, plus récent en haut : fait, décisions (avec leurs raisons), en suspens. Ce que git dit déjà n'y va pas. Règles : `CLAUDE.md`, section « Suivi ».
 
+## 2026-11-07 — Valheim 1.0.21
+
+- **Fait** : jeu passé en 1.0.21 (DLL du 2026-10-31, réseau n-41). Autocontrôle OK au lancement (129 classes, 1295 méthodes). Décompilés régénérés et comparés à ceux de la 1.0.17 : 107 cibles Harmony comparées, 7 corps modifiés, tous sans effet sur le mod ; transpiler `Player.AutoPickup` intact ; hypothèses des coffres intactes (`RPC_ZDOData`, `RPC_RequestOpen`, `ReleaseNearbyZDOS` inchangés). Aucune feature vanilla ne rend une feature du mod redondante.
+- **Changements du jeu** : anti-triche refondu (`s_cheated` entier, `CheatUtils`, drapeaux anciens ignorés), amélioration déterministe (`Player.GetItemUpgradeChance`), pseudo-aléa des drops persistant, crafteur mémorisé par emplacement (`CookingStation`), masque de sol glissant corrigé (`1 << layer`, `Character.ApplySlippery`), Jeter au relâché réservé au tactile, `GrapplingPoint.Pull` sans effet hors propriété.
+- **Non vérifiable** : 76 bundles ont changé, sans copie de l'ancienne version pour comparer (fenêtre Paramètres, `InventoryTooltip`, table de préparation, fondu du menu). À surveiller en jeu. Double-clic et Continuer sur un monde local à tester : `FejdStartup.OnWorldStart` recharge désormais le monde (lu, pas de défaut vu ; `m_world` non nul chez nos appelants).
+- **Mise à jour à chaud au menu** : validée chez les amies selon Edia, de mémoire (« je crois »), retirée du TODO.
+- **Décisions d'Edia (SlopeWalk)** : dérapage supprimé jusqu'à 60°, limite réglable, plutôt que partout : les parois restent des parois, et au-delà le comportement vanilla reste intact (on y passe encore en courant, avec de l'endurance). Activé par défaut. Ralentissement proposé par l'agent et accepté : en montée seulement, progressif jusqu'à environ −30 %, lissé pour ne pas saccader sur les bosses, réglable.
+- **Fait (SlopeWalk)** : Prefix sur `Character.ApplySlide` (joueur local, pente ≤ `MaxAngle` : `m_slippage` à 0, méthode sautée), Postfix sur `Character.ApplyLiquidResistance` pour le ralentissement (calcul pur dans `SlopeSlowdown`, testé). Conséquence assumée : sous la limite, plus de `m_wallRunning`, donc plus d'inclinaison de wall-run, de pas « Climbing » ni de blocage de la régénération d'endurance.
+- **Validé en jeu** par Edia (SlopeWalk). Pas publié.
+
 ## 2026-10-10 — Valheim 1.0.17
 
 - **Fait** : jeu passé en 1.0.17 (DLL du 2026-10-06). Compilation OK, autocontrôle OK au lancement (127 classes, 1279 méthodes). Décompilés `build/decompiled*` régénérés (gui et guiutils compris) ; changements : variantes d'objet invalides remises à 0 (`ItemDrop.ResetVariantIfInvalid`, `GetIcon`, `VariantDialog`), sauvegarde des chunks `ZDOMan`, `GuiInputField` filtre les surrogates au-delà de `characterLimit`, `ButtonSfx` s'abonne dans `OnEnable`/`OnDisable` au lieu de `Start`, `GuiUtils.SetNavigationHorizontal`. Aucun ancrage du mod touché.

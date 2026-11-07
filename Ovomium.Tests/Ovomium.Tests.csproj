@@ -13,6 +13,7 @@
   <ItemGroup>
     <Compile Include="../Ovomium/Features/ChestFill/StackGrouping.cs" Link="ChestFill/StackGrouping.cs" />
     <Compile Include="../Ovomium/Features/PickupFilter/PickupFilterList.cs" Link="PickupFilter/PickupFilterList.cs" />
+    <Compile Include="../Ovomium/Features/SlopeWalk/SlopeSlowdown.cs" Link="SlopeWalk/SlopeSlowdown.cs" />
     <Compile Include="../Ovomium/Features/Updater/MiniJson.cs" Link="Updater/MiniJson.cs" />
     <Compile Include="../Ovomium/Features/Updater/ChangelogFormatter.cs" Link="Updater/ChangelogFormatter.cs" />
     <Compile Include="../Ovomium/Features/Updater/ReleaseNotes.cs" Link="Updater/ReleaseNotes.cs" />
