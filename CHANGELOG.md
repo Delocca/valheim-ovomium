@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+## 1.6.0 — 2026-11-07
+
 - **Plus de dérapage dans les pentes** : on monte à pied les pentes jusqu'à 60° sans glisser et sans avoir à courir, avec un léger ralentissement progressif en montée (jusqu'à 30 %) ; au-delà de la limite, réglable, le jeu reprend la main (SlopeWalk).
 
 ## 1.5.0 — 2026-10-10
