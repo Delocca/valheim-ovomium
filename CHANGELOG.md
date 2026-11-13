@@ -4,6 +4,8 @@ Notes de version destinées aux joueuses : un titre en français, une phrase, le
 
 ## Non publié
 
+## 1.7.0 — 2026-11-14
+
 - **La nuit passe à la moitié du groupe couchée** : dès que la moitié des joueuses (1 sur 2, 2 sur 3, 2 sur 4…) dort dans un lit, la nuit passe pour tout le monde : les éveillées voient la nuit passer en accéléré sans être interrompues ; un message en haut à gauche dit où on en est, et une joueuse sans le mod à jour doit encore se coucher (SharedSleep).
 
 ## 1.6.0 — 2026-11-07
