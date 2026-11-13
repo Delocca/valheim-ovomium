@@ -33,6 +33,7 @@ using Ovomium.Features.QuickStash;
 using Ovomium.Features.RecipeKeyboardNav;
 using Ovomium.Features.ServerWake;
 using Ovomium.Features.SettingsMenu;
+using Ovomium.Features.SharedSleep;
 using Ovomium.Features.SkillTooltip;
 using Ovomium.Features.SlopeWalk;
 using Ovomium.Features.SmoothShading;
@@ -86,6 +87,7 @@ namespace Ovomium
             PortalRangePatch.Install();
             DarkPrepTablePatch.Install();
             ItemFlightPatch.Install();
+            SharedSleepPatch.Install();
             ManualChestButton.Install();
             UtilitySlotsPatch.Install();
             DeferredShaderSwap.Install();
@@ -108,6 +110,7 @@ namespace Ovomium
             FirstPersonConfig.Bind(config);
             GrapplingConfig.Bind(config);
             SlopeWalkConfig.Bind(config);
+            SharedSleepConfig.Bind(config);
             StartupSkipConfig.Bind(config);
             LoadingArtConfig.Bind(config);
             AutoJoinConfig.Bind(config);
@@ -157,6 +160,7 @@ namespace Ovomium
             QuickStashQueue.Unload();
             RequirementBackdrop.Unload();
             ItemFlightPatch.Unload();
+            SharedSleepPatch.Unload();
             ManualChestButton.Unload();
             PickupFilterBadge.Unload();
             GraphicsPreview.Unload();

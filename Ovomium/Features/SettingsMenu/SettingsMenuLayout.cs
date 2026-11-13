@@ -19,7 +19,7 @@ namespace Ovomium.Features.SettingsMenu
         {
             new Tab { Title = "Craft", Sections = new[] { "CraftFromChests", "ItemFlight", "FoodRecipeSort", "FoodMarker", "RecipeKeyboardNav", "UpgradeDiff", "DarkPrepTable" } },
             new Tab { Title = "Inventaire", Sections = new[] { "ChestFill", "QuickStash", "ManualChest", "StackDrag", "HotbarSlots", "UtilitySlots", "PickupFilter" } },
-            new Tab { Title = "Monde", Sections = new[] { "MapExplore", "MinimapSize", "MapZoomToCursor", "FastPortal", "PortalRange", "SlopeWalk", "Grappling", "ButcherKnife", "EitrRadiation" } },
+            new Tab { Title = "Monde", Sections = new[] { "MapExplore", "MinimapSize", "MapZoomToCursor", "FastPortal", "PortalRange", "SharedSleep", "SlopeWalk", "Grappling", "ButcherKnife", "EitrRadiation" } },
             new Tab { Title = "Affichage", Sections = new[] { "FirstPerson", "SmoothShading", "AmbientOcclusion", "TooltipStyle", "SkillTooltip", "LoadingArt" } },
             new Tab { Title = "Menus", Sections = new[] { "StartupSkip", "ContinueButton", "MenuDoubleClick", "FocusClick", "PasswordReveal", "ServerWake", "Updater", "AutoJoin" } },
         };
@@ -45,6 +45,7 @@ namespace Ovomium.Features.SettingsMenu
             { "MapZoomToCursor", "Zoom carte vers le curseur" },
             { "FastPortal", "Portails rapides" },
             { "PortalRange", "Rayon d'activation des portails" },
+            { "SharedSleep", "Nuit à la moitié couchée" },
             { "SlopeWalk", "Pentes sans dérapage" },
             { "Grappling", "Grappin" },
             { "ButcherKnife", "Couteau de boucher précis" },

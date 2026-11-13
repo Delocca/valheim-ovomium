@@ -1,45 +1,27 @@
 using System.Collections.Generic;
-using HarmonyLib;
 using Ovomium.Features.CraftFromChests;
+using Ovomium.Net;
 using UnityEngine;
 
 namespace Ovomium.Features.ItemFlight
 {
     /// <summary>
     /// Vols vus par les autres joueuses : chaque transfert réel (craft à la consommation, pose, feu, QuickStash) est
-    /// diffusé à tous les pairs par un RPC routé custom. Le serveur dédié vanilla le relaie sans le connaître
-    /// (<c>ZRoutedRpc.RPC_RoutedRPC</c> → <c>RouteRPC</c>), une joueuse sans le mod l'ignore en silence (hash non
-    /// enregistré). À la réception, un retrait n'est rejoué que si son coffre est chargé localement : pas d'autre filtre
-    /// de distance. <c>ZRoutedRpc</c> est recréé à chaque <c>ZNet.Awake</c> et n'a pas de désenregistrement :
-    /// on retire le hash de <c>m_functions</c> à la main (rechargement à chaud).
+    /// diffusé à tous les pairs par un message routé (<see cref="RoutedChannel"/>, relayé par le serveur vanilla).
+    /// À la réception, un retrait n'est rejoué que si son coffre est chargé localement : pas d'autre filtre de distance.
     /// </summary>
     internal static class FlightBroadcast
     {
-        private const string RpcName = "Ovomium_ItemFlight";
         /// <summary>Format du paquet ; un paquet d'une autre version est ignoré (amie sur une autre version du mod).</summary>
         private const byte FormatVersion = 1;
         private const byte ToPoint = 0;
         private const byte ToChest = 1;
 
-        private static readonly int s_rpcHash = RpcName.GetStableHashCode();
+        private static readonly RoutedChannel s_channel = new RoutedChannel("Ovomium_ItemFlight", OnReceive);
 
-        public static void Install() => Register();
+        public static void Install() => s_channel.Install();
 
-        public static void Unload() => ZRoutedRpc.instance?.m_functions.Remove(s_rpcHash);
-
-        private static void Register()
-        {
-            ZRoutedRpc rpc = ZRoutedRpc.instance;
-            if (rpc == null) return;
-            rpc.m_functions.Remove(s_rpcHash);
-            rpc.Register<ZPackage>(RpcName, OnReceive);
-        }
-
-        [HarmonyPatch(typeof(ZNet), "Awake", new System.Type[0])]
-        private static class ZNetAwakePatch
-        {
-            private static void Postfix() => Register();
-        }
+        public static void Unload() => s_channel.Unload();
 
         /// <summary>Retraits de coffres volant vers <paramref name="destination"/> (station, fantôme, feu, joueuse).</summary>
         public static void SendToPoint(List<Pull> pulls, Vector3 destination)
@@ -59,8 +41,6 @@ namespace Ovomium.Features.ItemFlight
 
         private static void Send(byte kind, Vector3 point, ZDOID sender, List<Pull> entries)
         {
-            ZRoutedRpc rpc = ZRoutedRpc.instance;
-            if (rpc == null || ZNet.instance == null) return;
             var pkg = new ZPackage();
             pkg.Write(FormatVersion);
             pkg.Write(kind);
@@ -73,13 +53,13 @@ namespace Ovomium.Features.ItemFlight
                 pkg.Write(pull.Item.gameObject.name.GetStableHashCode());
                 pkg.Write(pull.Amount);
             }
-            rpc.InvokeRoutedRPC(ZRoutedRpc.Everybody, RpcName, pkg);
+            s_channel.SendToEverybody(pkg);
         }
 
         /// <summary>Paquet venu d'une autre joueuse (entrée externe : tout est validé, un paquet illisible est ignoré).</summary>
         private static void OnReceive(long senderPeer, ZPackage pkg)
         {
-            if (ZRoutedRpc.instance == null || senderPeer == ZRoutedRpc.instance.m_id) return;
+            if (RoutedChannel.IsFromSelf(senderPeer)) return;
             if (!ItemFlightConfig.Enabled.Value || !ItemFlightConfig.ShowOthers.Value) return;
             try
             {
